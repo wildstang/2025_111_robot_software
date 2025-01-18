@@ -2,6 +2,8 @@ package org.wildstang.sample.subsystems.targeting;
 
 import org.wildstang.framework.core.Core;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -50,6 +52,23 @@ public class WsLL {
         //result = LimelightHelpers.getLatestResults(CameraID).targetingResults;
     }
 
+    // Botpose wpi array values
+    // 0 translation X
+    // 1 translation Y
+    // 2 translation Z
+    // 3 rotation roll (degrees)
+    // 4 rotation pitch
+    // 5 rotation  yaw
+    // 6 total latency (ms)
+    // 7 tag count
+    // 8 tag span
+    // 9 average tag distance from camera
+    // 10 average tag area (percentage of image)
+
+    public Pose2d getPose() {
+        return new Pose2d(target3D[0], target3D[1], Rotation2d.fromDegrees(target3D[5]));
+    }
+
     /*
      * updates all values to the latest value
      */
@@ -65,6 +84,7 @@ public class WsLL {
             //blue3D = limelight.getEntry("botpose_orb_wpiblue").getDoubleArray(new double[11]);
             red3D = limelight.getEntry("botpose_wpired").getDoubleArray(new double[11]);
             //red3D = limelight.getEntry("botpose_orb_wpired").getDoubleArray(new double[11]);
+            // Bot pose relative to alliance color
             target3D = Core.isBlue() ? blue3D : red3D;
             setToIn();
             tid = (int) limelight.getEntry("tid").getInteger(0);

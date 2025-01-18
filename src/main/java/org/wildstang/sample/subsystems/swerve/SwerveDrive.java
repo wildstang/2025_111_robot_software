@@ -14,23 +14,20 @@ import org.wildstang.sample.robot.CANConstants;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.targeting.TargetCoordinate;
 import org.wildstang.sample.subsystems.targeting.VisionConsts;
 import org.wildstang.sample.subsystems.targeting.WsVision;
 
-import edu.wpi.first.math.estimator.KalmanFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**Class: SwerveDrive
@@ -48,28 +45,30 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private DigitalInput rightBumper;//slowdown
     private DigitalInput leftBumper;//lift up to amp
     private DigitalInput select;//gyro reset
-    private DigitalInput start;//endgame toggle
     private DigitalInput faceUp;//rotation lock 0 degrees
     private DigitalInput faceRight;//rotation lock 90 degrees
     private DigitalInput faceLeft;//rotation lock 270 degrees
     private DigitalInput faceDown;//rotation lock 180 degrees
     private DigitalInput dpadLeft;//defense mode
     private DigitalInput dpadRight;
+    private DigitalInput driverStart; // Auto rotate to reef
+    private DigitalInput operatorLeftBumper; // Select left branch auto align
+    private DigitalInput operatorRightBumper; // Select right branch auto align
 
     private double xPower;
     private double yPower;
     private double rotSpeed;
     private double thrustValue;
     private boolean rotLocked;
-    private boolean isSnake;
 
     /**Direction to face */
     private double rotTarget;
 
-    private boolean isAutoVision = false;
-    private boolean isAutoAlign = false;
-    private boolean isAutoObject = false;
-    private double yObject = 0;
+    private Pose2d targetCoordinate;
+
+
+    private boolean automaticallyTranslate;
+    private boolean automaticallyLockOnReef;
     
     private final double mToIn = 39.37;
 
@@ -82,14 +81,31 @@ public class SwerveDrive extends SwerveDriveTemplate {
     StructPublisher<Pose2d> publisher;
     public ChassisSpeeds speeds;
 
+
     private WsVision vision;
     //private KalmanFilterJenny kf;
 
-    public enum driveType {TELEOP, AUTO, CROSS, OBJECT};
+    public enum driveType {TELEOP, AUTO, CROSS};
     public driveType driveState;
 
     @Override
     public void inputUpdate(Input source) {
+        
+        
+        if (operatorLeftBumper.getValue()){
+            targetCoordinate = vision.getClosestBranch(false);
+        }
+        if (operatorRightBumper.getValue()){
+            targetCoordinate = vision.getClosestBranch(true);
+        }
+        if (source == leftTrigger) {
+            if (leftTrigger.getValue() > 0.5) {
+                automaticallyTranslate = true;
+            } else {
+                automaticallyTranslate = false;
+            }
+        }
+
 
         //determine if we are in cross or teleop
         // if (driveState != driveType.AUTO && dpadLeft.getValue()) {
@@ -102,6 +118,18 @@ public class SwerveDrive extends SwerveDriveTemplate {
         // else if (driveState == driveType.CROSS || driveState == driveType.AUTO) {
         //     driveState = driveType.TELEOP;
         // }
+
+        // Toggle auto rotate to reef
+        if (source == driverStart) {
+            if (driverStart.getValue()) {
+                automaticallyLockOnReef = true;
+                rotTarget = vision.turnToTarget(VisionConsts.reefCenter);
+                rotLocked = true;
+            } else {
+                automaticallyLockOnReef = false;
+            }
+        }
+
         if (driveState == driveType.AUTO) driveState = driveType.TELEOP;
 
         //get x and y speeds
@@ -117,34 +145,26 @@ public class SwerveDrive extends SwerveDriveTemplate {
             if (rotLocked) rotTarget = 0.0;
         }
 
-        //determine snake or pid locks
-        // if (start.getValue() && (Math.abs(xSpeed) > 0.1 || Math.abs(ySpeed) > 0.1)) {
-        //     rotLocked = true;
-        //     isSnake = true;
-        //     rotTarget = swerveHelper.getDirection(xSpeed, ySpeed);
-        // }
-        // else {
-        //     isSnake = false;
-        // }
-        if (source == faceUp && faceUp.getValue()){
+        // Cardinal directions
+        if (source == faceUp && faceUp.getValue() && !automaticallyLockOnReef){
             if (faceLeft.getValue()) rotTarget = 315.0;
             else if (faceRight.getValue()) rotTarget = 45.0;
             else  rotTarget = 0.0;
             rotLocked = true;
         }
-        if (source == faceLeft && faceLeft.getValue()){
+        if (source == faceLeft && faceLeft.getValue() && !automaticallyLockOnReef){
             if (faceUp.getValue()) rotTarget = 315.0;
             else if (faceDown.getValue()) rotTarget = 225.0;
             else rotTarget = 270.0;
             rotLocked = true;
         }
-        if (source == faceDown && faceDown.getValue()){
+        if (source == faceDown && faceDown.getValue() && !automaticallyLockOnReef){
             if (faceLeft.getValue()) rotTarget = 225.0;
             else if (faceRight.getValue()) rotTarget = 135.0;
             else rotTarget = 180.0;
             rotLocked = true;
         }
-        if (source == faceRight && faceRight.getValue()){
+        if (source == faceRight && faceRight.getValue() && !automaticallyLockOnReef){
             if (faceUp.getValue()) rotTarget = 45.0;
             else if (faceDown.getValue()) rotTarget = 135.0;
             else rotTarget = 90.0;
@@ -159,7 +179,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         //     rotTarget = getGyroAngle();
         // }
         //if the rotational joystick is being used, the robot should not be auto tracking heading
-        if (rotSpeed != 0) {
+        if (rotSpeed != 0 && !automaticallyLockOnReef) {
             rotLocked = false;
         }
         
@@ -179,10 +199,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         initInputs();
         initOutputs();
         resetState();
-        gyro.setYaw(0.0);
-
-        //kf = new KalmanFilterJenny();
-        
+        gyro.setYaw(0.0);        
     }
 
     public void initSubsystems() {
@@ -207,8 +224,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         leftBumper.addInputListener(this);
         select = (DigitalInput) WsInputs.DRIVER_SELECT.get();
         select.addInputListener(this);
-        start = (DigitalInput) WsInputs.DRIVER_START.get();
-        start.addInputListener(this);
         faceUp = (DigitalInput) WsInputs.DRIVER_FACE_UP.get();
         faceUp.addInputListener(this);
         faceLeft = (DigitalInput) WsInputs.DRIVER_FACE_LEFT.get();
@@ -221,9 +236,17 @@ public class SwerveDrive extends SwerveDriveTemplate {
         dpadLeft.addInputListener(this);
         dpadRight = (DigitalInput) WsInputs.DRIVER_DPAD_RIGHT.get();
         dpadRight.addInputListener(this);
+        driverStart = (DigitalInput) WsInputs.DRIVER_START.get();
+        driverStart.addInputListener(this);
+        operatorLeftBumper = (DigitalInput) WsInputs.OPERATOR_LEFT_SHOULDER.get();
+        operatorLeftBumper.addInputListener(this);
+        operatorRightBumper = (DigitalInput) WsInputs.OPERATOR_RIGHT_SHOULDER.get();
+        operatorRightBumper.addInputListener(this);
     }
 
     public void initOutputs() {
+        
+
         //create four swerve modules
         modules = new SwerveModule[]{
             new SwerveModule((WsSpark) WsOutputs.DRIVE1.get(), 
@@ -237,8 +260,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         };
         //create default swerveSignal
         swerveSignal = new SwerveSignal(new double[]{0.0, 0.0, 0.0, 0.0}, new double[]{0.0, 0.0, 0.0, 0.0});
-        odometry = new SwerveDriveOdometry(new SwerveDriveKinematics(new Translation2d(0.2794, 0.33), new Translation2d(0.2794, -0.33),
-            new Translation2d(-0.2794, 0.33), new Translation2d(-0.2794, -0.33)), odoAngle(), odoPosition(), new Pose2d());
+        odometry = new SwerveDriveOdometry(DriveConstants.kinematics, odoAngle(), odoPosition(), new Pose2d());
     }
     
     @Override
@@ -249,12 +271,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
     public void update() {
         odometry.update(odoAngle(), odoPosition());
         SmartDashboard.putNumber("Drive Speed", robotSpeed());
-        if (robotSpeed() < 0.5) {
-            setOdo(new Pose2d(vision.getCameraPose(), odoAngle()));
-        }
         vision.setOdometry(odometry.getPoseMeters().getTranslation());
         publisher.set(odometry.getPoseMeters());
-        //kf.kfPeriodic(); //calling periodic kalman filter method
 
         if (driveState == driveType.CROSS) {
             //set to cross - done in inputupdate
@@ -265,56 +283,20 @@ public class SwerveDrive extends SwerveDriveTemplate {
             if (rotLocked){
                 rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
                 if (Math.abs(rotTarget - getGyroAngle()) < 1.0) rotSpeed = 0;
-                // if (isSnake) {
-                //     if (Math.abs(rotSpeed) < 0.05) {
-                //         rotSpeed = 0;
-                //     }
-                //     else {
-                //         rotSpeed *= 4;
-                //         if (Math.abs(rotSpeed) > 1) rotSpeed = 1.0 * Math.signum(rotSpeed);
-                //     }
-                // } 
+            }
+            if (automaticallyTranslate) {
+                xPower = vision.getXAdjust(TargetCoordinate.fromPose2d(targetCoordinate));
+                yPower = vision.getYAdjust(TargetCoordinate.fromPose2d(targetCoordinate));
             }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             SmartDashboard.putNumber("FR signal", swerveSignal.getSpeed(0));
             drive();
         }
         if (driveState == driveType.AUTO) {
-            //auto Align to reset robot to a specific X/Y location on the field, in case of any serious collisions
-            if (isAutoAlign){
-                this.swerveSignal = swerveHelper.setDrive(vision.getYAdjust(VisionConsts.shot),
-                     vision.getXAdjust(VisionConsts.shot), swerveHelper.getRotControl(180, getGyroAngle()), getGyroAngle());
-            //shooting at speaker during auto
-            } else if (isAutoVision && vision.aprilTagsInView()) {
-                rotTarget = vision.turnToTarget(VisionConsts.speaker);
-                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-                this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-            //picking up a game piece with vision assistance in auto
-            } else if (isAutoObject && vision.back.TargetInView()){
-                yObject = swerveHelper.adjustObjectAuto(vision.back.ty, xPower, yPower);
-                if (yObject > 0) this.swerveSignal = swerveHelper.setObject(0, yObject, vision.back.tx);
-                else this.swerveSignal = swerveHelper.setObject(xPower, yPower, vision.back.tx);
-            } else {
-                //get controller generated rotation value
-                rotSpeed = swerveHelper.getAutoRotation(rotTarget, getGyroAngle());
-                this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-            }
             
             // Pre generated power values in set auto
             drive();        
         } 
-        if (driveState == driveType.OBJECT) {
-            //for teleop game piece pickup
-            if (vision.back.TargetInView()) {
-                //force the controller input to point at the gamepiece, only thing driver controls is speed of the robot
-                this.swerveSignal = swerveHelper.setObject(xPower, yPower, vision.back.tx);
-                drive();
-            }
-            else {
-                this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-                drive();
-            }
-        }
         SmartDashboard.putNumber("Gyro Reading", getGyroAngle());
         SmartDashboard.putNumber("X Power", xPower);
         SmartDashboard.putNumber("Y Power", yPower);
@@ -344,8 +326,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         rotSpeed = 0;
         rotLocked = false;
         rotTarget = 0.0;
-
-        isSnake = false;
         setToTeleop();
     }
 
@@ -372,13 +352,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         for (int i = 0; i < modules.length; i++) {
             modules[i].setDriveBrake(true);
         }
-    }
-
-    /** Sets the drive state = OBJECT */
-    public void setToObject() {
-        driveState = driveType.AUTO;
-        xPower = 0;
-        yPower = 0;
     }
 
     /**drives the robot at the current swerveSignal, and displays information for each swerve module */
@@ -453,14 +426,5 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
     public double getRotTarget(){
         return rotTarget;
-    }
-    public void setVisionAuto(boolean isOn){
-        this.isAutoVision = isOn;
-    }
-    public void setAutoObject(boolean isOn){
-        this.isAutoObject = isOn;
-    }
-    public void setAutoAlign(boolean isOn){
-        this.isAutoAlign = isOn;
     }
 }

@@ -10,6 +10,7 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.Input;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,18 +25,17 @@ public class WsVision implements Subsystem {
     
     public SwerveDrive swerve;
 
+
     public VisionConsts VC;
     public Translation2d robotOdometry = new Translation2d();
-
-    private double inputDistance = 0;
 
     private DigitalInput driverLeftShoulder;
 
     private Timer lastUpdate = new Timer();
 
+
     @Override
     public void inputUpdate(Input source) {
-
     }
 
     @Override
@@ -51,10 +51,19 @@ public class WsVision implements Subsystem {
         driverLeftShoulder = (DigitalInput) WsInputs.DRIVER_LEFT_SHOULDER.get();
         driverLeftShoulder.addInputListener(this);
         lastUpdate.start();
+
     }
 
     @Override
     public void selfTest() {
+    }
+
+    public Pose2d getClosestBranch(boolean right) {
+        if (right) {
+            return getBestPose().nearest(VisionConsts.rightBranches);
+        } else {
+            return getBestPose().nearest(VisionConsts.rightBranches);
+        }
     }
 
     @Override
@@ -83,6 +92,15 @@ public class WsVision implements Subsystem {
     @Override
     public String getName() {
         return "Ws Vision";
+    }
+
+
+    public Pose2d getBestPose() {
+        if (isLeftBetter()) {
+            return left.getPose();
+        } else {
+            return right.getPose();
+        }
     }
 
     /**
