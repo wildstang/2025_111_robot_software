@@ -269,6 +269,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     @Override
     public void update() {
+        if (automaticallyLockOnReef) {
+            rotTarget = vision.turnToTarget(VisionConsts.reefCenter);
+        }
         odometry.update(odoAngle(), odoPosition());
         SmartDashboard.putNumber("Drive Speed", robotSpeed());
         vision.setOdometry(odometry.getPoseMeters().getTranslation());
