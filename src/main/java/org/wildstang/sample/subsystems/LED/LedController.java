@@ -8,7 +8,7 @@ import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.sample.robot.Robot;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsSubsystems;
-import org.wildstang.sample.subsystems.targeting.WsVision;
+import org.wildstang.sample.subsystems.targeting.WsPose;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -18,7 +18,7 @@ public class LedController implements Subsystem {
 
     private AddressableLED led;
     private AddressableLEDBuffer ledBuffer;
-    private WsVision vision;
+    private WsPose vision;
     private Timer timer =  new Timer();
 
     private int port = 0;//port
@@ -62,7 +62,7 @@ public class LedController implements Subsystem {
 
     @Override
     public void initSubsystems() {      
-        vision = (WsVision) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_VISION);   
+        vision = (WsPose) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_POSE);   
     }
 
     @Override

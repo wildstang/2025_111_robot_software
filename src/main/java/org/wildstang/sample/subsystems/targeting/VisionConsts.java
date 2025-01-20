@@ -7,6 +7,7 @@ import org.wildstang.framework.core.Core;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Pose2d;
 
 public class VisionConsts {
@@ -18,7 +19,7 @@ public class VisionConsts {
     // All Variables in Blue coordinate system
     public static final List<Pose2d> leftBranches = List.of();
     public static final List<Pose2d> rightBranches = List.of();
-    public static final TargetCoordinate reefCenter = new TargetCoordinate(176, 158.5);
+    public static final Translation2d reefCenter = new Translation2d(176, 158.5);
 
     //TODO: what are the actual pipeline indices?
     public final int ATPipelineIndex = 0;

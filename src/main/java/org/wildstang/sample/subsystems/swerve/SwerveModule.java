@@ -31,7 +31,6 @@ public class SwerveModule {
      */
     public SwerveModule(WsSpark driveMotor, WsSpark angleMotor, double offset) {
         this.driveMotor = driveMotor;
-        // this.driveMotor.getController().getAbsoluteEncoder(Type.kDutyCycle).setVelocityConversionFactor(); 
         this.angleMotor = angleMotor;
         
         this.absEncoder = angleMotor.getController().getAbsoluteEncoder();
@@ -158,7 +157,7 @@ public class SwerveModule {
         return driveMotor;
     }
     public SwerveModulePosition odoPosition(){
-        return new SwerveModulePosition(getPosition()*0.0254, new Rotation2d(Math.toRadians(360-getAngle())));
+        return new SwerveModulePosition(getPosition()*0.0254, Rotation2d.fromDegrees(360-getAngle()));
     }
     public SwerveModuleState moduleState(){
         return new SwerveModuleState(driveMotor.getVelocity(), Rotation2d.fromDegrees(360-getAngle()));
