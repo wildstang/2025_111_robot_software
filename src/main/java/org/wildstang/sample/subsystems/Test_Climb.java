@@ -87,10 +87,7 @@ public class Test_Climb implements Subsystem{
                 directionCombo++;
                 }
             }
-
         }
-
-
     }
 
     @Override
