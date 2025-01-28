@@ -66,13 +66,13 @@ public class SwervePathFollowerStep extends AutoStep {
             fieldRobotPose = m_drive.returnPose();
             fieldAutoPose = sample.getPose();
 
-            xOffset = -fieldAutoPose.getY() + (Core.isBlue() ? fieldRobotPose.getY() : 8.016-fieldRobotPose.getY());
+            xOffset = -fieldAutoPose.getY() + fieldRobotPose.getY();
             yOffset = fieldAutoPose.getX() - fieldRobotPose.getY();
             SmartDashboard.putNumber("xOffset", xOffset);
             SmartDashboard.putNumber("yOffset", yOffset);
 
             m_drive.setAutoHeading(getHeading());
-            m_drive.setAutoValues((Core.isBlue() ? -1 : 1) * sample.vy * mToIn, sample.vx * mToIn, xOffset, yOffset);
+            m_drive.setAutoValues(-1 * sample.vy * mToIn, sample.vx * mToIn, xOffset, yOffset);
             SmartDashboard.putNumber("PF local X", fieldRobotPose.getX());
             SmartDashboard.putNumber("PF path X", fieldAutoPose.getX());
             }
@@ -84,8 +84,7 @@ public class SwervePathFollowerStep extends AutoStep {
     }
 
     public double getHeading(){
-        if (Core.isBlue()) return ((-pathtraj.sampleAt(timer.get(),false).get().heading*180/Math.PI)+360)%360;
-        else return ((pathtraj.sampleAt(timer.get(),false).get().heading*180/Math.PI)+360)%360;
+        return ((-pathtraj.sampleAt(timer.get(),false).get().heading*180/Math.PI)+360)%360;
     }
 
     @SuppressWarnings("unchecked")
