@@ -18,7 +18,7 @@ public class LedController implements Subsystem {
 
     private AddressableLED led;
     private AddressableLEDBuffer ledBuffer;
-    private WsPose vision;
+    private WsPose pose;
     private Timer timer =  new Timer();
 
     private int port = 0;//port
@@ -62,7 +62,7 @@ public class LedController implements Subsystem {
 
     @Override
     public void initSubsystems() {      
-        vision = (WsPose) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_POSE);   
+        pose = (WsPose) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_POSE);   
     }
 
     @Override

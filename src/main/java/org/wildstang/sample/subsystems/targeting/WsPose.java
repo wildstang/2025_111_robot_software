@@ -6,6 +6,7 @@ import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.DriveConstants;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
+import org.wildstang.sample.subsystems.targeting.LimelightHelpers.RawFiducial;
 
 import java.util.Optional;
 
@@ -16,6 +17,8 @@ import org.wildstang.framework.io.inputs.Input;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import java.util.Arrays;
+import java.util.stream.DoubleStream;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
@@ -28,7 +31,6 @@ public class WsPose implements Subsystem {
 
     public WsLL left = new WsLL("limelight-left", true);
     public WsLL right = new WsLL("limelight-right", true);
-    public WsLL back = new WsLL("limelight-back", false);
 
     private final double Align_P = 0.006;
     private final double poseBufferSizeSec = 2;
@@ -42,7 +44,6 @@ public class WsPose implements Subsystem {
 
     StructPublisher<Pose2d> odometryPosePublisher;
     StructPublisher<Pose2d> estimatedPosePublisher;
-
 
     private final TimeInterpolatableBuffer<Pose2d> poseBuffer = TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
 
@@ -74,26 +75,42 @@ public class WsPose implements Subsystem {
     public void selfTest() {
     }
 
-    public Pose2d getClosestBranch(boolean right) {
+    public Pose2d getClosestBranch(boolean right, boolean topTriangle) {
         if (right) {
-            return estimatedPose.nearest(VisionConsts.rightBranches);
+            if (topTriangle) {
+                return estimatedPose.nearest(VisionConsts.rightTopBranches);
+            } else {
+                return estimatedPose.nearest(VisionConsts.rightBottomBranches);
+            }
         } else {
-            return estimatedPose.nearest(VisionConsts.rightBranches);
+            if (topTriangle) {
+                return estimatedPose.nearest(VisionConsts.leftTopBranches);
+            } else {
+                return estimatedPose.nearest(VisionConsts.leftBottomBranches);
+            }
         }
     }
 
     @Override
     public void update() {
-        Optional<PoseEstimate> leftEstimate = left.update(swerve.getFieldYaw());
-        Optional<PoseEstimate> rightEstimate = right.update(swerve.getFieldYaw());
+        Optional<PoseEstimate> leftEstimate = left.update(swerve.getMegaTag2Yaw());
+        Optional<PoseEstimate> rightEstimate = right.update(swerve.getMegaTag2Yaw());
+
+        // Same standard deviation calculation as 6328 but only used for calculating validity of vision estimate
         double leftStdDev = Double.MAX_VALUE;
         double rightStdDev = Double.MAX_VALUE;
         if (swerve.speedMagnitude() < visionSpeedThreshold) {
             if (leftEstimate.isPresent()) {
-                leftStdDev = Math.pow(leftEstimate.get().avgTagDist, 2) / leftEstimate.get().tagCount;
+
+                // Get distance to the closest tag from the array of raw fiducials
+                double closestTagDist = Arrays.stream(leftEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
+                leftStdDev = Math.pow(closestTagDist, 2) / leftEstimate.get().tagCount;
             }
             if (rightEstimate.isPresent()) {
-                rightStdDev = Math.pow(rightEstimate.get().avgTagDist, 2) / rightEstimate.get().tagCount;
+
+                // Get distance to the closest tag from the array of raw fiducials
+                double closestTagDist = Arrays.stream(leftEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
+                rightStdDev = Math.pow(closestTagDist, 2) / rightEstimate.get().tagCount;
             }
             if (leftStdDev < rightStdDev) {
                 addVisionObservation(leftEstimate.get());
@@ -104,14 +121,12 @@ public class WsPose implements Subsystem {
 
         odometryPosePublisher.set(odometryPose);
         estimatedPosePublisher.set(estimatedPose);
-        back.update(swerve.getFieldYaw());
     }
 
     @Override
     public void resetState() {
-        left.update(swerve.getFieldYaw());
-        right.update(swerve.getFieldYaw());
-        back.update(swerve.getFieldYaw());
+        left.update(swerve.getMegaTag2Yaw());
+        right.update(swerve.getMegaTag2Yaw());
     }
 
     /**
@@ -161,6 +176,18 @@ public class WsPose implements Subsystem {
     @Override
     public String getName() {
         return "Ws Vision";
+    }
+
+    /**
+     * Gets closest coral station to robot to determine what direction to lock heading
+     * @return boolean true for right, false for left
+     */
+    public boolean isClosestStationRight() {
+        if (estimatedPose.getY() > VisionConsts.halfwayAcrossFieldY) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

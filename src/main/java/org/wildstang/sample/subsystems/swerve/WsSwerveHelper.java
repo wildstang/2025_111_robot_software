@@ -2,6 +2,17 @@ package org.wildstang.sample.subsystems.swerve;
 
 public class WsSwerveHelper {
 
+    // Distance between two angles in degrees between
+    public static double angleDist(double angle1, double angle2) {
+        double distance = Math.abs((angle1 % 360) - (angle2 % 360));
+
+        // If that distance gives us the long way
+        if (distance > 180) {
+            return 360 - distance;
+        } 
+        return distance;
+    }
+
     private double magnitude;
     private double direction;
     private SwerveSignal swerveSignal;
