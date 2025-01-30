@@ -84,13 +84,14 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
 
     private WsPose pose;
+    private Pose2d targetPose;
 
-    private enum driveType {TELEOP, AUTO, CROSS, REEFSCORE, NETSCORE, CORALSTATION, CLIMB};
+
+    private enum driveType {TELEOP, AUTO, CROSS, REEFSCORE, NETSCORE, PROCESSORSCORE, CORALSTATION, CLIMB};
     private driveType driveState;
     public boolean rightBranch;
     public boolean topTriangle;
     public boolean algaeNet;
-    public boolean algaePickup;
 
     @Override
     public void inputUpdate(Input source) {
@@ -108,17 +109,21 @@ public class SwerveDrive extends SwerveDriveTemplate {
             algaeNet = true;
         } else if (source == operatorDpadLeft && operatorDpadLeft.getValue()) {
             algaeNet = false;
-        } else if (source == operatorFaceLeft) {
-            algaePickup = !algaePickup;
         } else if (source == leftTrigger) {
 
             if (leftTrigger.getValue() > 0.5) {
                 isReef = false;
-                if (coralPath.hasAlgae() & !coralPath.hasCoral() && algaeNet) {
-                    driveState = driveType.NETSCORE;
 
-                // No matter where we're positioning on the reef to score, we are
-                } else {
+                // Scoring algae
+                if (coralPath.hasAlgae() && !coralPath.hasCoral()) {
+                    if (algaeNet) {
+                        driveState = driveType.NETSCORE;
+                    } else {
+                        driveState = driveType.PROCESSORSCORE;
+                    }
+                 } else {
+
+                    // No matter where we're positioning on the reef to score, we are
                     driveState = driveType.REEFSCORE;
                 }
             } 
@@ -130,7 +135,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
                     isReef = true;
                 }
             }
-        } 
+        }
+        if (driveState != driveType.CLIMB && leftTrigger.getValue() < 0.5 && leftBumper.getValue() == false) {
+            driveState = driveType.TELEOP;
+        }
         if (operatorStart.getValue() && operatorSelect.getValue()) {
             driveState = driveType.CLIMB;
         }
@@ -324,13 +332,24 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             xPower = pose.getAlignX(targetPose.getTranslation());
             yPower = pose.getAlignY(targetPose.getTranslation());
+
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             drive();
 
-        
+        // Align closest scoring side to 0 and translate to right y position
         } else if (driveState == driveType.NETSCORE) {
+            rotTarget = scoreFront(0) ? 0 : 180;
             rotSpeed = swerveHelper.getRotControl(0, getGyroAngle());
             yPower = pose.getAlignY(VisionConsts.netScore);
+
+            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+            drive();
+
+        // Align closest scoring side to 90
+        } else if (driveState == driveType.PROCESSORSCORE) {
+            rotTarget = scoreFront(90) ? 90 : 270;
+            rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
+
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             drive();
         } else if (driveState == driveType.CORALSTATION) {
@@ -338,7 +357,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             // Rotate to whichever coral station is closest
             rotTarget = pose.isClosestStationRight() ? VisionConsts.coralStationRightHeading : VisionConsts.coralStationLeftHeading;
             // Intake on closer side
-            if (WsSwerveHelper.angleDist(getGyroAngle(), rotTarget) > 90) {
+            if (!scoreFront(rotTarget)) {
                 rotTarget = (rotTarget + 180) % 360;
             }
 
@@ -357,6 +376,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
             // TODO: Do something
+            xPower += pose.getAlignX(targetPose.getTranslation());
+            yPower += pose.getAlignY(targetPose.getTranslation());
+            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             // Pre generated power values in set auto
             drive();        
         } 
@@ -371,13 +393,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("Roll", gyro.getRoll().getValueAsDouble());
         SmartDashboard.putNumber("Pitch", gyro.getPitch().getValueAsDouble());
         SmartDashboard.putNumber("Drive Speed", speedMagnitude());
-        short[] shortAcceleration = {0,0,0};
-        //gyro.getBiasedAccelerometer(shortAcceleration); I'm not sure what replaces this
-        double[] acceleration = new double[3];
-        for (int i=0;i<3;i++) {
-            acceleration[i] = shortAcceleration[i];
-        }
-        SmartDashboard.putNumberArray("Accelerometer", acceleration);
         SmartDashboard.putBoolean("Alliance Color", DriverStation.getAlliance().isPresent());
         moduleStatePublisher.set(moduleStates());
     }
@@ -437,12 +452,11 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
 
     /**sets autonomous values from the path data file in field relative */
-    public void setAutoValues(double xVelocity, double yVelocity, double xOffset, double yOffset) {
-        SmartDashboard.putNumber("Offset X Power", xOffset * DriveConstants.TRANSLATION_P);
-        SmartDashboard.putNumber("Offset Y Power", yOffset * DriveConstants.TRANSLATION_P);
+    public void setAutoValues(double xVelocity, double yVelocity, Pose2d target) {
         // accel of 0 because currently not using acceleration for power since
-        xPower = swerveHelper.getAutoPower(xVelocity, 0) + (xOffset) * DriveConstants.TRANSLATION_P;
-        yPower = swerveHelper.getAutoPower(yVelocity, 0) + (yOffset) * DriveConstants.TRANSLATION_P;
+        xPower = swerveHelper.getAutoPower(xVelocity, 0);
+        yPower = swerveHelper.getAutoPower(yVelocity, 0);
+        targetPose = target;
     }
 
     public Pose2d returnPose(){
@@ -496,5 +510,13 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
     public SwerveModuleState[] moduleStates() {
         return new SwerveModuleState[]{modules[0].moduleState(), modules[1].moduleState(), modules[2].moduleState(), modules[3].moduleState()};
+    }
+
+    public boolean scoreFront(double targetAngle) {
+        if (WsSwerveHelper.angleDist(targetAngle, getGyroAngle()) < 90) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

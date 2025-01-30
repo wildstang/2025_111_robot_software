@@ -91,6 +91,8 @@ public class WsPose implements Subsystem {
         }
     }
 
+    
+
     @Override
     public void update() {
         Optional<PoseEstimate> leftEstimate = left.update(swerve.getMegaTag2Yaw());

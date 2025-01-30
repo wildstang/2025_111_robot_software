@@ -56,26 +56,18 @@ public class SwervePathFollowerStep extends AutoStep {
     @Override
     public void update() {
         if (timer.get() >= pathtraj.getFinalSample(false).get().t) {
-            m_drive.setAutoValues(0.0,0.0,0.0,0.0);
+            m_drive.setAutoValues(0.0,0.0, pathtraj.getFinalPose(false).get());
             SmartDashboard.putNumber("auto final time", timer.get());
             setFinished();
         } else {
             sample = pathtraj.sampleAt(timer.get(), false).get();
             
-            
             fieldRobotPose = m_drive.returnPose();
             fieldAutoPose = sample.getPose();
 
-            xOffset = -fieldAutoPose.getY() + fieldRobotPose.getY();
-            yOffset = fieldAutoPose.getX() - fieldRobotPose.getY();
-            SmartDashboard.putNumber("xOffset", xOffset);
-            SmartDashboard.putNumber("yOffset", yOffset);
-
             m_drive.setAutoHeading(getHeading());
-            m_drive.setAutoValues(-1 * sample.vy * mToIn, sample.vx * mToIn, xOffset, yOffset);
-            SmartDashboard.putNumber("PF local X", fieldRobotPose.getX());
-            SmartDashboard.putNumber("PF path X", fieldAutoPose.getX());
-            }
+            m_drive.setAutoValues(-1 * sample.vy * mToIn, sample.vx * mToIn, fieldAutoPose);
+        }
     }
 
     @Override

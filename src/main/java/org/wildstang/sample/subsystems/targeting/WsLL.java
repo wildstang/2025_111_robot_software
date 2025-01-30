@@ -85,10 +85,16 @@ public class WsLL {
         tc = LimelightHelpers.getLatency_Capture(CameraID); // Capture pipeline latency (ms)
         ta = LimelightHelpers.getTA(CameraID); // Target area
         if (tv && isAprilTag){
+            double oldTimestamp = alliance3D.timestampSeconds;
             blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
             red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
             alliance3D = Core.isBlue() ? blue3D : red3D;
             posePublisher.set(alliance3D.pose);
+
+            // We don't actually have a new frame and MegTag2 pose to return
+            if (alliance3D.timestampSeconds == oldTimestamp) {
+                return Optional.empty();
+            }
             return Optional.of(alliance3D);
         }
         return Optional.empty();
