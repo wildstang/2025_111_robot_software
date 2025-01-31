@@ -313,7 +313,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         if (driveState == driveType.CROSS) {
             //set to cross - done in inputupdate
             this.swerveSignal = swerveHelper.setCross();
-            drive();
         } else if (driveState == driveType.TELEOP) {
             if (rotLocked){
                 if (isReef){
@@ -323,7 +322,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 1.0) rotSpeed = 0;
             }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-            drive();
         } else if (driveState == driveType.REEFSCORE) {
 
             // Automatically p-loop translate to scoring position
@@ -334,7 +332,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             yPower = pose.getAlignY(targetPose.getTranslation());
 
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-            drive();
 
         // Align closest scoring side to 0 and translate to right y position
         } else if (driveState == driveType.NETSCORE) {
@@ -343,7 +340,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             yPower = pose.getAlignY(VisionConsts.netScore);
 
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-            drive();
 
         // Align closest scoring side to 90
         } else if (driveState == driveType.PROCESSORSCORE) {
@@ -351,7 +347,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
 
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-            drive();
         } else if (driveState == driveType.CORALSTATION) {
 
             // Rotate to whichever coral station is closest
@@ -365,13 +360,11 @@ public class SwerveDrive extends SwerveDriveTemplate {
             // TODO: Set yPower based on LaserCAN
             // Gyro 0 for robot centric X, Y
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, 0);
-            drive();
 
         // Just heading lock forward so Rossen doesn't accidentally turn
         } else if (driveState == driveType.CLIMB) {
             rotSpeed = swerveHelper.getRotControl(0, getGyroAngle());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-            drive();
 
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
@@ -380,8 +373,15 @@ public class SwerveDrive extends SwerveDriveTemplate {
             yPower += pose.getAlignY(targetPose.getTranslation());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             // Pre generated power values in set auto
-            drive();        
         } 
+
+        // Rossen tipping???
+        if (isRossenTipping()) {
+            xPower = gyro.getRoll().getValueAsDouble() * DriveConstants.TIPPING_P;
+            yPower = gyro.getPitch().getValueAsDouble() * DriveConstants.TIPPING_P;
+            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, 0, 0);
+        }
+        drive();
         SmartDashboard.putNumber("Gyro Reading", getGyroAngle());
         SmartDashboard.putNumber("X Power", xPower);
         SmartDashboard.putNumber("Y Power", yPower);
@@ -518,5 +518,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
         } else {
             return false;
         }
+    }
+
+    public boolean isRossenTipping() {
+        return (WsSwerveHelper.angleDist(gyro.getRoll().getValueAsDouble(), 0) > 10) || (WsSwerveHelper.angleDist(gyro.getPitch().getValueAsDouble(), 0)) > 10;
     }
 }
