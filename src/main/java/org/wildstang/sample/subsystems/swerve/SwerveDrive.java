@@ -4,6 +4,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 
 import java.util.Arrays;
 
+import org.wildstang.framework.auto.steps.LambdaStep;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
@@ -36,7 +37,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * description: controls a swerve drive for four swerveModules through autonomous and teleoperated control
  */
 public class SwerveDrive extends SwerveDriveTemplate {
-
     private AnalogInput leftStickX;//translation joystick x
     private AnalogInput leftStickY;//translation joystick y
     private AnalogInput rightStickX;//rot joystick
