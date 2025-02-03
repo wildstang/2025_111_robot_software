@@ -30,6 +30,6 @@ public final class CANConstants {
     public static final int CLIMB1 = 25;
     public static final int CLIMB2 = 26;
 
-    public static final int CLAW1 = 24;
-    public static final int CORAL1 = 23;
+    public static final int CORAL = 23;
+    public static final int ALGAE = 24;
 }
