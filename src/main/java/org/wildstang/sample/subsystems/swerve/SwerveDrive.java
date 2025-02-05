@@ -463,4 +463,13 @@ public class SwerveDrive extends SwerveDriveTemplate {
     public void setAutoAlign(boolean isOn){
         this.isAutoAlign = isOn;
     }
+    public boolean isCoralStationFront(){
+        return false;
+    }
+    public boolean isProcessorFront(){
+        return true;
+    }
+    public boolean isNetFront(){
+        return true;
+    }
 }

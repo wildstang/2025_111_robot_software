@@ -27,10 +27,13 @@ public enum WsOutputs implements Outputs {
     ANGLE3("Module 3 Angle Motor", new WsSparkConfig(CANConstants.ANGLE3, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
     DRIVE4("Module 4 Drive Motor", new WsSparkConfig(CANConstants.DRIVE4, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
     ANGLE4("Module 4 Angle Motor", new WsSparkConfig(CANConstants.ANGLE4, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
+    LIFT("Lift Motor", new WsSparkConfig(CANConstants.LIFT1, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
+    LIFT_FOLLOWER("Lift Follower", new WsSparkConfig(CANConstants.LIFT2, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
+    ARM("Arm Motor", new WsSparkConfig(CANConstants.ARM, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
     CORAL_INTAKE("Coral Intake", new WsSparkConfig(CANConstants.CORAL, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
     ALGAE_INTAKE("Algae Intake", new WsSparkConfig(CANConstants.ALGAE, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
     CLIMB1("Climb 1 Motor", new WsSparkConfig(CANConstants.CLIMB1, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
-    CLIMB2("Climb 2 Motor Follow", new WsSparkFollowerConfig("Module 1 Spark Motor", CANConstants.CLIMB2, WsMotorControllers.SPARK_MAX_BRUSHLESS, true)),
+    CLIMB2("Climb 2 Motor Follow", new WsSparkFollowerConfig("Climb 1 Motor", CANConstants.CLIMB2, WsMotorControllers.SPARK_MAX_BRUSHLESS, true)),
 
     // ---------------------------------
     // Other Motors

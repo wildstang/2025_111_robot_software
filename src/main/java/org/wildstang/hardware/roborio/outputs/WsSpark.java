@@ -271,7 +271,7 @@ public class WsSpark extends WsMotorController {
      * @param FF the feed forward constant
      */
     public void initClosedLoop(double P, double I, double D, double FF){
-        config.closedLoop.pidf(P, I, D, FF);
+        config.closedLoop.pidf(P, I, D, FF, ClosedLoopSlot.kSlot0);
         config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
         isUsingController = true;
     }

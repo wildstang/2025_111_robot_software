@@ -6,12 +6,17 @@ import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
 import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
+import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
+import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
+import org.wildstang.sample.robot.WsSubsystems;
 //import au.grapplerobotics.LaserCan;
+import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralPath implements Subsystem{
 
@@ -22,25 +27,24 @@ public class CoralPath implements Subsystem{
     private Timer delayTimer = new Timer();
     private Timer currentTimer = new Timer();
 
+    private SuperstructureSubsystem superstructure;
+
     private WsSpark algae;
     private WsSpark coral;
 
-    private WsDigitalInput leftShoulder;
-    private WsDigitalInput rightShoulder;
-    private WsAnalogInput leftTrigger;
-    private WsAnalogInput rightTrigger;
-    private WsDigitalInput operatorX;
+    private WsJoystickButton leftShoulder;
+    private WsJoystickButton rightShoulder;
+    private WsJoystickAxis leftTrigger;
+    private WsJoystickAxis rightTrigger;
 
     private double algaeSpeed;
     private double coralSpeed;
+    private boolean hasCoral = false;
 
-    private boolean algaeReefPickup;
 
     @Override
     public void inputUpdate(Input source) {
-        if (source == operatorX) {
-            algaeReefPickup = operatorX.getValue();
-        } else if (source == leftShoulder) {
+        if (source == leftShoulder) {
             coralSpeed = leftShoulder.getValue() ? 1.0 : 0.0;
 
             // Delay before measuring current
@@ -50,22 +54,25 @@ public class CoralPath implements Subsystem{
 
             // Delay before measuring current
             if (algaeSpeed == 1.0) delayTimer.restart();
-        } else if (source == rightTrigger) {
-            if (leftTrigger.getValue() > 0.5 && rightTrigger.getValue() > 0.5) {
-                if (superstructure.isReefPosition()) {
+        } else if (source == rightTrigger && !superstructure.isAlgaeRemoval()) {
+            if (Math.abs(leftTrigger.getValue()) > 0.5 && Math.abs(rightTrigger.getValue()) > 0.5) {
+                if (!hasAlgae() || hasCoral()) {
                     coralSpeed = -1;
+                    hasCoral = false;
                 } else {
                     algaeSpeed = -1;
                 }
 
             // Finish spitting out game piece
-            } else if (rightTrigger.getValue() < 0.5) {
-                if (algaeSpeed != 0.2) algaeSpeed = 0;
+            } else if (rightTrigger.getValue() < 0.5 && !superstructure.isAlgaeRemoval()) {
+                if (!hasAlgae()) algaeSpeed = 0;
                 coralSpeed = 0;
             }
 
-        } else if (leftTrigger.getValue() > 0.5 && algaeReefPickup) {
+        } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
             algaeSpeed = 1;
+        } else if (Math.abs(leftTrigger.getValue()) < 0.5 && !hasAlgae()){
+            algaeSpeed = 0;
         }
     }
 
@@ -74,26 +81,23 @@ public class CoralPath implements Subsystem{
         algae = (WsSpark) WsOutputs.ALGAE_INTAKE.get();
         coral = (WsSpark) WsOutputs.CORAL_INTAKE.get();
 
+        coral.setBrake();
         coral.setCurrentLimit(40,40,0);
         algae.setBrake();
         algae.setCurrentLimit(40,40,0);
 
-        leftShoulder = (WsDigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_SHOULDER);
+        leftShoulder = (WsJoystickButton) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_SHOULDER);
         leftShoulder.addInputListener(this);
-        rightShoulder = (WsDigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_RIGHT_SHOULDER);
+        rightShoulder = (WsJoystickButton) Core.getInputManager().getInput(WsInputs.DRIVER_RIGHT_SHOULDER);
         rightShoulder.addInputListener(this);        
-        rightTrigger = (WsAnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_RIGHT_TRIGGER);
+        rightTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.DRIVER_RIGHT_TRIGGER);
         rightTrigger.addInputListener(this);
-        leftTrigger = (WsAnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_TRIGGER);
+        leftTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_TRIGGER);
         leftTrigger.addInputListener(this);
-        operatorX = (WsDigitalInput) Core.getInputManager().getInput(WsInputs.OPERATOR_FACE_LEFT);
-        operatorX.addInputListener(this);
     }
 
     @Override
     public void selfTest() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'selfTest'");
     }
 
     @Override
@@ -112,6 +116,7 @@ public class CoralPath implements Subsystem{
                 // Current spike of .25s reasonable to assume picked up game piece
                 if (currentTimer.hasElapsed(0.25)) {
                     coralSpeed = 0;
+                    hasCoral = true;
                 }
             }
         } else if (algaeSpeed == 1.0) {
@@ -133,6 +138,8 @@ public class CoralPath implements Subsystem{
         }
         coral.setSpeed(coralSpeed);
         algae.setSpeed(algaeSpeed);
+
+        displayNumbers();
     }
 
     @Override
@@ -141,13 +148,24 @@ public class CoralPath implements Subsystem{
 
     @Override
     public void initSubsystems() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'initSubsystems'");
+        superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
     }
 
+    private void displayNumbers(){
+        SmartDashboard.putBoolean("# Has Coral", hasCoral());
+        SmartDashboard.putBoolean("# Has Algae", hasAlgae());
+        SmartDashboard.putNumber("@ Coral Speed", coralSpeed);
+        SmartDashboard.putNumber("@ Alage Speed", algaeSpeed);
+    }
     @Override
     public String getName() {
         return "CoralPath";
+    }
+    public boolean hasAlgae(){
+        return algaeSpeed == 0.2;
+    }
+    public boolean hasCoral(){
+        return hasCoral;
     }
     
 }
