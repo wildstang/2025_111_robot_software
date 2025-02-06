@@ -162,10 +162,10 @@ public class CoralPath implements Subsystem{
         return "CoralPath";
     }
     public boolean hasAlgae(){
-        return algaeSpeed == 0.2;
+        return algaeSpeed == 0.2 || algaeSpeed == -1.0 || superstructure.isScoringAlgae();
     }
     public boolean hasCoral(){
-        return hasCoral;
+        return hasCoral || superstructure.isScoringCoral();
     }
     
 }

@@ -129,7 +129,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                     if(swerve.isProcessorFront()){
                         desiredPosition = SuperstructurePosition.ALGAE_PROCESSOR_FRONT;
                     } else{ 
-                        desiredPosition = SuperstructurePosition.ALGAE_PROCESSOR_BACk;
+                        desiredPosition = SuperstructurePosition.ALGAE_PROCESSOR_BACK;
                     }
                 }
             } else if (PickupSequence) {
@@ -272,8 +272,19 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     * 
     */
     public boolean isAlgaeNet(){
-    return (Algae_NetOrProces.Net == AlgaeState);
-        
+        return (Algae_NetOrProces.Net == AlgaeState);    
+    }
+    public boolean isScoringAlgae(){
+        return desiredPosition == SuperstructurePosition.ALGAE_NET_BACK || 
+            desiredPosition == SuperstructurePosition.ALGAE_NET_FRONT || 
+            desiredPosition == SuperstructurePosition.ALGAE_PROCESSOR_BACK || 
+            desiredPosition == SuperstructurePosition.ALGAE_PROCESSOR_FRONT;
+    }
+    public boolean isScoringCoral(){
+        return desiredPosition == SuperstructurePosition.CORAL_REEF_L1 || 
+            desiredPosition == SuperstructurePosition.CORAL_REEF_L2 ||
+            desiredPosition == SuperstructurePosition.CORAL_REEF_L3 || 
+            desiredPosition == SuperstructurePosition.CORAL_REEF_L4;
     }
 
 }
