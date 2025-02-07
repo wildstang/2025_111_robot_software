@@ -20,9 +20,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralPath implements Subsystem{
 
-    private static final double CORAL_CURRENT_LIMIT = 30;
-    private static final double ALGAE_CURRENT_LIMIT = 20;
-    private final double ALGAE_STALL_POWER = 0.2;
+    private static final double CORAL_CURRENT_LIMIT = 20;
+    private static final double ALGAE_CURRENT_LIMIT = 25;
+    private final double ALGAE_STALL_POWER = 0.4;
 
     private Timer delayTimer = new Timer();
     private Timer currentTimer = new Timer();
@@ -50,7 +50,7 @@ public class CoralPath implements Subsystem{
             // Delay before measuring current
             if (algaeSpeed == 1.0) delayTimer.restart();
         } else if (source == rightShoulder) {
-            if (algaeSpeed != 0.2) algaeSpeed = rightShoulder.getValue() ? 1 : 0;
+            if (algaeSpeed != ALGAE_STALL_POWER) algaeSpeed = rightShoulder.getValue() ? 1 : 0;
 
             // Delay before measuring current
             if (algaeSpeed == 1.0) delayTimer.restart();
@@ -94,6 +94,8 @@ public class CoralPath implements Subsystem{
         rightTrigger.addInputListener(this);
         leftTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_TRIGGER);
         leftTrigger.addInputListener(this);
+        currentTimer.start();
+        delayTimer.start();
     }
 
     @Override
@@ -132,7 +134,7 @@ public class CoralPath implements Subsystem{
 
                 // Current spike of .25s reasonable to assume picked up game piece
                 if (currentTimer.hasElapsed(0.25)) {
-                    algaeSpeed = 0.2;
+                    algaeSpeed = ALGAE_STALL_POWER;
                 }
             }
         }
@@ -156,13 +158,17 @@ public class CoralPath implements Subsystem{
         SmartDashboard.putBoolean("# Has Algae", hasAlgae());
         SmartDashboard.putNumber("@ Coral Speed", coralSpeed);
         SmartDashboard.putNumber("@ Alage Speed", algaeSpeed);
+        SmartDashboard.putNumber("@ Coral Current", coral.getController().getOutputCurrent());
+        SmartDashboard.putNumber("@ Algae Current", algae.getController().getOutputCurrent());
+        SmartDashboard.putNumber("@ delay timer", delayTimer.get());
+        SmartDashboard.putNumber("@ current timer", currentTimer.get());
     }
     @Override
     public String getName() {
         return "CoralPath";
     }
     public boolean hasAlgae(){
-        return algaeSpeed == 0.2 || algaeSpeed == -1.0 || superstructure.isScoringAlgae();
+        return algaeSpeed == ALGAE_STALL_POWER || algaeSpeed == -1.0 || superstructure.isScoringAlgae();
     }
     public boolean hasCoral(){
         return hasCoral || superstructure.isScoringCoral();

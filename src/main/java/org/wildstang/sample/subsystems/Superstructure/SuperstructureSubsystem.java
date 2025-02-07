@@ -229,8 +229,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     public void resetState() {
         PickupSequence = false;
         desiredPosition = SuperstructurePosition.STOWED;
-        level = LevelReef.Reef_L4;
-        AlgaeState = Algae_NetOrProces.Net;
+        level = LevelReef.Reef_L3;
+        AlgaeState = Algae_NetOrProces.Processor;
         
     }
     @Override
@@ -247,6 +247,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         SmartDashboard.putString("@ Superstructure position", desiredPosition.getName());
         SmartDashboard.putBoolean("# Targeting Net", AlgaeState == Algae_NetOrProces.Net);
         SmartDashboard.putString("# Reef Level", reefLevelNames[level.ordinal()]);
+        SmartDashboard.putNumber("@ absolute arm", armSpark.getController().getAbsoluteEncoder().getPosition());
     }
 
      /**
