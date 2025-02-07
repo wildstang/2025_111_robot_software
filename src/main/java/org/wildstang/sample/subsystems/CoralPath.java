@@ -48,7 +48,7 @@ public class CoralPath implements Subsystem{
             coralSpeed = leftShoulder.getValue() ? 1.0 : 0.0;
 
             // Delay before measuring current
-            if (algaeSpeed == 1.0) delayTimer.restart();
+            if (coralSpeed == 1.0) delayTimer.restart();
         } else if (source == rightShoulder) {
             if (algaeSpeed != ALGAE_STALL_POWER) algaeSpeed = rightShoulder.getValue() ? 1 : 0;
 
@@ -71,6 +71,7 @@ public class CoralPath implements Subsystem{
 
         } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
             algaeSpeed = 1;
+            delayTimer.restart();
         } else if (Math.abs(leftTrigger.getValue()) < 0.5 && !hasAlgae()){
             algaeSpeed = 0;
         }
@@ -94,8 +95,8 @@ public class CoralPath implements Subsystem{
         rightTrigger.addInputListener(this);
         leftTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_TRIGGER);
         leftTrigger.addInputListener(this);
-        currentTimer.start();
-        delayTimer.start();
+        // currentTimer.start();
+        // delayTimer.start();
     }
 
     @Override
