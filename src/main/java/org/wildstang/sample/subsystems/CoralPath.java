@@ -58,15 +58,17 @@ public class CoralPath implements Subsystem{
             if (Math.abs(leftTrigger.getValue()) > 0.5 && Math.abs(rightTrigger.getValue()) > 0.5) {
                 if (!hasAlgae() || hasCoral()) {
                     coralSpeed = -1;
-                    hasCoral = false;
                 } else {
                     algaeSpeed = -1;
                 }
 
             // Finish spitting out game piece
             } else if (rightTrigger.getValue() < 0.5 && !superstructure.isAlgaeRemoval()) {
-                if (!hasAlgae()) algaeSpeed = 0;
-                coralSpeed = 0;
+                if (algaeSpeed == -1) algaeSpeed = 0;
+                if (coralSpeed == -1){
+                    coralSpeed = 0;
+                    hasCoral = false;
+                }
             }
 
         } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
