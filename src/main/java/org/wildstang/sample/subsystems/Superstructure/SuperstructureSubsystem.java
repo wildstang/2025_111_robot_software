@@ -105,8 +105,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
 @Override
     public void update() {
 
-        desiredPosition = SuperstructurePosition.STOWED;
-   
+        
         if (LShoulderHeld) {
             if (swerve.isCoralStationFront()) {
                 desiredPosition = SuperstructurePosition.CORAL_STATION_FRONT;
@@ -155,6 +154,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         } 
         else if (StartHeld && SelectHeld) {
             desiredPosition = SuperstructurePosition.CLIMB;
+        } else {
+            desiredPosition = SuperstructurePosition.STOWED;
         }
 
         if (desiredPosition.getLift()>50){
