@@ -170,7 +170,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                     armSpark.setPosition(desiredPosition.getArm(), 1);
                 }
             }
-        } else if (desiredPosition.getLift() > LiftMax.getPosition() && isScoringCoral()){
+        } else if (desiredPosition.getLift() > LiftMax.getPosition() && isScoringCoral() && !liftAtPosition()){
             if (desiredPosition.getArm() > 72){
                 armSpark.setPosition(72, 0);
             } else if (desiredPosition.getArm() < 44){

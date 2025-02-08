@@ -22,10 +22,11 @@ public class CoralPath implements Subsystem{
 
     private static final double CORAL_CURRENT_LIMIT = 20;
     private static final double ALGAE_CURRENT_LIMIT = 25;
-    private final double ALGAE_STALL_POWER = 0.4;
+    private final double ALGAE_STALL_POWER = 0.5;
 
     private Timer delayTimer = new Timer();
     private Timer currentTimer = new Timer();
+    private Timer holdTimer = new Timer();
 
     private SuperstructureSubsystem superstructure;
 
@@ -87,7 +88,7 @@ public class CoralPath implements Subsystem{
         coral.setBrake();
         coral.setCurrentLimit(40,40,0);
         algae.setBrake();
-        algae.setCurrentLimit(40,40,0);
+        algae.setCurrentLimit(50,50,0);
 
         leftShoulder = (WsJoystickButton) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_SHOULDER);
         leftShoulder.addInputListener(this);
@@ -99,6 +100,7 @@ public class CoralPath implements Subsystem{
         leftTrigger.addInputListener(this);
         // currentTimer.start();
         // delayTimer.start();
+        holdTimer.start();
     }
 
     @Override
@@ -136,13 +138,18 @@ public class CoralPath implements Subsystem{
                 }
 
                 // Current spike of .25s reasonable to assume picked up game piece
-                if (currentTimer.hasElapsed(0.25)) {
+                if (currentTimer.hasElapsed(0.5)) {
                     algaeSpeed = ALGAE_STALL_POWER;
+                    holdTimer.restart();
                 }
             }
         }
         coral.setSpeed(coralSpeed);
-        algae.setSpeed(algaeSpeed);
+        if (algaeSpeed == ALGAE_STALL_POWER && !holdTimer.hasElapsed(2.0)){
+            algae.setSpeed(1);
+        } else {
+            algae.setSpeed(algaeSpeed);
+        }
 
         displayNumbers();
     }
