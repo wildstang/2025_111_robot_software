@@ -3,6 +3,7 @@ package org.wildstang.sample.subsystems;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
 import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
@@ -11,52 +12,55 @@ import org.wildstang.sample.robot.WsOutputs;
 
 import com.google.gson.ToNumberPolicy;
 
+import edu.wpi.first.wpilibj.PWM;
+
 public class Test_Climb implements Subsystem{
 
-    private WsSpark Climb1;
-    private WsDigitalInput start, select;
-
-    private boolean shouldRun;
-    private double setMode = 0;
-    private int directionCombo = 0;
+    private WsSpark climb1;
+    private WsAnalogInput operatorJoystickY; 
+    private WsDigitalInput operatorDpadDown;
+    private WsDigitalInput operatorDpadUp;
 
     private double climbSpeed;
+    private double pwmValue = 0;
+    private PWM servo;
+
 
     private double P = 0.1;
     private double I = 0;
     private double D = 0;
     private double F = 0;
 
-
     @Override
     public void inputUpdate(Input source) {
-
-        if (start.getValue()) {
-            shouldRun = true;
-            setMode = 1;
+        if (operatorJoystickY.getValue() > 0.5) {
+            climbSpeed = 1;
+        } else if (operatorJoystickY.getValue() < -0.5) {
+            climbSpeed = -1;
+        } else {
+            climbSpeed = 0;
         }
-        else if (select.getValue()) {
-            shouldRun = true;
-            setMode = 2;
+        if (source == operatorDpadDown && operatorDpadDown.getValue()) {
+            pwmValue = Math.min(1, pwmValue + 0.05);
+        } else if (source == operatorDpadUp && operatorDpadUp.getValue()) {
+            pwmValue = Math.max(0, pwmValue - 0.05);
         }
-        else if (start.getValue() && select.getValue()) {
-            shouldRun = true;
-            setMode = 3;
-            directionCombo += 1;
-        }
-
-        }
+        
+    }
 
     @Override
     public void init() {
-        start = (WsDigitalInput) Core.getInputManager().getInput(WsInputs.OPERATOR_SELECT);
-        select.addInputListener(this);
-        start = (WsDigitalInput) Core.getInputManager().getInput(WsInputs.OPERATOR_START);
-        select.addInputListener(this);
+        servo = new PWM(1);
+        operatorJoystickY = (WsAnalogInput) WsInputs.OPERATOR_LEFT_JOYSTICK_Y.get();
+        operatorJoystickY.addInputListener(this);
+        operatorDpadDown = (WsDigitalInput) WsInputs.OPERATOR_DPAD_DOWN.get();
+        operatorDpadDown.addInputListener(this);
+        operatorDpadUp = (WsDigitalInput) WsInputs.DRIVER_DPAD_UP.get();
+        operatorDpadUp.addInputListener(this);
 
-        Climb1 = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.CLIMB1);
-        Climb1.setCurrentLimit(50, 50, 0);
-        Climb1.initClosedLoop(P, I, D, F);
+        climb1 = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.CLIMB1);
+        climb1.setCurrentLimit(50, 50, 0);
+        climb1.initClosedLoop(P, I, D, F);
 
         resetState();
     }
@@ -69,33 +73,14 @@ public class Test_Climb implements Subsystem{
 
     @Override
     public void update() {
-        if (shouldRun = true) {
-
-            if (setMode == 1) {
-                climbSpeed = -1;
-            }
-            else if (setMode == 2) {
-                climbSpeed = 1;
-            }
-            else if (setMode == 3) {
-                if (directionCombo % 2 == 0) {
-                    Climb1.setPosition(1);
-                    directionCombo--;
-                }
-                else {
-                    Climb1.setPosition(2);
-                directionCombo++;
-                }
-            }
-        }
+        climb1.setSpeed(climbSpeed);
+        servo.setPosition(pwmValue);
     }
 
     @Override
     public void resetState() {
-        setMode = 0;
-        directionCombo = 0;
-        shouldRun = false;
         climbSpeed = 0;
+        pwmValue = 0;
     }
 
     @Override
