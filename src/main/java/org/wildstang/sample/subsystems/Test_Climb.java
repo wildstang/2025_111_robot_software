@@ -4,7 +4,9 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
+import org.wildstang.hardware.roborio.inputs.WsDPadButton;
 import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
+import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.WsInputs;
@@ -13,13 +15,14 @@ import org.wildstang.sample.robot.WsOutputs;
 import com.google.gson.ToNumberPolicy;
 
 import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Test_Climb implements Subsystem{
 
     private WsSpark climb1;
-    private WsAnalogInput operatorJoystickY; 
-    private WsDigitalInput operatorDpadDown;
-    private WsDigitalInput operatorDpadUp;
+    private WsJoystickAxis operatorJoystickY; 
+    private WsDPadButton operatorDpadDown;
+    private WsDPadButton operatorDpadUp;
 
     private double climbSpeed;
     private double pwmValue = 0;
@@ -50,12 +53,12 @@ public class Test_Climb implements Subsystem{
 
     @Override
     public void init() {
-        servo = new PWM(1);
-        operatorJoystickY = (WsAnalogInput) WsInputs.OPERATOR_LEFT_JOYSTICK_Y.get();
+        servo = new PWM(6);
+        operatorJoystickY = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_JOYSTICK_Y.get();
         operatorJoystickY.addInputListener(this);
-        operatorDpadDown = (WsDigitalInput) WsInputs.OPERATOR_DPAD_DOWN.get();
+        operatorDpadDown = (WsDPadButton) WsInputs.OPERATOR_DPAD_DOWN.get();
         operatorDpadDown.addInputListener(this);
-        operatorDpadUp = (WsDigitalInput) WsInputs.DRIVER_DPAD_UP.get();
+        operatorDpadUp = (WsDPadButton) WsInputs.OPERATOR_DPAD_UP.get();
         operatorDpadUp.addInputListener(this);
 
         climb1 = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.CLIMB1);
@@ -75,6 +78,8 @@ public class Test_Climb implements Subsystem{
     public void update() {
         climb1.setSpeed(climbSpeed);
         servo.setPosition(pwmValue);
+        SmartDashboard.putNumber("@ pwm value", pwmValue);
+        SmartDashboard.putNumber(("@ climbSpeed"), climbSpeed);
     }
 
     @Override
@@ -85,8 +90,6 @@ public class Test_Climb implements Subsystem{
 
     @Override
     public void initSubsystems() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'initSubsystems'");
     }
 
     @Override

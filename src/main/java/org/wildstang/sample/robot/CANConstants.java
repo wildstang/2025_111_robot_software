@@ -27,7 +27,6 @@ public final class CANConstants {
     public static final int DRIVE4 = 17;
     public static final int ANGLE4 = 18;
 
-    public static final int CLIMB1 = 41;
-    public static final int CLIMB2 = 42;
+    public static final int CLIMB1 = 25;
 
 }
