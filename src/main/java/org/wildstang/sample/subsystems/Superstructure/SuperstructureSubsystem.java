@@ -117,7 +117,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             desiredPosition = SuperstructurePosition.ALGAE_PRESTAGED;
         } 
         else if (LTHeld) {
-            if ((coralPath.hasAlgae() || isScoringAlgae()) && !(coralPath.hasCoral() || isScoringCoral())) {
+            if ((coralPath.hasAlgae() || isScoringAlgae()) && !(coralPath.hasCoral() || isScoringCoral()) && !PickupSequence) {
                 if (Algae_NetOrProces.Net == AlgaeState) {
                     if (swerve.isNetFront()){
                         desiredPosition = SuperstructurePosition.ALGAE_NET_FRONT;
@@ -162,11 +162,21 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             if (liftAtPosition()){
                 armSpark.setPosition(desiredPosition.getArm(), 1);
             } else {
-                if (desiredPosition.getArm() > 58){
+                if (desiredPosition.getArm() > 72){
+                    armSpark.setPosition(72, 1);
+                } else if (desiredPosition.getArm() < 44){
                     armSpark.setPosition(44, 1);
                 } else {
-                    armSpark.setPosition(72, 1);
+                    armSpark.setPosition(desiredPosition.getArm(), 1);
                 }
+            }
+        } else if (desiredPosition.getLift() > LiftMax.getPosition() && isScoringCoral()){
+            if (desiredPosition.getArm() > 72){
+                armSpark.setPosition(72, 0);
+            } else if (desiredPosition.getArm() < 44){
+                armSpark.setPosition(44, 0);
+            } else {
+                armSpark.setPosition(desiredPosition.getArm(), 0);
             }
         } else if (LiftMax.getPosition() > 50){
             armSpark.setPosition(desiredPosition.getArm(), 1);
@@ -296,7 +306,9 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         return desiredPosition == SuperstructurePosition.CORAL_REEF_L1 || 
             desiredPosition == SuperstructurePosition.CORAL_REEF_L2 ||
             desiredPosition == SuperstructurePosition.CORAL_REEF_L3 || 
-            desiredPosition == SuperstructurePosition.CORAL_REEF_L4;
+            desiredPosition == SuperstructurePosition.CORAL_REEF_L4 ||
+            desiredPosition == SuperstructurePosition.STOWED_AFTER_PICKUP_HIGH ||
+            desiredPosition == SuperstructurePosition.STOWED_AFTER_PICKUP_LOW;
     }
 
 }
