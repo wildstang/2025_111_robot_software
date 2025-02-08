@@ -2,8 +2,8 @@ package org.wildstang.sample.subsystems.Superstructure;
 
 public enum SuperstructurePosition {
 //first value its arm second value lift position.
-    CORAL_STATION_FRONT (9,0, "Coral Station Front"),
-    CORAL_STATION_BACK(106,0, "Coral Station Back"),
+    CORAL_STATION_FRONT (106,0, "Coral Station Front"),
+    CORAL_STATION_BACK(9,0, "Coral Station Back"),
     ALGAE_PRESTAGED(100,0, "Algae Prestaged"),
     ALGAE_REEF_LOW(35,7, "Algae Pickup Low"),//was 87 4
     ALGAE_REEF_HIGH(35,29, "Algae Pickup High"),// was 87 27
@@ -13,8 +13,8 @@ public enum SuperstructurePosition {
     CORAL_REEF_L4 (80,80, "Reef L4"),
     ALGAE_NET_FRONT(0,0, "Algae Net Front"),
     ALGAE_NET_BACK(0,0,"Algae Net Back"),
-    ALGAE_PROCESSOR_BACK(22,0, "Algae Proc Back"),
-    ALGAE_PROCESSOR_FRONT(100,0, "Algae Proc Front"),
+    ALGAE_PROCESSOR_BACK(100,0, "Algae Proc Back"),
+    ALGAE_PROCESSOR_FRONT(22,0, "Algae Proc Front"),
     STOWED_AFTER_PICKUP_HIGH(58,27, "Post Pickup High"),
     STOWED_AFTER_PICKUP_LOW(58, 4, "Post Pickup Low"),
     CLIMB(22,0, "Climb Stow"),
