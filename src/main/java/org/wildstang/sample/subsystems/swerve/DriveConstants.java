@@ -8,7 +8,7 @@ public final class DriveConstants {
             new Translation2d(-0.2794, 0.33), new Translation2d(-0.2794, -0.33));
     // TODO: Get actual values
     /**P Loop for Translating to a point */
-    public static final double TRANSLATION_P = 0.0;
+    public static final double ALIGN_P = 0.0;
     // P value for if Rossen is tipping
     public static final double TIPPING_P = 0.0;
     /** robot length from swerve pod to swerve pod, in inches */

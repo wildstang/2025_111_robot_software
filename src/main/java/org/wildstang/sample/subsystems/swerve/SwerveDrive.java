@@ -316,7 +316,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         } else if (driveState == driveType.TELEOP) {
             if (rotLocked){
                 if (isReef){
-                    rotTarget = pose.turnToTarget(VisionConsts.reefCenter);
+                    // Oops, the scoring side is on the "back" of the robot now
+                    rotTarget = 180 - pose.turnToTarget(VisionConsts.reefCenter);
                 }
                 rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
                 if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 1.0) rotSpeed = 0;
@@ -361,9 +362,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
             // Gyro 0 for robot centric X, Y
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, 0);
 
-        // Just heading lock forward so Rossen doesn't accidentally turn
+        // Just heading lock to 90 (climb on left side of robot) so Rossen doesn't accidentally turn
         } else if (driveState == driveType.CLIMB) {
-            rotSpeed = swerveHelper.getRotControl(0, getGyroAngle());
+            rotSpeed = swerveHelper.getRotControl(90, getGyroAngle());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
 
         // Autonomous period

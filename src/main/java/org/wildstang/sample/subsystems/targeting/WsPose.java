@@ -3,6 +3,7 @@ package org.wildstang.sample.subsystems.targeting;
 // ton of imports
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.drive.Drive;
 import org.wildstang.sample.subsystems.swerve.DriveConstants;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
@@ -29,10 +30,9 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class WsPose implements Subsystem {
 
-    public WsLL left = new WsLL("limelight-left", true);
-    public WsLL right = new WsLL("limelight-right", true);
+    public WsLL left = new WsLL("limelight-back", true);
+    public WsLL right = new WsLL("limelight-front", true);
 
-    private final double Align_P = 0.006;
     private final double poseBufferSizeSec = 2;
     public final double visionSpeedThreshold = 0.5;
     
@@ -47,13 +47,7 @@ public class WsPose implements Subsystem {
 
     private final TimeInterpolatableBuffer<Pose2d> poseBuffer = TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
 
-    private SwerveModulePosition[] lastWheelPositions =
-    new SwerveModulePosition[] {
-    new SwerveModulePosition(),
-    new SwerveModulePosition(),
-    new SwerveModulePosition(),
-    new SwerveModulePosition()
-    };
+    private SwerveModulePosition[] lastWheelPositions = {};
     private Rotation2d lastGyroAngle = new Rotation2d();
 
     @Override
@@ -142,10 +136,15 @@ public class WsPose implements Subsystem {
     }
 
     public void addOdometryObservation(SwerveModulePosition[] modulePositions, Rotation2d gyroAngle) {
+        if (lastWheelPositions.length == 0) { 
+            lastWheelPositions = modulePositions;
+            return; 
+        }
         Twist2d twist = DriveConstants.kinematics.toTwist2d(lastWheelPositions, modulePositions);
         twist.dtheta = gyroAngle.minus(lastGyroAngle).getRadians();
-        lastWheelPositions = modulePositions;
         odometryPose = odometryPose.exp(twist);
+        
+        lastWheelPositions = modulePositions;
         lastGyroAngle = gyroAngle;
         // Add pose to buffer at timestamp
         poseBuffer.addSample(Timer.getFPGATimestamp(), odometryPose);
@@ -198,7 +197,7 @@ public class WsPose implements Subsystem {
      * @return // Control value for X power for aligning robot to certain target
      */
     public double getAlignX(Translation2d target) {
-        return Align_P * -(target.getY() - estimatedPose.getY());
+        return DriveConstants.ALIGN_P * -(target.getY() - estimatedPose.getY());
     }
 
     /**
@@ -207,7 +206,7 @@ public class WsPose implements Subsystem {
      * @return // Control value for X power for aligning robot to certain target
      */
     public double getAlignY(Translation2d target) {
-        return Align_P * (target.getX() - estimatedPose.getX());
+        return DriveConstants.ALIGN_P * (target.getX() - estimatedPose.getX());
     }
 
     public double distanceToTarget(Translation2d target) {
