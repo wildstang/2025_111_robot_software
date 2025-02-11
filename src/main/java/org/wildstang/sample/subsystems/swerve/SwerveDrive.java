@@ -15,6 +15,7 @@ import org.wildstang.sample.robot.CANConstants;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.targeting.TargetCoordinate;
 import org.wildstang.sample.subsystems.targeting.VisionConsts;
 import org.wildstang.sample.subsystems.targeting.WsPose;
@@ -84,6 +85,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
 
     private WsPose pose;
+    private CoralPath coralPath;
     private Pose2d targetPose;
 
 
@@ -231,6 +233,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     public void initSubsystems() {
         pose = (WsPose) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_POSE);
+        coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
     }
 
     public void initInputs() {
@@ -336,7 +339,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
         // Align closest scoring side to 0 and translate to right y position
         } else if (driveState == driveType.NETSCORE) {
-            rotTarget = scoreFront(0) ? 0 : 180;
+            rotTarget = frontCloser(0) ? 0 : 180;
             rotSpeed = swerveHelper.getRotControl(0, getGyroAngle());
             yPower = pose.getAlignY(VisionConsts.netScore);
 
@@ -344,7 +347,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
         // Align closest scoring side to 90
         } else if (driveState == driveType.PROCESSORSCORE) {
-            rotTarget = scoreFront(90) ? 90 : 270;
+            rotTarget = frontCloser(90) ? 90 : 270;
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
 
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
@@ -353,7 +356,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             // Rotate to whichever coral station is closest
             rotTarget = pose.isClosestStationRight() ? VisionConsts.coralStationRightHeading : VisionConsts.coralStationLeftHeading;
             // Intake on closer side
-            if (!scoreFront(rotTarget)) {
+            if (!frontCloser(rotTarget)) {
                 rotTarget = (rotTarget + 180) % 360;
             }
 
@@ -513,24 +516,25 @@ public class SwerveDrive extends SwerveDriveTemplate {
         return new SwerveModuleState[]{modules[0].moduleState(), modules[1].moduleState(), modules[2].moduleState(), modules[3].moduleState()};
     }
 
-    public boolean scoreFront(double targetAngle) {
-        if (WsSwerveHelper.angleDist(targetAngle, getGyroAngle()) < 90) {
-            return true;
-        } else {
-            return false;
-        }
+    private boolean frontCloser(double targetAngle) {
+        return (WsSwerveHelper.angleDist(targetAngle, getGyroAngle()) < 90);
     }
+
+    // SUBSYSTEM ACCESS METHODS
 
     public boolean isRossenTipping() {
         return (WsSwerveHelper.angleDist(gyro.getRoll().getValueAsDouble(), 0) > 10) || (WsSwerveHelper.angleDist(gyro.getPitch().getValueAsDouble(), 0)) > 10;
     }
     public boolean isCoralStationFront(){
-        return false;
+        return frontCloser(pose.isClosestStationRight() ? VisionConsts.coralStationRightHeading : VisionConsts.coralStationLeftHeading);
     }
     public boolean isProcessorFront(){
-        return true;
+        return frontCloser(90);
     }
     public boolean isNetFront(){
-        return true;
+        return frontCloser(0);
+    }
+    public boolean isAtPosition() {
+        return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation()) < DriveConstants.POSITION_TOLERANCE;
     }
 }

@@ -13,7 +13,7 @@ import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 //import au.grapplerobotics.LaserCan;
-import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
+import org.wildstang.sample.subsystems.Superstructure.Superstructure;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,7 +27,7 @@ public class CoralPath implements Subsystem{
     private Timer delayTimer = new Timer();
     private Timer currentTimer = new Timer();
 
-    private SuperstructureSubsystem superstructure;
+    private Superstructure superstructure;
 
     private WsSpark algae;
     private WsSpark coral;
@@ -153,7 +153,7 @@ public class CoralPath implements Subsystem{
 
     @Override
     public void initSubsystems() {
-        superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
+        superstructure = (Superstructure) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
     }
 
     private void displayNumbers(){
@@ -175,6 +175,18 @@ public class CoralPath implements Subsystem{
     }
     public boolean hasCoral(){
         return hasCoral || superstructure.isScoringCoral();
+    }
+
+    // AUTO STEP METHODS
+
+    // Start or stop intaking coral
+    public void setIntake(boolean intake) {
+        coralSpeed = intake ? 1 : 0;
+    }
+
+    // Start or stop scoring coral
+    public void setScore(boolean score) {
+        coralSpeed = score ? -1 : 0;
     }
     
 }

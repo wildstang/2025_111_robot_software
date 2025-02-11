@@ -8,14 +8,13 @@ import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.LED.Blinkin.BlinkinValues;
-import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
+import org.wildstang.sample.subsystems.Superstructure.Superstructure;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
-import org.wildstang.sample.subsystems.targeting.WsVision;
 
 
 public class LedController implements Subsystem {
 
-    private SuperstructureSubsystem superstructure;
+    private Superstructure superstructure;
     private SwerveDrive swerve;
     private CoralPath coralPath;
     private Blinkin led;
@@ -55,7 +54,7 @@ public class LedController implements Subsystem {
 
     @Override
     public void initSubsystems() {      
-        superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
+        superstructure = (Superstructure) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
     }

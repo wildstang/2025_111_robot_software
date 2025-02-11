@@ -4,8 +4,8 @@ import org.wildstang.framework.core.Subsystems;
 import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.LED.LedController;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
-import org.wildstang.sample.subsystems.targeting.WsVision;
-import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
+import org.wildstang.sample.subsystems.targeting.WsPose;
+import org.wildstang.sample.subsystems.Superstructure.Superstructure;
 
 /**
  * All subsystems are enumerated here.
@@ -17,7 +17,7 @@ public enum WsSubsystems implements Subsystems {
     WS_POSE("Ws Vision", WsPose.class),
     SWERVE_DRIVE("Swerve Drive", SwerveDrive.class),
     LED("Led Controller", LedController.class),
-    SUPERSTRUCTURE("Superstructure Subsystem", SuperstructureSubsystem.class),
+    SUPERSTRUCTURE("Superstructure Subsystem", Superstructure.class),
     CORAL_PATH("CoralPath", CoralPath.class)
     ;
 

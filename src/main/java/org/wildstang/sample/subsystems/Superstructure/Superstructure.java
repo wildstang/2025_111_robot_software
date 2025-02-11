@@ -1,5 +1,7 @@
 package org.wildstang.sample.subsystems.Superstructure;
 
+import org.wildstang.framework.auto.AutoStep;
+import org.wildstang.framework.auto.steps.LambdaStep;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
@@ -18,8 +20,15 @@ import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive; 
 
 
-public class SuperstructureSubsystem implements Subsystem {
+public class Superstructure implements Subsystem {
 
+    public static AutoStep setSuperstructurePositionStep(SuperstructurePosition position) {
+        return new LambdaStep(() -> {
+           Superstructure superstructure = (Superstructure) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
+           superstructure.setPosition(position);
+        }, "Move Superstructure Step");
+    };
+    
 private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select;
 private WsJoystickAxis LT,operator_RT, operator_LT;
 private WsDPadButton DPad_UP, DPad_LEFT, DPad_DOWN;
@@ -297,6 +306,10 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             desiredPosition == SuperstructurePosition.CORAL_REEF_L2 ||
             desiredPosition == SuperstructurePosition.CORAL_REEF_L3 || 
             desiredPosition == SuperstructurePosition.CORAL_REEF_L4;
+    }
+
+    public void setPosition(SuperstructurePosition position){
+        desiredPosition = position;
     }
 
 }
