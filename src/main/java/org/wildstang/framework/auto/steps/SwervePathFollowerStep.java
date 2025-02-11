@@ -46,6 +46,19 @@ public class SwervePathFollowerStep extends AutoStep {
         timer = new Timer();
     }
 
+    /** Sets the robot to track a new path
+     * finishes after all values have been read to robot
+     * @param pathData double[][] that contains path, should be from \frc\paths
+     * @param drive the swerveDrive subsystem
+     * @param isBlue whether the robot is on the blue alliance
+     * @param split the index of the path split
+     */
+    public SwervePathFollowerStep(String pathData, SwerveDriveTemplate drive, int split) {
+        this.pathtraj = getTraj(pathData).getSplit(split).get();
+        m_drive = drive;
+        timer = new Timer();
+    }
+
     @Override
     public void initialize() {
         //start path

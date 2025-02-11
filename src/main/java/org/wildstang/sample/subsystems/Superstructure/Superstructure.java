@@ -22,11 +22,11 @@ import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 public class Superstructure implements Subsystem {
 
-    public static AutoStep setSuperstructurePositionStep(SuperstructurePosition position) {
+    public static AutoStep setPositionStep(SuperstructurePosition position) {
         return new LambdaStep(() -> {
            Superstructure superstructure = (Superstructure) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
            superstructure.setPosition(position);
-        }, "Move Superstructure Step");
+        }, "Set Superstructure Position Step");
     };
     
 private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select;
