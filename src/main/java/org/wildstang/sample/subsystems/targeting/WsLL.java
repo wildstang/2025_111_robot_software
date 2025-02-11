@@ -49,7 +49,9 @@ public class WsLL {
             red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
             alliance3D = Core.isBlue() ? blue3D : red3D;
             posePublisher = NetworkTableInstance.getDefault().getStructTopic(CameraID + "/metatag2 alliance pose", Pose2d.struct).publish();
-            posePublisher.set(alliance3D.pose);
+            if (alliance3D != null){
+                posePublisher.set(alliance3D.pose);
+            }
         }
 
         this.CameraID = CameraID;
