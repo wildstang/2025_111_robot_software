@@ -524,4 +524,13 @@ public class SwerveDrive extends SwerveDriveTemplate {
     public boolean isRossenTipping() {
         return (WsSwerveHelper.angleDist(gyro.getRoll().getValueAsDouble(), 0) > 10) || (WsSwerveHelper.angleDist(gyro.getPitch().getValueAsDouble(), 0)) > 10;
     }
+    public boolean isCoralStationFront(){
+        return false;
+    }
+    public boolean isProcessorFront(){
+        return true;
+    }
+    public boolean isNetFront(){
+        return true;
+    }
 }
