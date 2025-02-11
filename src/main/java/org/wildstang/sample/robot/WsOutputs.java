@@ -30,8 +30,8 @@ public enum WsOutputs implements Outputs {
     LIFT("Lift Motor", new WsSparkConfig(CANConstants.LIFT1, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
     LIFT_FOLLOWER("Lift Follower", new WsSparkConfig(CANConstants.LIFT2, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
     ARM("Arm Motor", new WsSparkConfig(CANConstants.ARM, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
-    CORAL_INTAKE("Coral Intake", new WsSparkConfig(CANConstants.CORAL, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
-    ALGAE_INTAKE("Algae Intake", new WsSparkConfig(CANConstants.ALGAE, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
+    CORAL_INTAKE("Coral Intake", new WsSparkConfig(CANConstants.CORAL, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
+    ALGAE_INTAKE("Algae Intake", new WsSparkConfig(CANConstants.ALGAE, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
     CLIMB1("Climb 1 Motor", new WsSparkConfig(CANConstants.CLIMB1, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
     CLIMB2("Climb 2 Motor Follow", new WsSparkFollowerConfig("Climb 1 Motor", CANConstants.CLIMB2, WsMotorControllers.SPARK_MAX_BRUSHLESS, true)),
 

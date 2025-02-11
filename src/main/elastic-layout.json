@@ -416,7 +416,7 @@
           {
             "title": "# Reef L1",
             "x": 1344.0,
-            "y": 0.0,
+            "y": 288.0,
             "width": 192.0,
             "height": 96.0,
             "type": "Boolean Box",
@@ -433,7 +433,7 @@
           {
             "title": "# Reef L2",
             "x": 1344.0,
-            "y": 96.0,
+            "y": 192.0,
             "width": 192.0,
             "height": 96.0,
             "type": "Boolean Box",
@@ -450,7 +450,7 @@
           {
             "title": "# Reef L3",
             "x": 1344.0,
-            "y": 192.0,
+            "y": 96.0,
             "width": 192.0,
             "height": 96.0,
             "type": "Boolean Box",
@@ -467,7 +467,7 @@
           {
             "title": "# Reef L4",
             "x": 1344.0,
-            "y": 288.0,
+            "y": 0.0,
             "width": 192.0,
             "height": 96.0,
             "type": "Boolean Box",
