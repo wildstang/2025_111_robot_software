@@ -261,13 +261,19 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     private void displayNumbers(){
         SmartDashboard.putBoolean("# Algae Pickup", PickupSequence);
         SmartDashboard.putBoolean("# Top Triangle", topTriangle);
+        SmartDashboard.putBoolean("# Bottom Triangle", !topTriangle);
         SmartDashboard.putNumber("@ Arm Target", desiredPosition.getArm());
         SmartDashboard.putNumber("@ Arm Position", armSpark.getPosition());
         SmartDashboard.putNumber("@ Lift Target", desiredPosition.getLift());
         SmartDashboard.putNumber("@ Lift Position", LiftMax.getPosition());
         SmartDashboard.putString("@ Superstructure position", desiredPosition.getName());
         SmartDashboard.putBoolean("# Targeting Net", AlgaeState == Algae_NetOrProces.Net);
+        SmartDashboard.putBoolean("# Targeting Processor", AlgaeState == Algae_NetOrProces.Processor);
         SmartDashboard.putString("# Reef Level", reefLevelNames[level.ordinal()]);
+        SmartDashboard.putBoolean("# Reef L1", level.ordinal() == 0);
+        SmartDashboard.putBoolean("# Reef L2", level.ordinal() == 1);
+        SmartDashboard.putBoolean("# Reef L3", level.ordinal() == 2);
+        SmartDashboard.putBoolean("# Reef L4", level.ordinal() == 3);
         SmartDashboard.putNumber("@ absolute arm", armSpark.getController().getAbsoluteEncoder().getPosition());
     }
 
