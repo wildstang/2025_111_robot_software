@@ -31,6 +31,8 @@ public class WsSpark extends WsMotorController {
     SparkBaseConfig config;
     SparkBaseConfig followerConfig;
     AbsoluteEncoderConfig absEncoderConfig = new AbsoluteEncoderConfig();
+    ClosedLoopSlot positionSlotID = ClosedLoopSlot.kSlot0;
+    double arbitraryFF = 0;
     boolean isUsingController;
     boolean isChanged;
     com.revrobotics.spark.SparkBase.ControlType controlType;
@@ -238,7 +240,8 @@ public class WsSpark extends WsMotorController {
                 motor.set(getValue());
             } else {
                 if (controlType == ControlType.kPosition){
-                    motor.getClosedLoopController().setReference(super.getValue(), ControlType.kPosition);
+                    motor.getClosedLoopController().setReference(super.getValue(), ControlType.kPosition, positionSlotID,
+                            arbitraryFF, SparkClosedLoopController.ArbFFUnits.kPercentOut);
                 } else if (controlType == ControlType.kVelocity){
                     motor.getClosedLoopController().setReference(super.getValue(), ControlType.kVelocity);
                 } else if (controlType == ControlType.kDutyCycle){
@@ -341,6 +344,8 @@ public class WsSpark extends WsMotorController {
         } else{
             isChanged = true;
         }
+        positionSlotID = ClosedLoopSlot.kSlot0;
+        arbitraryFF = 0;
         super.setValue(target);
         controlType = ControlType.kPosition;
     }
@@ -356,7 +361,28 @@ public class WsSpark extends WsMotorController {
         } else{
             isChanged = true;
         }
+        positionSlotID = slotID==0 ? ClosedLoopSlot.kSlot0 : slotID==1 ? ClosedLoopSlot.kSlot1 
+            : slotID==2 ? ClosedLoopSlot.kSlot2 : ClosedLoopSlot.kSlot3;
+        arbitraryFF = 0;
         super.setValue(target);
+        controlType = ControlType.kPosition;
+    }
+
+    /**
+     * Sets the motor to track the given position with a specific PIDFF constants
+     * @param target the encoder target to track to
+     * @param slotID the ID slot of the sparkmax to use
+     */
+    public void setPosition(double target, int slotID, double feedForward){
+        if (super.getValue() == target && controlType == ControlType.kPosition){
+            isChanged = false;
+        } else{
+            isChanged = true;
+        }
+        super.setValue(target);
+        positionSlotID = slotID==0 ? ClosedLoopSlot.kSlot0 : slotID==1 ? ClosedLoopSlot.kSlot1 
+            : slotID==2 ? ClosedLoopSlot.kSlot2 : ClosedLoopSlot.kSlot3;
+        arbitraryFF = feedForward;
         controlType = ControlType.kPosition;
     }
 
