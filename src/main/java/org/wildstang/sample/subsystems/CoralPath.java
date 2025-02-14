@@ -20,8 +20,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralPath implements Subsystem{
 
-    private static final double CORAL_CURRENT_LIMIT = 20;
-    private static final double ALGAE_CURRENT_LIMIT = 25;
+    private static final double CORAL_CURRENT_LIMIT = 40;
+    private static final double ALGAE_CURRENT_LIMIT = 40;
     private final double ALGAE_STALL_POWER = 0.5;
 
     private Timer delayTimer = new Timer();
@@ -86,7 +86,7 @@ public class CoralPath implements Subsystem{
         coral = (WsSpark) WsOutputs.CORAL_INTAKE.get();
 
         coral.setBrake();
-        coral.setCurrentLimit(40,40,0);
+        coral.setCurrentLimit(50,50,0);
         algae.setBrake();
         algae.setCurrentLimit(50,50,0);
 
@@ -112,7 +112,7 @@ public class CoralPath implements Subsystem{
         if (coralSpeed == 1) {
 
             // Wait to scan current until after 0.25s to clear ramp up current spike
-            if (delayTimer.hasElapsed(0.25)) {
+            if (delayTimer.hasElapsed(0.75)) {
                 if (coral.getController().getOutputCurrent() < CORAL_CURRENT_LIMIT) {
                     currentTimer.reset();
                     currentTimer.stop();
@@ -178,7 +178,8 @@ public class CoralPath implements Subsystem{
         return "CoralPath";
     }
     public boolean hasAlgae(){
-        return algaeSpeed == ALGAE_STALL_POWER || algaeSpeed == -1.0 || superstructure.isScoringAlgae();
+        return algaeSpeed == ALGAE_STALL_POWER || algaeSpeed == -1.0 || superstructure.isScoringAlgae()
+            || (algaeSpeed == 1.0 && !holdTimer.hasElapsed(2));
     }
     public boolean hasCoral(){
         return hasCoral || superstructure.isScoringCoral();

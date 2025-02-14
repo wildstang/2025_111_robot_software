@@ -16,9 +16,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class WsVision implements Subsystem {
 
-    public WsLL left = new WsLL("limelight-left");
-    public WsLL right = new WsLL("limelight-right");
-    public WsLL back = new WsLL("limelight-back");
+    public WsLL left = new WsLL("limelight-front");
+    public WsLL right = new WsLL("limelight-back");
+    //public WsLL back = new WsLL("limelight-back");
 
     private final double Align_P = 0.006;
     
@@ -62,14 +62,14 @@ public class WsVision implements Subsystem {
 
         left.update(swerve.getFieldYaw());
         right.update(swerve.getFieldYaw());
-        back.update(swerve.getFieldYaw());
+        // back.update(swerve.getFieldYaw());
         if (aprilTagsInView()) lastUpdate.reset();
         SmartDashboard.putBoolean("Vision targetinView", aprilTagsInView());
-        SmartDashboard.putNumber("GP X", back.tx);
-        SmartDashboard.putNumber("GP Y", back.ty);
-        SmartDashboard.putBoolean("GP tv", back.TargetInView());
-        SmartDashboard.putNumber("Vision back tx", back.tx);
-        SmartDashboard.putNumber("Vision back ty", back.ty);
+        // SmartDashboard.putNumber("GP X", back.tx);
+        // SmartDashboard.putNumber("GP Y", back.ty);
+        // SmartDashboard.putBoolean("GP tv", back.TargetInView());
+        // SmartDashboard.putNumber("Vision back tx", back.tx);
+        // SmartDashboard.putNumber("Vision back ty", back.ty);
 
     }
 
@@ -77,7 +77,7 @@ public class WsVision implements Subsystem {
     public void resetState() {
         left.update(swerve.getFieldYaw());
         right.update(swerve.getFieldYaw());
-        back.update(swerve.getFieldYaw());
+        // back.update(swerve.getFieldYaw());
     }
 
     @Override

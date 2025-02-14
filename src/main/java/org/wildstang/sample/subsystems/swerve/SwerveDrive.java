@@ -289,11 +289,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 rotTarget = vision.turnToTarget(VisionConsts.speaker);
                 rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
                 this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-            //picking up a game piece with vision assistance in auto
-            } else if (isAutoObject && vision.back.TargetInView()){
-                yObject = swerveHelper.adjustObjectAuto(vision.back.ty, xPower, yPower);
-                if (yObject > 0) this.swerveSignal = swerveHelper.setObject(0, yObject, vision.back.tx);
-                else this.swerveSignal = swerveHelper.setObject(xPower, yPower, vision.back.tx);
             } else {
                 //get controller generated rotation value
                 rotSpeed = swerveHelper.getAutoRotation(rotTarget, getGyroAngle());
@@ -304,16 +299,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             drive();        
         } 
         if (driveState == driveType.OBJECT) {
-            //for teleop game piece pickup
-            if (vision.back.TargetInView()) {
-                //force the controller input to point at the gamepiece, only thing driver controls is speed of the robot
-                this.swerveSignal = swerveHelper.setObject(xPower, yPower, vision.back.tx);
-                drive();
-            }
-            else {
-                this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-                drive();
-            }
         }
         SmartDashboard.putNumber("Gyro Reading", getGyroAngle());
         SmartDashboard.putNumber("X Power", xPower);

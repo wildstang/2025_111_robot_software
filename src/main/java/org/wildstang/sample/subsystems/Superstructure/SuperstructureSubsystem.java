@@ -253,6 +253,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         SmartDashboard.putBoolean("# Reef L3", level.ordinal() == 2);
         SmartDashboard.putBoolean("# Reef L4", level.ordinal() == 3);
         SmartDashboard.putNumber("@ absolute arm", armSpark.getController().getAbsoluteEncoder().getPosition());
+        SmartDashboard.putNumber("@ lift current", LiftMax.getController().getOutputCurrent());
     }
 
      /**
@@ -302,7 +303,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         }
     }
     private void setLift(double liftPos){
-        if (desiredPosition.getLift() < LIFT_LOW || LiftMax.getPosition() < LIFT_LOW){
+        // if (desiredPosition.getLift() < LIFT_LOW && LiftMax.getPosition() < LIFT_LOW){
+        if (desiredPosition.getLift() < LiftMax.getPosition()){
             LiftMax.setPosition(liftPos, 1, LIFT_FF);
             lift2.setPosition(-liftPos, 1, -LIFT_FF);
         } else {
