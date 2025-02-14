@@ -7,7 +7,7 @@ import org.wildstang.sample.auto.Steps.AutoSetupStep;
 import org.wildstang.sample.auto.Steps.IntakeCoralStep;
 import org.wildstang.sample.auto.Steps.ScoreCoralStep;
 import org.wildstang.sample.robot.WsSubsystems;
-import org.wildstang.sample.subsystems.Superstructure.Superstructure;
+import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructurePosition;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
@@ -22,31 +22,31 @@ public class ThreeCoralV1 extends AutoProgram {
 
         // Score 1st Coral
         addStep(new SwervePathFollowerStep("ThreeCoralPath", swerve, 0));
-        addStep(Superstructure.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
-        addStep(Superstructure.setPositionStep(SuperstructurePosition.STOWED));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 
         // Pickup 2nd Coral
         addStep(new SwervePathFollowerStep("ThreeCoralPath", swerve, 1));
-        addStep(Superstructure.setPositionStep(SuperstructurePosition.CORAL_STATION_FRONT));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_STATION_FRONT));
         addStep(new IntakeCoralStep());
-        addStep(Superstructure.setPositionStep(SuperstructurePosition.STOWED));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 
         // Score 2nd Coral
         addStep(new SwervePathFollowerStep("ThreeCoralPath", swerve, 2));
-        addStep(Superstructure.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
-        addStep(Superstructure.setPositionStep(SuperstructurePosition.STOWED));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 
         // Pickup 3rd Coral
         addStep(new SwervePathFollowerStep("ThreeCoralPath", swerve, 3));
-        addStep(Superstructure.setPositionStep(SuperstructurePosition.CORAL_STATION_FRONT));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_STATION_FRONT));
         addStep(new IntakeCoralStep());
-        addStep(Superstructure.setPositionStep(SuperstructurePosition.STOWED));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 
         // Score 3rd Coral
         addStep(new SwervePathFollowerStep("ThreeCoralPath", swerve, 4));
-        addStep(Superstructure.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
     }
 

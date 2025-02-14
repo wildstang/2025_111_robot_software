@@ -4,7 +4,7 @@ import org.wildstang.framework.auto.AutoStep;
 import org.wildstang.framework.core.Core;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.CoralPath;
-import org.wildstang.sample.subsystems.Superstructure.Superstructure;
+import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -16,14 +16,14 @@ import edu.wpi.first.wpilibj.Timer;
 public class ScoreCoralStep extends AutoStep {
     public static final double SCORE_DURATION = 0.2;
     CoralPath coralPath;
-    Superstructure superstructure;
+    SuperstructureSubsystem superstructure;
     SwerveDrive swerveDrive;
     Timer timer = new Timer();
 
     @Override
     public void initialize() {
         coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
-        superstructure = (Superstructure) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
+        superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
         swerveDrive = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
     }
 
