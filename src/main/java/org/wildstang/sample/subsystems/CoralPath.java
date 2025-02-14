@@ -184,5 +184,17 @@ public class CoralPath implements Subsystem{
     public boolean hasCoral(){
         return hasCoral || superstructure.isScoringCoral();
     }
+
+    // AUTO STEP METHODS
+
+    // Start or stop intaking coral
+    public void setIntake(boolean intake) {
+        coralSpeed = intake ? 1 : 0;
+    }
+
+    // Start or stop scoring coral
+    public void setScore(boolean score) {
+        coralSpeed = score ? -1 : 0;
+    }
     
 }

@@ -31,7 +31,6 @@ public class SwerveModule {
      */
     public SwerveModule(WsSpark driveMotor, WsSpark angleMotor, double offset) {
         this.driveMotor = driveMotor;
-        // this.driveMotor.getController().getAbsoluteEncoder(Type.kDutyCycle).setVelocityConversionFactor(); 
         this.angleMotor = angleMotor;
         
         this.absEncoder = angleMotor.getController().getAbsoluteEncoder();
@@ -139,6 +138,14 @@ public class SwerveModule {
         return driveMotor.getPosition() * DriveConstants.WHEEL_DIAMETER * Math.PI / DriveConstants.DRIVE_RATIO;
     }
 
+    /**
+     * returns drive encoder velocity in inches per second
+     * @return double drive encoder velocity in inches per second
+     */
+    public double getVelocitiy() {
+        return driveMotor.getVelocity() * 60 * (DriveConstants.WHEEL_DIAMETER * Math.PI / DriveConstants.DRIVE_RATIO);
+    }
+
     /**returns raw drive encoder value, rotations
      * @return drive encoder value, rotations
      */
@@ -158,10 +165,10 @@ public class SwerveModule {
         return driveMotor;
     }
     public SwerveModulePosition odoPosition(){
-        return new SwerveModulePosition(getPosition()*0.0254, new Rotation2d(Math.toRadians(360-getAngle())));
+        return new SwerveModulePosition(getPosition()*0.0254, Rotation2d.fromDegrees(360-getAngle()));
     }
     public SwerveModuleState moduleState(){
-        return new SwerveModuleState(driveMotor.getVelocity(), Rotation2d.fromDegrees(360-getAngle()));
+        return new SwerveModuleState(getVelocitiy() * 0.0254, Rotation2d.fromDegrees(360-getAngle()));
     }
     public void setDriveCurrent(int newCurrentLimit){
         driveMotor.setCurrentLimit(newCurrentLimit, newCurrentLimit, 0);

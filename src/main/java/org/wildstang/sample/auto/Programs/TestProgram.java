@@ -8,7 +8,6 @@ import org.wildstang.framework.auto.steps.SwervePathFollowerStep;
 import org.wildstang.framework.auto.steps.control.AutoStepDelay;
 import org.wildstang.framework.core.Core;
 import org.wildstang.sample.auto.Steps.AutoSetupStep;
-import org.wildstang.sample.auto.Steps.ObjectOnStep;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 

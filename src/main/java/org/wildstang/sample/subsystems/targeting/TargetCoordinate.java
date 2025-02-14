@@ -2,33 +2,32 @@ package org.wildstang.sample.subsystems.targeting;
 
 import org.wildstang.framework.core.Core;
 
+import edu.wpi.first.math.geometry.Pose2d;
+
+// INCHES
 public class TargetCoordinate{
-        private double blueX, blueY, redX, redY, blueHeading, redHeading;
+        private double blueX, blueY, blueHeading;
+        private Pose2d position;
+
+        public static TargetCoordinate fromPose2d(Pose2d pose2d) {
+            return new TargetCoordinate(pose2d.getTranslation().getX(), pose2d.getTranslation().getY(), pose2d.getRotation().getDegrees());
+        }
 
         public TargetCoordinate(double i_blueX, double i_blueY){
-            this(i_blueX, i_blueY, i_blueX, 322-i_blueY, 0, 0);
-        }
-        public TargetCoordinate(double i_blueX, double i_blueY, double i_redX, double i_redY, double i_blueHeading, double i_redHeading){
-            blueX = i_blueX;
-            blueY = i_blueY;
-            redX = i_redX;
-            redY = i_redY;
-            blueHeading = i_blueHeading;
-            redHeading = i_redHeading;
-        }
-        public TargetCoordinate(double i_blueX, double i_blueY, double i_redX, double i_redY){
-            this(i_blueX, i_blueY, i_redX, i_redY,0,0);
+            this(i_blueX, i_blueY,  0);
         }
         public TargetCoordinate(double i_blueX, double i_blueY, double i_blueHeading){
-            this(i_blueX, i_blueY, i_blueX, 322-i_blueY, i_blueHeading, 360-i_blueHeading);
+            this.blueX = i_blueX;
+            this.blueY = i_blueY;
+            this.blueHeading = i_blueHeading;
         }
         public double getX(){
-            return Core.isBlue() ? blueX : redX;
+            return blueX;
         }
         public double getY(){
-            return Core.isBlue() ? blueY : redY;
+            return blueY;
         }
         public double getHeading(){
-            return Core.isBlue() ? blueHeading : redHeading;
+            return  blueHeading;
         }
     }
