@@ -92,10 +92,10 @@ public class WsLL {
             blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
             red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
             alliance3D = Core.isBlue() ? blue3D : red3D;
-            posePublisher.set(alliance3D.pose);
+            if (alliance3D != null) posePublisher.set(alliance3D.pose);
 
             // We don't actually have a new frame and MegTag2 pose to return
-            if (alliance3D.timestampSeconds == oldTimestamp) {
+            if (alliance3D != null && alliance3D.timestampSeconds == oldTimestamp) {
                 return Optional.empty();
             }
             return Optional.of(alliance3D);

@@ -143,7 +143,7 @@ public class SwerveModule {
      * @return double drive encoder velocity in inches per second
      */
     public double getVelocitiy() {
-        return driveMotor.getVelocity() * 60 * (DriveConstants.WHEEL_DIAMETER * Math.PI / DriveConstants.DRIVE_RATIO);
+        return (driveMotor.getVelocity() / 60) * (DriveConstants.WHEEL_DIAMETER * Math.PI / DriveConstants.DRIVE_RATIO);
     }
 
     /**returns raw drive encoder value, rotations

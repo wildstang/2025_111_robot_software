@@ -16,6 +16,7 @@ import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.CoralPath;
+import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.targeting.TargetCoordinate;
 import org.wildstang.sample.subsystems.targeting.VisionConsts;
 import org.wildstang.sample.subsystems.targeting.WsPose;
@@ -86,6 +87,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     private WsPose pose;
     private CoralPath coralPath;
+    private SuperstructureSubsystem superstructure;
     private Pose2d targetPose;
 
 
@@ -103,9 +105,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rightBranch = false;
         } else if (source == operatorRightBumper && operatorRightBumper.getValue()) {
             rightBranch = true;
-        } else if (source == operatorLeftTrigger && operatorLeftTrigger.getValue() > 0.5) {
+        } else if (source == operatorLeftTrigger && Math.abs(operatorLeftTrigger.getValue()) > 0.5) {
             topTriangle = false;
-        } else if (source == operatorRightTrigger && operatorRightTrigger.getValue() > 0.5) {
+        } else if (source == operatorRightTrigger && Math.abs(operatorRightTrigger.getValue()) > 0.5) {
             topTriangle = true;
         } else if (source == operatorDpadUp && operatorDpadUp.getValue()) {
             algaeNet = true;
@@ -236,6 +238,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     public void initSubsystems() {
         pose = (WsPose) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_POSE);
         coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
+        superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
     }
 
     public void initInputs() {
@@ -331,17 +334,18 @@ public class SwerveDrive extends SwerveDriveTemplate {
         } else if (driveState == driveType.REEFSCORE) {
 
             // Automatically p-loop translate to scoring position
-            Pose2d targetPose = pose.getClosestBranch(rightBranch, topTriangle);
+            Pose2d targetPose = superstructure.isAlgaeRemoval() ? pose.getClosestBranch(false, topTriangle)
+                :pose.getClosestBranch(rightBranch, topTriangle);
             rotTarget = targetPose.getRotation().getDegrees();
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            xPower = pose.getAlignX(targetPose.getTranslation());
-            yPower = pose.getAlignY(targetPose.getTranslation());
+            xPower = xPower * 0.5 + pose.getAlignX(targetPose.getTranslation());
+            yPower = yPower * 0.5 + pose.getAlignY(targetPose.getTranslation());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 0 and translate to right y position
         } else if (driveState == driveType.NETSCORE) {
             rotTarget = frontCloser(0) ? 0 : 180;
-            rotSpeed = swerveHelper.getRotControl(0, getGyroAngle());
+            rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             yPower = pose.getAlignY(VisionConsts.netScore);
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
 
@@ -361,7 +365,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             // TODO: Set yPower based on LaserCAN
             // Gyro 0 for robot centric X, Y
-            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, 0);
+            this.swerveSignal = swerveHelper.setDrive(0.75*xPower, 0.75*yPower, rotSpeed, getGyroAngle());
 
         // Just heading lock to 90 (climb on left side of robot) so Rossen doesn't accidentally turn
         } else if (driveState == driveType.CLIMB) {
@@ -378,11 +382,11 @@ public class SwerveDrive extends SwerveDriveTemplate {
         }
 
         // Rossen tipping???
-        if (isRossenTipping()) {
-            xPower = gyro.getRoll().getValueAsDouble() * DriveConstants.TIPPING_P;
-            yPower = gyro.getPitch().getValueAsDouble() * DriveConstants.TIPPING_P;
-            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, 0, 0);
-        }
+        // if (isRossenTipping()) {
+        //     xPower = gyro.getRoll().getValueAsDouble() * DriveConstants.TIPPING_P;
+        //     yPower = gyro.getPitch().getValueAsDouble() * DriveConstants.TIPPING_P;
+        //     this.swerveSignal = swerveHelper.setDrive(xPower, yPower, 0, 0);
+        // }
         drive();
         SmartDashboard.putNumber("# Robot X", pose.estimatedPose.getX());
         SmartDashboard.putNumber("# Robot Y", pose.estimatedPose.getY());
@@ -399,6 +403,13 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("Drive Speed", speedMagnitude());
         SmartDashboard.putBoolean("Alliance Color", DriverStation.getAlliance().isPresent());
         SmartDashboard.putBoolean("@ is blue", Core.isBlue());
+        SmartDashboard.putNumber("@ mega2 gyro", getMegaTag2Yaw());
+        SmartDashboard.putNumber("@ speed", speedMagnitude());
+        SmartDashboard.putBoolean("# right branch", rightBranch);
+        SmartDashboard.putBoolean("# left branch", !rightBranch);
+        SmartDashboard.putNumber("@ X target", pose.getClosestBranch(rightBranch, topTriangle).getX());
+        SmartDashboard.putNumber("@ Y target", pose.getClosestBranch(rightBranch, topTriangle).getY());
+        SmartDashboard.putBoolean("@ driver triangle", topTriangle);
         moduleStatePublisher.set(moduleStates());
     }
     
@@ -494,7 +505,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
      * @return Returns the field relative CCW gyro angle for use with Limelight MegaTag2
      */
     public double getMegaTag2Yaw(){
-        return Math.toRadians(gyro.getYaw().getValueAsDouble() + (Core.isBlue() ? 0 : 180));
+        return (gyro.getYaw().getValueAsDouble() + (Core.isBlue() ? 0 : 180));
     }
     /** 
      * @return Returns alliance relative CCW gyro angle for use with always alliance relative pose

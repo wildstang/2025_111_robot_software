@@ -167,7 +167,7 @@ public class Core {
     }
 
     public static Boolean isBlue() {
-        return s_alliance == Alliance.Blue;
+        return s_alliance != Alliance.Red;
     }
     public static boolean getIsDisabledMode(){
         return isDisabled;

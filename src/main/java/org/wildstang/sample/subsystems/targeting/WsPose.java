@@ -96,16 +96,16 @@ public class WsPose implements Subsystem {
         double leftStdDev = Double.MAX_VALUE;
         double rightStdDev = Double.MAX_VALUE;
         if (swerve.speedMagnitude() < visionSpeedThreshold) {
-            if (leftEstimate.isPresent()) {
+            if (leftEstimate.isPresent() && leftEstimate.get().rawFiducials.length > 0) {
 
                 // Get distance to the closest tag from the array of raw fiducials
                 double closestTagDist = Arrays.stream(leftEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
                 leftStdDev = Math.pow(closestTagDist, 2) / leftEstimate.get().tagCount;
             }
-            if (rightEstimate.isPresent()) {
+            if (rightEstimate.isPresent() && rightEstimate.get().rawFiducials.length > 0) {
 
                 // Get distance to the closest tag from the array of raw fiducials
-                double closestTagDist = Arrays.stream(leftEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
+                double closestTagDist = Arrays.stream(rightEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
                 rightStdDev = Math.pow(closestTagDist, 2) / rightEstimate.get().tagCount;
             }
             if (leftStdDev < rightStdDev) {
@@ -185,9 +185,9 @@ public class WsPose implements Subsystem {
      */
     public boolean isClosestStationRight() {
         if (estimatedPose.getY() > VisionConsts.halfwayAcrossFieldY) {
-            return true;
-        } else {
             return false;
+        } else {
+            return true;
         }
     }
 

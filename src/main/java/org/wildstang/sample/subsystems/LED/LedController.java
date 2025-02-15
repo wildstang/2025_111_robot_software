@@ -34,12 +34,10 @@ public class LedController implements Subsystem {
                 color = BlinkinValues.GREEN;
             } else if (isScoring && !superstructure.isAtPosition()){
                 color = BlinkinValues.DARK_RED;
+            } else if (superstructure.isAlgaeRemoval()){
+                color = BlinkinValues.WHITE;
             } else if (coralPath.hasCoral()){
-                if (superstructure.isAlgaeRemoval()){
-                    color = BlinkinValues.WHITE;
-                } else {
-                    color = BlinkinValues.YELLOW;
-                }
+                color = BlinkinValues.YELLOW;
             } else if (coralPath.hasAlgae()){
                 color = BlinkinValues.SKY_BLUE;
             } else color = BlinkinValues.RAINBOW_RAINBOW_PALETTE;
