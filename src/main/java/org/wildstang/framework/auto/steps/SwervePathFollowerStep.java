@@ -54,7 +54,9 @@ public class SwervePathFollowerStep extends AutoStep {
      * @param split the index of the path split
      */
     public SwervePathFollowerStep(String pathData, SwerveDriveTemplate drive, int split) {
-        this.pathtraj = getTraj(pathData).getSplit(split).get();
+        var traj = Choreo.loadTrajectory(pathData).get().getSplit(split).get();
+        this.pathtraj = (Trajectory<SwerveSample>)traj;
+        //this.pathtraj = getTraj(pathData).getSplit(split).get();
         m_drive = drive;
         timer = new Timer();
     }

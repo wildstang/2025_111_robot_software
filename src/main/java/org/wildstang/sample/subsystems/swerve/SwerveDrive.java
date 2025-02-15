@@ -398,6 +398,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("Pitch", gyro.getPitch().getValueAsDouble());
         SmartDashboard.putNumber("Drive Speed", speedMagnitude());
         SmartDashboard.putBoolean("Alliance Color", DriverStation.getAlliance().isPresent());
+        SmartDashboard.putBoolean("@ is blue", Core.isBlue());
         moduleStatePublisher.set(moduleStates());
     }
     

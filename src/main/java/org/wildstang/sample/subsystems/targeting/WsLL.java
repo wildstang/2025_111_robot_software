@@ -36,6 +36,8 @@ public class WsLL {
      * Argument is String ID of the limelight networktable entry, aka what it's called
      */
     public WsLL(String CameraID, boolean isAprilTag){
+        posePublisher = NetworkTableInstance.getDefault().getStructTopic(CameraID + "/metatag2 alliance pose", Pose2d.struct).publish();
+        
         tv = LimelightHelpers.getTV(CameraID); // 1 if valid target exists. 0 if no valid targets exist
         tx = LimelightHelpers.getTX(CameraID); // Horrizontal offset from crosshair to target
         ty = LimelightHelpers.getTY(CameraID); // Vertical offset from crosshair to target
@@ -48,7 +50,6 @@ public class WsLL {
             blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
             red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
             alliance3D = Core.isBlue() ? blue3D : red3D;
-            posePublisher = NetworkTableInstance.getDefault().getStructTopic(CameraID + "/metatag2 alliance pose", Pose2d.struct).publish();
             if (alliance3D != null){
                 posePublisher.set(alliance3D.pose);
             }
@@ -86,8 +87,8 @@ public class WsLL {
         tl = LimelightHelpers.getLatency_Pipeline(CameraID); // The pipeline's latency contribution (ms)
         tc = LimelightHelpers.getLatency_Capture(CameraID); // Capture pipeline latency (ms)
         ta = LimelightHelpers.getTA(CameraID); // Target area
-        if (tv && isAprilTag){
-            double oldTimestamp = alliance3D.timestampSeconds;
+        if (tv && isAprilTag ){
+            double oldTimestamp = alliance3D != null ? alliance3D.timestampSeconds : Double.MAX_VALUE;
             blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
             red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
             alliance3D = Core.isBlue() ? blue3D : red3D;
