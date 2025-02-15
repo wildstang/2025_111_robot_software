@@ -202,6 +202,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             else rotTarget = 90.0;
             rotLocked = true;
         }
+        if (faceDown.getValue() || faceUp.getValue() || faceLeft.getValue() || faceRight.getValue()) isReef = false;
 
         //get rotational joystick
         rotSpeed = rightStickX.getValue()*Math.abs(rightStickX.getValue());
@@ -213,6 +214,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         //if the rotational joystick is being used, the robot should not be auto tracking heading
         if (rotSpeed != 0) {
             rotLocked = false;
+            isReef = false;
         }
         
         //assign thrust - no thrust this year, low cg robot means max speed all the time
@@ -320,8 +322,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
             if (rotLocked){
                 if (isReef){
                     // Oops, the scoring side is on the "back" of the robot now
-                    rotTarget = 180 - pose.turnToTarget(VisionConsts.reefCenter);
-                }
+                    rotTarget = (pose.turnToTarget(VisionConsts.reefCenter)+180)%360;
+                } 
                 rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
                 if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 1.0) rotSpeed = 0;
             }
@@ -334,7 +336,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             xPower = pose.getAlignX(targetPose.getTranslation());
             yPower = pose.getAlignY(targetPose.getTranslation());
-
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 0 and translate to right y position
@@ -342,14 +343,12 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rotTarget = frontCloser(0) ? 0 : 180;
             rotSpeed = swerveHelper.getRotControl(0, getGyroAngle());
             yPower = pose.getAlignY(VisionConsts.netScore);
-
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 90
         } else if (driveState == driveType.PROCESSORSCORE) {
             rotTarget = frontCloser(90) ? 90 : 270;
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
         } else if (driveState == driveType.CORALSTATION) {
 
@@ -359,7 +358,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             if (!frontCloser(rotTarget)) {
                 rotTarget = (rotTarget + 180) % 360;
             }
-
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             // TODO: Set yPower based on LaserCAN
             // Gyro 0 for robot centric X, Y
@@ -369,15 +367,15 @@ public class SwerveDrive extends SwerveDriveTemplate {
         } else if (driveState == driveType.CLIMB) {
             rotSpeed = swerveHelper.getRotControl(90, getGyroAngle());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
-
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
             // TODO: Do something
+            rotSpeed = swerveHelper.getAutoRotation((360-targetPose.getRotation().getDegrees())%360, getGyroAngle());
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             // Pre generated power values in set auto
-        } 
+        }
 
         // Rossen tipping???
         if (isRossenTipping()) {
@@ -386,6 +384,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, 0, 0);
         }
         drive();
+        SmartDashboard.putNumber("# Robot X", pose.estimatedPose.getX());
+        SmartDashboard.putNumber("# Robot Y", pose.estimatedPose.getY());
         SmartDashboard.putNumber("Gyro Reading", getGyroAngle());
         SmartDashboard.putNumber("X Power", xPower);
         SmartDashboard.putNumber("Y Power", yPower);
