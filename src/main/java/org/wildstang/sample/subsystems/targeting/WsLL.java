@@ -1,91 +1,114 @@
 package org.wildstang.sample.subsystems.targeting;
 
-import org.wildstang.framework.core.Core;
+import java.util.Optional;
 
+import org.wildstang.framework.core.Core;
+import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class WsLL {
 
     private final double mToIn = 39.3701;
-    
-    public NetworkTable limelight;
 
-    //public LimelightHelpers.Results result;
-
-    private double[] blue3D;
-    private double[] red3D;
-    public double[] target3D;
+    private PoseEstimate blue3D;
+    private PoseEstimate red3D;
+    public PoseEstimate alliance3D;
     public int tid;
-    public double tv;
+    public boolean tv;
     public double tx;
     public double ty;
     public double tl;
     public double tc;
     public double ta;
+    StructPublisher<Pose2d> posePublisher;
+
+    // Name of Limelight
     public String CameraID;
-    public int numTargets;
+    public boolean isAprilTag;
 
     /*
      * Argument is String ID of the limelight networktable entry, aka what it's called
      */
-    public WsLL(String CameraID){
-        limelight = NetworkTableInstance.getDefault().getTable(CameraID);
-        red3D = limelight.getEntry("botpose_wpired").getDoubleArray(new double[11]);
-        //red3D = limelight.getEntry("botpose_orb_wpired").getDoubleArray(new double[11]);
-        blue3D = limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[11]);
-        //blue3D = limelight.getEntry("botpose_orb_wpiblue").getDoublearray(new double[11]);
-        target3D = Core.isBlue() ? blue3D : red3D;
-        setToIn();
-        tid = (int) limelight.getEntry("tid").getInteger(0);
-        tv = limelight.getEntry("tv").getDouble(0);
-        tx = limelight.getEntry("tx").getDouble(0);
-        ty = limelight.getEntry("ty").getDouble(0);
-        tl = limelight.getEntry("tl").getDouble(0);
-        tc = limelight.getEntry("tc").getDouble(0);
-        ta = limelight.getEntry("ta").getDouble(0);
+    public WsLL(String CameraID, boolean isAprilTag){
+        posePublisher = NetworkTableInstance.getDefault().getStructTopic(CameraID + "/metatag2 alliance pose", Pose2d.struct).publish();
+        
+        tv = LimelightHelpers.getTV(CameraID); // 1 if valid target exists. 0 if no valid targets exist
+        tx = LimelightHelpers.getTX(CameraID); // Horrizontal offset from crosshair to target
+        ty = LimelightHelpers.getTY(CameraID); // Vertical offset from crosshair to target
+        tl = LimelightHelpers.getLatency_Pipeline(CameraID); // The pipeline's latency contribution (ms)
+        tc = LimelightHelpers.getLatency_Capture(CameraID); // Capture pipeline latency (ms)
+        ta = LimelightHelpers.getTA(CameraID); // Target area
+
+        if (isAprilTag) {
+            tid = (int) LimelightHelpers.getFiducialID(CameraID); // ID of the primary in view april tag
+            blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
+            red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
+            alliance3D = Core.isBlue() ? blue3D : red3D;
+            if (alliance3D != null){
+                posePublisher.set(alliance3D.pose);
+            }
+        }
 
         this.CameraID = CameraID;
-        //result = LimelightHelpers.getLatestResults(CameraID).targetingResults;
+        this.isAprilTag = isAprilTag;
     }
 
-    /*
-     * updates all values to the latest value
-     */
-    public void update(double yaw){
-        LimelightHelpers.SetRobotOrientation(CameraID, yaw, 0, 0, 0, 0, 0); 
+    // Limelight NT botpose array values
+    // 0 translation X
+    // 1 translation Y
+    // 2 translation Z
+    // 3 rotation roll (degrees)
+    // 4 rotation pitch
+    // 5 rotation  yaw
+    // 6 total latency (ms)
+    // 7 tag count
+    // 8 tag span
+    // 9 average tag distance from camera
+    // 10 average tag area (percentage of image)
 
-        //result = LimelightHelpers.getLatestResults(CameraID).targetingResults;
-        tv = limelight.getEntry("tv").getDouble(0);
-        tx = limelight.getEntry("tx").getDouble(0);
-        ty = limelight.getEntry("ty").getDouble(0);
-        if (tv > 0){
-            blue3D = limelight.getEntry("botpose_wpiblue").getDoubleArray(new double[11]);
-            //blue3D = limelight.getEntry("botpose_orb_wpiblue").getDoubleArray(new double[11]);
-            red3D = limelight.getEntry("botpose_wpired").getDoubleArray(new double[11]);
-            //red3D = limelight.getEntry("botpose_orb_wpired").getDoubleArray(new double[11]);
-            target3D = Core.isBlue() ? blue3D : red3D;
-            setToIn();
-            tid = (int) limelight.getEntry("tid").getInteger(0);
-            //numTargets = result.targets_Fiducials.length;
+    /**
+     * Updates all values to the latest value
+     * @param yaw Yaw value for MegaTag2 pose disambiguation
+     * @return pose estimate if valid
+     */
+    public Optional<PoseEstimate> update(double yaw){
+        LimelightHelpers.SetRobotOrientation(CameraID, yaw, 0, 0, 0, 0, 0); 
+        
+        tid = (int) LimelightHelpers.getFiducialID(CameraID); // ID of the primary in view april tag
+        tv = LimelightHelpers.getTV(CameraID); // 1 if valid target exists. 0 if no valid targets exist
+        tx = LimelightHelpers.getTX(CameraID); // Horrizontal offset from crosshair to target
+        ty = LimelightHelpers.getTY(CameraID); // Vertical offset from crosshair to target
+        tl = LimelightHelpers.getLatency_Pipeline(CameraID); // The pipeline's latency contribution (ms)
+        tc = LimelightHelpers.getLatency_Capture(CameraID); // Capture pipeline latency (ms)
+        ta = LimelightHelpers.getTA(CameraID); // Target area
+        if (tv && isAprilTag ){
+            double oldTimestamp = alliance3D != null ? alliance3D.timestampSeconds : Double.MAX_VALUE;
+            blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
+            red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
+            alliance3D = Core.isBlue() ? blue3D : red3D;
+            if (alliance3D != null) posePublisher.set(alliance3D.pose);
+
+            // We don't actually have a new frame and MegTag2 pose to return
+            if (alliance3D != null && alliance3D.timestampSeconds == oldTimestamp) {
+                return Optional.empty();
+            }
+            return Optional.of(alliance3D);
         }
-        updateDashboard();
+        return Optional.empty();
     }
     /*
      * returns true if a target is seen, false otherwise
      */
     public boolean TargetInView(){
-        return tv>0;
+        return tv;
     }
-
-    public void updateDashboard(){
-        SmartDashboard.putBoolean(CameraID + " tv", TargetInView());
-        SmartDashboard.putNumber(CameraID + " tid", tid);
-        SmartDashboard.putNumber(CameraID + " numTargets", numTargets);
-        SmartDashboard.putNumber(CameraID + "Vision x", target3D[0]);
-        SmartDashboard.putNumber(CameraID + "Vision y", target3D[1]);
-    }
+    
     /*
      * returns total latency, capture latency + pipeline latency
      */
@@ -96,86 +119,24 @@ public class WsLL {
      * Sets the pipeline (0-9) with argument
      */
     public void setPipeline(int pipeline){
-        limelight.getEntry("pipeline").setNumber(pipeline);
+        LimelightHelpers.setPipelineIndex(CameraID, pipeline);
     }
 
+
+    public enum LEDState { DEFAULT, OFF, BLINK, ON}
     /*
      * Sets what the LED lights do
-     * 0 is pipeline default, 1 is off, 2 is blink, 3 is on
      */
-    public void setLED(int ledState){
-        limelight.getEntry("ledMode").setNumber(ledState);
-    }
-
-    /*
-     * Sets camera mode, 0 for vision processing and 1 for just camera
-     */
-    public void setCam(int cameraMode){
-        limelight.getEntry("camMode").setNumber(cameraMode);
-    }
-
-    /*
-     * sets measurements to in from m
-     */
-    private void setToIn(){
-        for (int i = 0; i < 7; i++){
-            this.red3D[i] *= mToIn;
-            this.blue3D[i] *= mToIn;
-            this.target3D[i] *= mToIn;
+    public void setLED(LEDState state){
+        switch (state) {
+            case DEFAULT:
+                LimelightHelpers.setLEDMode_PipelineControl(CameraID);
+            case OFF:
+                LimelightHelpers.setLEDMode_ForceOff(CameraID);
+            case BLINK:
+                LimelightHelpers.setLEDMode_ForceBlink(CameraID);
+            case ON:
+                LimelightHelpers.setLEDMode_ForceOn(CameraID);
         }
     }
-    /**
-     * returns distance to selected alliances' center of speaker for lookup table use
-     */
-    public double distanceToTarget(TargetCoordinate target){
-        return Math.hypot(target3D[0] - target.getX(),
-            target3D[1] - target.getY());
-    }
-    /*
-     * gets control value for aligning robot to certain x value on the field
-     */
-    public double getAlignX(TargetCoordinate target){
-        return -target3D[0]+target.getX();
-    }
-    /*
-     * gets control value for aligning robot to certain y value on the field
-     */
-    public double getAlignY(TargetCoordinate target){
-        return target3D[1] - target.getY();
-    }
-
-    /**
-     * input of X and Y in frc field coordinates, returns controller bearing degrees (aka what to plug into rotLocked) for turnToTarget
-     */
-    public double getDirection(double x, double y) {
-        double measurement = 90 + Math.toDegrees(Math.atan2(x,y));
-        if (measurement < 0) {
-            measurement = 360 + measurement;
-        }
-        else if (measurement >= 360) {
-            measurement = measurement - 360;
-        }
-        return measurement;
-    }
-    /**
-     * returns what to set rotLocked to
-     */
-    public double turnToTarget(TargetCoordinate target){
-        return getDirection(target3D[0] - target.getX(),
-            target3D[1] - target.getY());
-    }
-
-    /*
-     * determine how many april tags a camera can see
-     */
-    public double getNumTags(){
-        return target3D[7];
-    }
-    /*
-     * determine the distance to the first april tag that a camera can see
-     */
-    public double getTagDist(){
-        return target3D[9];
-    }
-
 }

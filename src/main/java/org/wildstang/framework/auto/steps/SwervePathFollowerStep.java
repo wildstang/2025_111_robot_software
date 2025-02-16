@@ -46,6 +46,21 @@ public class SwervePathFollowerStep extends AutoStep {
         timer = new Timer();
     }
 
+    /** Sets the robot to track a new path
+     * finishes after all values have been read to robot
+     * @param pathData double[][] that contains path, should be from \frc\paths
+     * @param drive the swerveDrive subsystem
+     * @param isBlue whether the robot is on the blue alliance
+     * @param split the index of the path split
+     */
+    public SwervePathFollowerStep(String pathData, SwerveDriveTemplate drive, int split) {
+        var traj = Choreo.loadTrajectory(pathData).get().getSplit(split).get();
+        this.pathtraj = (Trajectory<SwerveSample>)traj;
+        //this.pathtraj = getTraj(pathData).getSplit(split).get();
+        m_drive = drive;
+        timer = new Timer();
+    }
+
     @Override
     public void initialize() {
         //start path
@@ -56,26 +71,18 @@ public class SwervePathFollowerStep extends AutoStep {
     @Override
     public void update() {
         if (timer.get() >= pathtraj.getFinalSample(false).get().t) {
-            m_drive.setAutoValues(0.0,0.0,0.0,0.0);
+            m_drive.setAutoValues(0.0,0.0, pathtraj.getFinalPose(false).get());
             SmartDashboard.putNumber("auto final time", timer.get());
             setFinished();
         } else {
             sample = pathtraj.sampleAt(timer.get(), false).get();
             
-            
             fieldRobotPose = m_drive.returnPose();
             fieldAutoPose = sample.getPose();
 
-            xOffset = -fieldAutoPose.getY() + (Core.isBlue() ? fieldRobotPose.getY() : 8.016-fieldRobotPose.getY());
-            yOffset = fieldAutoPose.getX() - fieldRobotPose.getY();
-            SmartDashboard.putNumber("xOffset", xOffset);
-            SmartDashboard.putNumber("yOffset", yOffset);
-
             m_drive.setAutoHeading(getHeading());
-            m_drive.setAutoValues((Core.isBlue() ? -1 : 1) * sample.vy * mToIn, sample.vx * mToIn, xOffset, yOffset);
-            SmartDashboard.putNumber("PF local X", fieldRobotPose.getX());
-            SmartDashboard.putNumber("PF path X", fieldAutoPose.getX());
-            }
+            m_drive.setAutoValues(-1 * sample.vy * mToIn, sample.vx * mToIn, fieldAutoPose);
+        }
     }
 
     @Override
@@ -84,8 +91,7 @@ public class SwervePathFollowerStep extends AutoStep {
     }
 
     public double getHeading(){
-        if (Core.isBlue()) return ((-pathtraj.sampleAt(timer.get(),false).get().heading*180/Math.PI)+360)%360;
-        else return ((pathtraj.sampleAt(timer.get(),false).get().heading*180/Math.PI)+360)%360;
+        return ((-pathtraj.sampleAt(timer.get(),false).get().heading*180/Math.PI)+360)%360;
     }
 
     @SuppressWarnings("unchecked")
