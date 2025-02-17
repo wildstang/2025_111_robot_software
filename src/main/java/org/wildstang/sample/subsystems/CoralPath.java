@@ -144,6 +144,9 @@ public class CoralPath implements Subsystem{
                 }
             }
         }
+        if (algae.getController().getOutputCurrent() > ALGAE_CURRENT_LIMIT && algaeSpeed == 0 && delayTimer.hasElapsed(0.25)){
+            algaeSpeed = ALGAE_STALL_POWER;
+        }
         coral.setSpeed(coralSpeed);
         if (algaeSpeed == ALGAE_STALL_POWER && !holdTimer.hasElapsed(2.0)){
             algae.setSpeed(1);
