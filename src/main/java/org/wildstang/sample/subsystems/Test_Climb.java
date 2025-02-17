@@ -3,16 +3,12 @@ package org.wildstang.sample.subsystems;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
-import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
-import org.wildstang.hardware.roborio.inputs.WsDPadButton;
-import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 
-import com.google.gson.ToNumberPolicy;
 
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,11 +17,11 @@ public class Test_Climb implements Subsystem{
 
     private WsSpark climb1;
     private WsJoystickAxis operatorJoystickY; 
-    private WsDPadButton operatorDpadDown;
-    private WsDPadButton operatorDpadUp;
+    private WsJoystickButton start, select;
 
     private double climbSpeed;
     private double pwmValue = 0;
+    private boolean hasStarted = false;
     private PWM servo;
 
 
@@ -36,17 +32,17 @@ public class Test_Climb implements Subsystem{
 
     @Override
     public void inputUpdate(Input source) {
-        if (operatorJoystickY.getValue() > 0.5) {
+        if (operatorJoystickY.getValue() > 0.5 && hasStarted && pwmValue == 0) {
             climbSpeed = 1;
-        } else if (operatorJoystickY.getValue() < -0.5) {
+        } else if (operatorJoystickY.getValue() < -0.5 && hasStarted) {
             climbSpeed = -1;
         } else {
             climbSpeed = 0;
         }
-        if (source == operatorDpadDown && operatorDpadDown.getValue()) {
-            pwmValue = Math.min(1, pwmValue + 0.05);
-        } else if (source == operatorDpadUp && operatorDpadUp.getValue()) {
-            pwmValue = Math.max(0, pwmValue - 0.05);
+        if (start.getValue() && select.getValue() && (source == start || source == select)){
+            if (!hasStarted) hasStarted = true;
+            else if (pwmValue == 0) pwmValue = 0.55;
+            else pwmValue = 0;
         }
         
     }
@@ -56,10 +52,10 @@ public class Test_Climb implements Subsystem{
         servo = new PWM(6);
         operatorJoystickY = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_JOYSTICK_Y.get();
         operatorJoystickY.addInputListener(this);
-        operatorDpadDown = (WsDPadButton) WsInputs.OPERATOR_DPAD_DOWN.get();
-        operatorDpadDown.addInputListener(this);
-        operatorDpadUp = (WsDPadButton) WsInputs.OPERATOR_DPAD_UP.get();
-        operatorDpadUp.addInputListener(this);
+        start = (WsJoystickButton) WsInputs.OPERATOR_START.get();
+        start.addInputListener(this);
+        select = (WsJoystickButton) WsInputs.OPERATOR_SELECT.get();
+        select.addInputListener(this);
 
         climb1 = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.CLIMB1);
         climb1.setCurrentLimit(50, 50, 0);
@@ -70,8 +66,6 @@ public class Test_Climb implements Subsystem{
 
     @Override
     public void selfTest() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'selfTest'");
     }
 
     @Override
@@ -80,6 +74,7 @@ public class Test_Climb implements Subsystem{
         servo.setPosition(pwmValue);
         SmartDashboard.putNumber("@ pwm value", pwmValue);
         SmartDashboard.putNumber(("@ climbSpeed"), climbSpeed);
+        SmartDashboard.putBoolean("@ climb started", hasStarted);
     }
 
     @Override
