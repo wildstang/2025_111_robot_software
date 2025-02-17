@@ -39,6 +39,10 @@ public enum WsOutputs implements Outputs {
     // Other Motors
     // ---------------------------------
 
+    CLIMB1("Main Climb Motor", new WsSparkConfig(CANConstants.CLIMB1, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
+
+
+
     // ---------------------------------
     // Solenoids
     // ---------------------------------
