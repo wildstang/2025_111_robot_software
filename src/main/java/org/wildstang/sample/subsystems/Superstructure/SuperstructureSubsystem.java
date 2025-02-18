@@ -94,7 +94,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         operator_LT.addInputListener(this);
        
         armSpark = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ARM);
-        armSpark.initClosedLoop(0.15, 0, 0, 0);
+        armSpark.initClosedLoop(0.5, 0, 0, 0);
         armSpark.addClosedLoop(1, 0.05, 0, 0, 0);
         initialAbsolute = armSpark.getController().getAbsoluteEncoder().getPosition();
         //armSpark.setPosition((initialAbsolute - ABS_ZERO) / (11.25/360));//9 72, 18 72, 16 68 means 32 motor rot per arm rot, 11.25 deg per rot

@@ -25,7 +25,7 @@ public final class DriveConstants {
     /**angle motor gear ratio */
     //public static final double ANGLE_RATIO = 12.8;
     /**diameter of drive wheel, in inches */
-    public static final double WHEEL_DIAMETER = 3.0;
+    public static final double WHEEL_DIAMETER = 2.5;
     /**offset of module 1, the front left module, in degrees */
     public static final double FRONT_LEFT_OFFSET = -90;
     /**offset of module 2, the front right module, in degrees */

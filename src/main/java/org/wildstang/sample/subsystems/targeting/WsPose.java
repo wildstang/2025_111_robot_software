@@ -34,7 +34,7 @@ public class WsPose implements Subsystem {
     public WsLL right = new WsLL("limelight-right", true);
 
     private final double poseBufferSizeSec = 2;
-    public final double visionSpeedThreshold = 1.0;
+    public final double visionSpeedThreshold = 10.0;
     
     public SwerveDrive swerve;
 
