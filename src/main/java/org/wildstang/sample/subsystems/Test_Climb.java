@@ -85,6 +85,7 @@ public class Test_Climb implements Subsystem{
         SmartDashboard.putNumber("@ pwm value", pwmValue);
         SmartDashboard.putNumber(("@ climbSpeed"), climbSpeed);
         SmartDashboard.putBoolean("@ climb started", hasStarted);
+        SmartDashboard.putNumber("@ climb position", climb1.getPosition());
     }
 
     @Override

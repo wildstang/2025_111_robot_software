@@ -165,6 +165,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
             isReef = !isReef;
             rotLocked = isReef;
         }
+        if (!leftBumper.getValue() && source == leftBumper && coralPath.hasAlgae()){
+            isReef = true;
+            rotLocked = isReef;
+        }
 
         if (driveState == driveType.AUTO) driveState = driveType.TELEOP;
 

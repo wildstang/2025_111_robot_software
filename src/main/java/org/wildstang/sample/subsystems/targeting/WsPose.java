@@ -30,11 +30,11 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class WsPose implements Subsystem {
 
-    public WsLL left = new WsLL("limelight-back", true);
-    public WsLL right = new WsLL("limelight-front", true);
+    public WsLL left = new WsLL("limelight-left", true);
+    public WsLL right = new WsLL("limelight-right", true);
 
     private final double poseBufferSizeSec = 2;
-    public final double visionSpeedThreshold = 0.5;
+    public final double visionSpeedThreshold = 1.0;
     
     public SwerveDrive swerve;
 
