@@ -23,6 +23,9 @@ public class Test_Climb implements Subsystem{
     private double pwmValue = 0;
     private boolean hasStarted = false;
     private PWM servo;
+    private double startPos = 10;
+    private double position;
+    private boolean manual;
 
 
     private double P = 0.1;
@@ -34,13 +37,19 @@ public class Test_Climb implements Subsystem{
     public void inputUpdate(Input source) {
         if (operatorJoystickY.getValue() > 0.5 && hasStarted && pwmValue == 0) {
             climbSpeed = 1;
+            manual = true;
         } else if (operatorJoystickY.getValue() < -0.5 && hasStarted) {
             climbSpeed = -1;
+            manual = true;
         } else {
             climbSpeed = 0;
         }
         if (start.getValue() && select.getValue() && (source == start || source == select)){
-            if (!hasStarted) hasStarted = true;
+            if (!hasStarted) {
+                hasStarted = true;
+                manual = false;
+                position = startPos;
+            }
             else if (pwmValue == 0) pwmValue = 0.55;
             else pwmValue = 0;
         }
@@ -70,7 +79,8 @@ public class Test_Climb implements Subsystem{
 
     @Override
     public void update() {
-        climb1.setSpeed(climbSpeed);
+        if (!manual) climb1.setPosition(position);
+        else climb1.setSpeed(climbSpeed);
         servo.setPosition(pwmValue);
         SmartDashboard.putNumber("@ pwm value", pwmValue);
         SmartDashboard.putNumber(("@ climbSpeed"), climbSpeed);
@@ -81,6 +91,8 @@ public class Test_Climb implements Subsystem{
     public void resetState() {
         climbSpeed = 0;
         pwmValue = 0;
+        manual = false;
+        position = 0;
     }
 
     @Override
