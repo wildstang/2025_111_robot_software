@@ -192,6 +192,14 @@ public class WsPose implements Subsystem {
     }
 
     /**
+     * Returns if we are near the reef and can start raising lift to staged height
+     * @return true if we are within 2.5 m of the reef center
+     */
+    public boolean nearReef() {
+        return estimatedPose.getTranslation().getDistance(VisionConsts.reefCenter) < 2.5;
+    }
+
+    /**
      * Driver Station relative
      * @param target // Target coordinate (m) to align with proportional control loop
      * @return // Control value for X power for aligning robot to certain target

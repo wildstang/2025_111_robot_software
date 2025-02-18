@@ -367,7 +367,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 rotTarget = (rotTarget + 180) % 360;
             }
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            // TODO: Set yPower based on LaserCAN
             // Gyro 0 for robot centric X, Y
             this.swerveSignal = swerveHelper.setDrive(0.75*xPower, 0.75*yPower, rotSpeed, getGyroAngle());
 
@@ -377,7 +376,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
-            // TODO: Do something
             rotSpeed = swerveHelper.getAutoRotation((360-targetPose.getRotation().getDegrees())%360, getGyroAngle());
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());
@@ -477,10 +475,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         xPower = swerveHelper.getAutoPower(xVelocity, 0);
         yPower = swerveHelper.getAutoPower(yVelocity, 0);
         targetPose = target;
-    }
-
-    public Pose2d returnPose(){
-        return pose.estimatedPose;
     }
 
     /**sets the autonomous heading controller to a new target */

@@ -31,14 +31,12 @@ public class VisionConsts {
         new Pose2d(210.8*inToM, 117.3*inToM, new Rotation2d(Math.toRadians(60))));
     public static final Translation2d reefCenter = new Translation2d(176*inToM, 158.5*inToM);
     public static final double halfwayAcrossFieldY = (317/2)*inToM;
-    // TODO: what are the actual values?
     public static final double coralStationLeftHeading = 235;
     public static final double coralStationRightHeading = 125;
 
     // X value of the translation is irrelevant
     public static final Translation2d netScore = new Translation2d(300*inToM, 300*inToM);
 
-    //TODO: what are the actual pipeline indices?
     public static final int ATPipelineIndex = 0;
 
     /*

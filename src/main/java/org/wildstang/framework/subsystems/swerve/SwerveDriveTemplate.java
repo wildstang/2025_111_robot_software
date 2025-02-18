@@ -14,8 +14,6 @@ public abstract class SwerveDriveTemplate implements Subsystem{
 
     public abstract void setToTeleop();
 
-    public abstract Pose2d returnPose();
-
     public abstract void setAutoValues(double xVelocity, double yVelocity, Pose2d target);
 
 }

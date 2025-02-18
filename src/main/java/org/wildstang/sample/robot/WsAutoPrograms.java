@@ -4,7 +4,7 @@ import org.wildstang.framework.core.AutoPrograms;
 import org.wildstang.sample.auto.Programs.Jubilee;
 import org.wildstang.sample.auto.Programs.Line;
 import org.wildstang.sample.auto.Programs.TestProgram;
-import org.wildstang.sample.auto.Programs.ThreeCoralV1;
+import org.wildstang.sample.auto.Programs.RightThreeCoralV1;
 
 
 /**
@@ -18,7 +18,7 @@ public enum WsAutoPrograms implements AutoPrograms {
     Line("Line", Line.class),
     TEST_PROGRAM("Test Program", TestProgram.class),
     Jubilee("Jubilee", Jubilee.class),
-    THREE_CORAL("Three Coral", ThreeCoralV1.class)
+    THREE_CORAL("Three Coral", RightThreeCoralV1.class)
     ;
 
     /**

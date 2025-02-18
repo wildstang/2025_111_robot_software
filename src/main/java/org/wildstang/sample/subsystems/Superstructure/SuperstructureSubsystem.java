@@ -231,7 +231,6 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     }
     @Override
     public void selfTest() {
-        // TODO Auto-generated method stub
         
     }
     @Override

@@ -29,8 +29,7 @@ public class SwervePathFollowerStep extends AutoStep {
     private SwerveSample sample;
 
     // x and y field relative
-    private Pose2d fieldAutoPose, fieldRobotPose;
-    private double xOffset, yOffset;
+    private Pose2d fieldAutoPose;
 
     private Timer timer;
 
@@ -77,7 +76,6 @@ public class SwervePathFollowerStep extends AutoStep {
         } else {
             sample = pathtraj.sampleAt(timer.get(), false).get();
             
-            fieldRobotPose = m_drive.returnPose();
             fieldAutoPose = sample.getPose();
 
             m_drive.setAutoHeading(getHeading());
