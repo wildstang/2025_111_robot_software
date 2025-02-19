@@ -86,7 +86,7 @@ public class CoralPath implements Subsystem{
         coral = (WsSpark) WsOutputs.CORAL_INTAKE.get();
 
         coral.setBrake();
-        coral.setCurrentLimit(50,50,0);
+        coral.setCurrentLimit(60,60,0);
         algae.setBrake();
         algae.setCurrentLimit(50,50,0);
 
@@ -138,7 +138,7 @@ public class CoralPath implements Subsystem{
                 }
 
                 // Current spike of .25s reasonable to assume picked up game piece
-                if (currentTimer.hasElapsed(0.25)) {
+                if (currentTimer.hasElapsed(0.15)) {
                     algaeSpeed = ALGAE_STALL_POWER;
                     holdTimer.restart();
                 }

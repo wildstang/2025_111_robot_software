@@ -94,13 +94,13 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         operator_LT.addInputListener(this);
        
         armSpark = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ARM);
-        armSpark.initClosedLoop(0.5, 0, 0, 0);
+        armSpark.initClosedLoop(0.3, 0, 0, 0);
         armSpark.addClosedLoop(1, 0.05, 0, 0, 0);
         initialAbsolute = armSpark.getController().getAbsoluteEncoder().getPosition();
         //armSpark.setPosition((initialAbsolute - ABS_ZERO) / (11.25/360));//9 72, 18 72, 16 68 means 32 motor rot per arm rot, 11.25 deg per rot
         armSpark.setCoast();
         armSpark.setPosition(0);
-        armSpark.setCurrentLimit(20, 20, 0);
+        armSpark.setCurrentLimit(30, 30, 0);
         LiftMax = (WsSpark) WsOutputs.LIFT.get();
         lift2 = (WsSpark) WsOutputs.LIFT_FOLLOWER.get();
         LiftMax.initClosedLoop(1.0,0,0,0);
@@ -110,8 +110,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         LiftMax.setBrake();
         lift2.setBrake();
         lift2.setPosition(LiftMax.getPosition());
-        LiftMax.setCurrentLimit(65, 65, 0);
-        lift2.setCurrentLimit(65, 65, 0);
+        LiftMax.setCurrentLimit(80, 80, 0);
+        lift2.setCurrentLimit(80, 80, 0);
 
     }
 
@@ -312,7 +312,10 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         }
     }
     private void setLift(double liftPos){
-        // if (desiredPosition.getLift() < LIFT_LOW && LiftMax.getPosition() < LIFT_LOW){
+        if (liftAtPosition() && desiredPosition.getLift() == 0){
+            LiftMax.setPosition(-1, 1, LIFT_FF);
+            lift2.setPosition(1, 1, LIFT_FF);
+        }
         if (desiredPosition.getLift() < LiftMax.getPosition()){
             LiftMax.setPosition(liftPos, 1, LIFT_FF);
             lift2.setPosition(-liftPos, 1, -LIFT_FF);
