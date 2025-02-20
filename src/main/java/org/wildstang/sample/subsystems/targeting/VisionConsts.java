@@ -14,21 +14,22 @@ public class VisionConsts {
 
     // All Variables in Blue coordinate system
     public static final List<Pose2d> leftTopBranches = List.of(
-        new Pose2d(3.75, 2.95, new Rotation2d(Math.toRadians(120))), 
-        new Pose2d(3.9, 5.2, new Rotation2d(Math.toRadians(240))), 
-        new Pose2d(229.5*inToM, 154.4*inToM, new Rotation2d(Math.toRadians(0))));
+        new Pose2d(3.75, 2.95, new Rotation2d(Math.toRadians(120))), //front right
+        new Pose2d(3.9, 5.2, new Rotation2d(Math.toRadians(240))), //front left
+        new Pose2d(5.80, 3.925, new Rotation2d(Math.toRadians(0))));//back
     public static final List<Pose2d> rightTopBranches = List.of(
-        new Pose2d(3.98, 2.8, new Rotation2d(Math.toRadians(120))), 
-        new Pose2d(3.66, 5.0, new Rotation2d(Math.toRadians(240))), 
-        new Pose2d(229.5*inToM, 167.4*inToM, new Rotation2d(Math.toRadians(0))));
+        new Pose2d(4.06, 2.78, new Rotation2d(Math.toRadians(120))), //front right
+        new Pose2d(3.66, 5.0, new Rotation2d(Math.toRadians(240))), //front left
+        new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(0))));//back
     public static final List<Pose2d> leftBottomBranches = List.of(
-        new Pose2d(3.18, 4.125, new Rotation2d(Math.toRadians(180))), 
-        new Pose2d(206.7*inToM, 202.1*inToM, new Rotation2d(Math.toRadians(300))), 
-        new Pose2d(199.6*inToM, 110.8*inToM, new Rotation2d(Math.toRadians(60))));
+        new Pose2d(3.18, 4.125, new Rotation2d(Math.toRadians(180))), //front
+        new Pose2d(5.218, 5.10, new Rotation2d(Math.toRadians(300))), //back left
+        new Pose2d(5.05, 2.84, new Rotation2d(Math.toRadians(60))));//back right
     public static final List<Pose2d> rightBottomBranches = List.of(
-        new Pose2d(3.218, 3.78, new Rotation2d(Math.toRadians(180))), 
-        new Pose2d(195.4*inToM, 208.6*inToM, new Rotation2d(Math.toRadians(300))), 
-        new Pose2d(210.8*inToM, 117.3*inToM, new Rotation2d(Math.toRadians(60))));
+        new Pose2d(3.218, 3.78, new Rotation2d(Math.toRadians(180))), //front
+        new Pose2d(4.911, 5.27, new Rotation2d(Math.toRadians(300))), //back left
+        new Pose2d(5.335, 3.026, new Rotation2d(Math.toRadians(60))));//back right
+
     public static final Translation2d reefCenter = new Translation2d(176*inToM, 158.5*inToM);
     public static final double halfwayAcrossFieldY = (317/2)*inToM;
     public static final double coralStationLeftHeading = 235;
