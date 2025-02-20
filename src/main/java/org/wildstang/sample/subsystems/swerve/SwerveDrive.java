@@ -380,10 +380,12 @@ public class SwerveDrive extends SwerveDriveTemplate {
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
             rotSpeed = swerveHelper.getAutoRotation((360-targetPose.getRotation().getDegrees())%360, getGyroAngle());
-            
+
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+            xPower = 0;
+            yPower = 0;
             // Pre generated power values in set auto
         }
 
@@ -416,6 +418,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("@ X target", pose.getClosestBranch(rightBranch, topTriangle).getX());
         SmartDashboard.putNumber("@ Y target", pose.getClosestBranch(rightBranch, topTriangle).getY());
         SmartDashboard.putBoolean("@ driver triangle", topTriangle);
+        if (targetPose != null){
+        SmartDashboard.putNumber("@ targetPose X", targetPose.getX());
+        SmartDashboard.putNumber("@ targetpose Y", targetPose.getY());
+        }
         moduleStatePublisher.set(moduleStates());
     }
     

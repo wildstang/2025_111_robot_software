@@ -22,7 +22,7 @@ public class LeftThreeCoralV1 extends AutoProgram {
 
         // Score 1st Coral
         addStep(new SwervePathFollowerStep("LeftThreeCoralV1", swerve, 0));
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L2));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 
