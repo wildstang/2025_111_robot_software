@@ -138,7 +138,7 @@ public class CoralPath implements Subsystem{
                 }
 
                 // Current spike of .25s reasonable to assume picked up game piece
-                if (currentTimer.hasElapsed(0.15)) {
+                if (currentTimer.hasElapsed(0.25)) {
                     algaeSpeed = ALGAE_STALL_POWER;
                     holdTimer.restart();
                 }

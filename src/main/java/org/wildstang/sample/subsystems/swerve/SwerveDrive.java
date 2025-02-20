@@ -351,6 +351,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rotTarget = frontCloser(0) ? 0 : 180;
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             yPower = pose.getAlignY(VisionConsts.netScore);
+            xPower *= 0.4;
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 90

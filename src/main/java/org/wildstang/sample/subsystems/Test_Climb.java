@@ -23,15 +23,9 @@ public class Test_Climb implements Subsystem{
     private double pwmValue = 0;
     private boolean hasStarted = false;
     private PWM servo;
-    private double startPos = 233.5;
+    private double startPos = 230;
     private double position;
     private boolean manual;
-
-
-    private double P = 0.1;
-    private double I = 0;
-    private double D = 0;
-    private double F = 0;
 
     @Override
     public void inputUpdate(Input source) {
@@ -68,7 +62,6 @@ public class Test_Climb implements Subsystem{
 
         climb1 = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.CLIMB1);
         climb1.setCurrentLimit(50, 50, 0);
-        climb1.initClosedLoop(P, I, D, F);
 
         resetState();
     }
@@ -79,11 +72,16 @@ public class Test_Climb implements Subsystem{
 
     @Override
     public void update() {
-        if (!manual) climb1.setPosition(position);
-        else climb1.setSpeed(climbSpeed);
+        if (!manual) {
+            if (climb1.getPosition() < position) climbSpeed = 1;
+            else climbSpeed = 0;
+            if (climb1.getPosition() > startPos) pwmValue = 0.55;
+        }
+        climb1.setSpeed(climbSpeed);
         servo.setPosition(pwmValue);
+        SmartDashboard.putBoolean("# climb ratchet on", pwmValue == 0.55);
         SmartDashboard.putNumber("@ pwm value", pwmValue);
-        SmartDashboard.putNumber(("@ climbSpeed"), climbSpeed);
+        SmartDashboard.putNumber("@ climbSpeed", climbSpeed);
         SmartDashboard.putBoolean("@ climb started", hasStarted);
         SmartDashboard.putNumber("@ climb position", climb1.getPosition());
     }
