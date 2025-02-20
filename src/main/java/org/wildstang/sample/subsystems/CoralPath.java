@@ -193,6 +193,7 @@ public class CoralPath implements Subsystem{
     // Start or stop intaking coral
     public void setIntake(boolean intake) {
         coralSpeed = intake ? 1 : 0;
+        delayTimer.start();
     }
 
     // Start or stop scoring coral
