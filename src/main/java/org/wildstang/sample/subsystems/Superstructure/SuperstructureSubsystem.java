@@ -38,6 +38,7 @@ public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
 private SuperstructurePosition prevPosition = SuperstructurePosition.STOWED;
 private WsSpark LiftMax, lift2, armSpark ;
 private double initialAbsolute = 0;
+private boolean isAuto = true;
 private SwerveDrive swerve;
 private CoralPath coralPath;
 private final double LIFT_FF = 0;
@@ -118,8 +119,9 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
 @Override
     public void update() {
 
-        
-        if (LShoulderHeld) {
+        if (isAuto){
+            //do nothing
+        } else if (LShoulderHeld) {
             if (swerve.isCoralStationFront()) {
                 desiredPosition = SuperstructurePosition.CORAL_STATION_FRONT;
             } else {
@@ -191,6 +193,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
 
     @Override
     public void inputUpdate(Input source) {
+        if (isAuto) isAuto = false;
         LShoulderHeld = LShoulder.getValue();
         RshoulderHeld = Rshoulder.getValue();
         LTHeld = Math.abs(LT.getValue()) > 0.5;

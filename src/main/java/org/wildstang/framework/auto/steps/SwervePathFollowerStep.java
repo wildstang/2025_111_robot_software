@@ -40,7 +40,12 @@ public class SwervePathFollowerStep extends AutoStep {
      * @param isBlue whether the robot is on the blue alliance
      */
     public SwervePathFollowerStep(String pathData, SwerveDriveTemplate drive) {
-        this.pathtraj = getTraj(pathData);
+        // this.pathtraj = getTraj(pathData);
+        // m_drive = drive;
+        // timer = new Timer();
+        var traj = Choreo.loadTrajectory(pathData).get();
+        this.pathtraj = (Trajectory<SwerveSample>)traj;
+        //this.pathtraj = getTraj(pathData).getSplit(split).get();
         m_drive = drive;
         timer = new Timer();
     }

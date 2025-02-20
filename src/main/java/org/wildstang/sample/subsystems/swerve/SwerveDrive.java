@@ -380,6 +380,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
             rotSpeed = swerveHelper.getAutoRotation((360-targetPose.getRotation().getDegrees())%360, getGyroAngle());
+            
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
