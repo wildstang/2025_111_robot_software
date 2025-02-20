@@ -23,7 +23,7 @@ public class Test_Climb implements Subsystem{
     private double pwmValue = 0;
     private boolean hasStarted = false;
     private PWM servo;
-    private double startPos = 10;
+    private double startPos = 233.5;
     private double position;
     private boolean manual;
 

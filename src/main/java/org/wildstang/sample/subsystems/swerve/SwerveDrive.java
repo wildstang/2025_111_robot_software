@@ -372,7 +372,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
         // Just heading lock to 90 (climb on left side of robot) so Rossen doesn't accidentally turn
         } else if (driveState == driveType.CLIMB) {
-            rotSpeed = swerveHelper.getRotControl(90, getGyroAngle());
+            //rotSpeed = swerveHelper.getRotControl(90, getGyroAngle());
+            if (rotLocked){
+                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
+            }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
