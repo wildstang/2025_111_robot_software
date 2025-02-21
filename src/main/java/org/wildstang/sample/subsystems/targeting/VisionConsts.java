@@ -13,22 +13,20 @@ public class VisionConsts {
     public final double mToIn = 39.37;
 
     // All Variables in Blue coordinate system
-    public static final List<Pose2d> leftTopBranches = List.of(
+    public static final List<Pose2d> leftBranches = List.of(
+        new Pose2d(3.18, 4.125, new Rotation2d(Math.toRadians(180))), //front
+        new Pose2d(5.218, 5.10, new Rotation2d(Math.toRadians(300))), //back left
+        new Pose2d(5.05, 2.84, new Rotation2d(Math.toRadians(60))),//back right
         new Pose2d(3.75, 2.95, new Rotation2d(Math.toRadians(120))), //front right
         new Pose2d(3.9, 5.2, new Rotation2d(Math.toRadians(240))), //front left
         new Pose2d(5.80, 3.925, new Rotation2d(Math.toRadians(0))));//back
-    public static final List<Pose2d> rightTopBranches = List.of(
+    public static final List<Pose2d> rightBranches = List.of(
+        new Pose2d(3.218, 3.78, new Rotation2d(Math.toRadians(180))), //front
+        new Pose2d(4.911, 5.27, new Rotation2d(Math.toRadians(300))), //back left
+        new Pose2d(5.335, 3.026, new Rotation2d(Math.toRadians(60))),//back right
         new Pose2d(4.06, 2.78, new Rotation2d(Math.toRadians(120))), //front right
         new Pose2d(3.66, 5.0, new Rotation2d(Math.toRadians(240))), //front left
         new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(0))));//back
-    public static final List<Pose2d> leftBottomBranches = List.of(
-        new Pose2d(3.18, 4.125, new Rotation2d(Math.toRadians(180))), //front
-        new Pose2d(5.218, 5.10, new Rotation2d(Math.toRadians(300))), //back left
-        new Pose2d(5.05, 2.84, new Rotation2d(Math.toRadians(60))));//back right
-    public static final List<Pose2d> rightBottomBranches = List.of(
-        new Pose2d(3.218, 3.78, new Rotation2d(Math.toRadians(180))), //front
-        new Pose2d(4.911, 5.27, new Rotation2d(Math.toRadians(300))), //back left
-        new Pose2d(5.335, 3.026, new Rotation2d(Math.toRadians(60))));//back right
 
     public static final Translation2d reefCenter = new Translation2d(176*inToM, 158.5*inToM);
     public static final double halfwayAcrossFieldY = (317/2)*inToM;

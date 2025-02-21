@@ -69,19 +69,11 @@ public class WsPose implements Subsystem {
     public void selfTest() {
     }
 
-    public Pose2d getClosestBranch(boolean right, boolean topTriangle) {
+    public Pose2d getClosestBranch(boolean right) {
         if (right) {
-            if (topTriangle) {
-                return estimatedPose.nearest(VisionConsts.rightTopBranches);
-            } else {
-                return estimatedPose.nearest(VisionConsts.rightBottomBranches);
-            }
+            return estimatedPose.nearest(VisionConsts.rightBranches);
         } else {
-            if (topTriangle) {
-                return estimatedPose.nearest(VisionConsts.leftTopBranches);
-            } else {
-                return estimatedPose.nearest(VisionConsts.leftBottomBranches);
-            }
+            return estimatedPose.nearest(VisionConsts.leftBranches);
         }
     }
 

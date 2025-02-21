@@ -33,11 +33,10 @@ private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select;
 private WsJoystickAxis LT,operator_RT, operator_LT;
 private WsDPadButton DPad_UP, DPad_LEFT, DPad_DOWN;
 private boolean LShoulderHeld,RshoulderHeld,StartHeld,SelectHeld,LTHeld;
-private boolean topTriangle, PickupSequence;
+private boolean PickupSequence;
 public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
 private SuperstructurePosition prevPosition = SuperstructurePosition.STOWED;
 private WsSpark LiftMax, lift2, armSpark ;
-private double initialAbsolute = 0;
 private boolean isAuto = true;
 private SwerveDrive swerve;
 private CoralPath coralPath;
@@ -97,7 +96,6 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         armSpark = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ARM);
         armSpark.initClosedLoop(0.3, 0, 0, 0);
         armSpark.addClosedLoop(1, 0.05, 0, 0, 0);
-        initialAbsolute = armSpark.getController().getAbsoluteEncoder().getPosition();
         armSpark.setCoast();
         armSpark.setPosition(0);
         armSpark.setCurrentLimit(35, 35, 0);
@@ -146,10 +144,10 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                     }
                 }
             } else if (PickupSequence) {
-                if (topTriangle) desiredPosition = SuperstructurePosition.ALGAE_REEF_LOW;
+                if (swerve.algaeLow()) desiredPosition = SuperstructurePosition.ALGAE_REEF_LOW;
                 else desiredPosition = SuperstructurePosition.ALGAE_REEF_HIGH;
                 if (coralPath.hasAlgae()) {
-                    if (topTriangle) desiredPosition = SuperstructurePosition.STOWED_AFTER_PICKUP_LOW;
+                    if (prevPosition == SuperstructurePosition.ALGAE_REEF_LOW) desiredPosition = SuperstructurePosition.STOWED_AFTER_PICKUP_LOW;
                     else desiredPosition = SuperstructurePosition.STOWED_AFTER_PICKUP_HIGH;
                     if (armAtPosition()) PickupSequence = false;
                 }
@@ -200,8 +198,6 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         LShoulderHeld = LShoulder.getValue();
         RshoulderHeld = Rshoulder.getValue();
         LTHeld = Math.abs(LT.getValue()) > 0.5;
-        if (Math.abs(operator_LT.getValue()) > 0.5) topTriangle = false;
-        if (Math.abs(operator_RT.getValue()) > 0.5) topTriangle = true;
         if(A.getValue()){
             level = LevelReef.Reef_L2;
         }
@@ -253,8 +249,6 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     }
     private void displayNumbers(){
         SmartDashboard.putBoolean("# Algae Pickup", PickupSequence);
-        SmartDashboard.putBoolean("# Top Triangle", topTriangle);
-        SmartDashboard.putBoolean("# Bottom Triangle", !topTriangle);
         SmartDashboard.putNumber("@ Arm Target", desiredPosition.getArm());
         SmartDashboard.putNumber("@ Arm Position", armSpark.getPosition());
         SmartDashboard.putNumber("@ Lift Target", desiredPosition.getLift());

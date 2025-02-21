@@ -56,8 +56,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private DigitalInput driverStart; // Auto rotate to reef
     private DigitalInput operatorLeftBumper; // Select left branch auto align
     private DigitalInput operatorRightBumper; // Select right branch auto align
-    private AnalogInput operatorLeftTrigger;
-    private AnalogInput operatorRightTrigger;
     private DigitalInput operatorDpadUp;
     private DigitalInput operatorDpadLeft;
     private DigitalInput operatorFaceLeft;
@@ -94,7 +92,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private enum driveType {TELEOP, AUTO, CROSS, REEFSCORE, NETSCORE, PROCESSORSCORE, CORALSTATION, CLIMB};
     private driveType driveState;
     public boolean rightBranch;
-    public boolean topTriangle;
     public boolean algaeNet;
 
     @Override
@@ -105,10 +102,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rightBranch = false;
         } else if (source == operatorRightBumper && operatorRightBumper.getValue()) {
             rightBranch = true;
-        } else if (source == operatorLeftTrigger && Math.abs(operatorLeftTrigger.getValue()) > 0.5) {
-            topTriangle = false;
-        } else if (source == operatorRightTrigger && Math.abs(operatorRightTrigger.getValue()) > 0.5) {
-            topTriangle = true;
         } else if (source == operatorDpadUp && operatorDpadUp.getValue()) {
             algaeNet = true;
         } else if (source == operatorDpadLeft && operatorDpadLeft.getValue()) {
@@ -280,10 +273,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         operatorLeftBumper.addInputListener(this);
         operatorRightBumper = (DigitalInput) WsInputs.OPERATOR_RIGHT_SHOULDER.get();
         operatorRightBumper.addInputListener(this);
-        operatorLeftTrigger = (AnalogInput) WsInputs.OPERATOR_LEFT_TRIGGER.get();
-        operatorLeftTrigger.addInputListener(this);
-        operatorRightTrigger = (AnalogInput) WsInputs.OPERATOR_RIGHT_TRIGGER.get();
-        operatorRightTrigger.addInputListener(this);
         operatorDpadUp = (DigitalInput) WsInputs.OPERATOR_DPAD_UP.get();
         operatorDpadUp.addInputListener(this);
         operatorDpadLeft = (DigitalInput) WsInputs.OPERATOR_DPAD_LEFT.get();
@@ -340,8 +329,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         } else if (driveState == driveType.REEFSCORE) {
 
             // Automatically p-loop translate to scoring position
-            Pose2d targetPose = superstructure.isAlgaeRemoval() ? pose.getClosestBranch(false, topTriangle)
-                :pose.getClosestBranch(rightBranch, topTriangle);
+            Pose2d targetPose = superstructure.isAlgaeRemoval() ? pose.getClosestBranch(false)
+                :pose.getClosestBranch(rightBranch);
             rotTarget = targetPose.getRotation().getDegrees();
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             xPower = xPower * 0.5 + pose.getAlignX(targetPose.getTranslation());
@@ -418,9 +407,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("@ speed", speedMagnitude());
         SmartDashboard.putBoolean("# right branch", rightBranch);
         SmartDashboard.putBoolean("# left branch", !rightBranch);
-        SmartDashboard.putNumber("@ X target", pose.getClosestBranch(rightBranch, topTriangle).getX());
-        SmartDashboard.putNumber("@ Y target", pose.getClosestBranch(rightBranch, topTriangle).getY());
-        SmartDashboard.putBoolean("@ driver triangle", topTriangle);
+        SmartDashboard.putNumber("@ X target", pose.getClosestBranch(rightBranch).getX());
+        SmartDashboard.putNumber("@ Y target", pose.getClosestBranch(rightBranch).getY());
         if (targetPose != null){
         SmartDashboard.putNumber("@ targetPose X", targetPose.getX());
         SmartDashboard.putNumber("@ targetpose Y", targetPose.getY());
@@ -562,5 +550,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
     public boolean isNearReef(){
         return pose.nearReef();
+    }
+    public boolean algaeLow(){
+        return pose.getClosestBranch(rightBranch).getRotation().getDegrees() % 120 == 0;
     }
 }
