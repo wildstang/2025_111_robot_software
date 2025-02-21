@@ -330,8 +330,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 if (isReef){
                     // Oops, the scoring side is on the "back" of the robot now
                     rotTarget = (pose.turnToTarget(VisionConsts.reefCenter)+180)%360;
-                } 
-                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
+                    rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle(), 1.50);
+                } else {
+                    rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
+                }
                 if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 1.0) rotSpeed = 0;
             }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
@@ -351,7 +353,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rotTarget = frontCloser(0) ? 0 : 180;
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             yPower = pose.getAlignY(VisionConsts.netScore);
-            xPower *= 0.4;
+            xPower = xPower * 0.6;
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 90
@@ -557,5 +559,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
     public boolean isAtPosition() {
         return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation()) < DriveConstants.POSITION_TOLERANCE;
+    }
+    public boolean isNearReef(){
+        return pose.nearReef();
     }
 }

@@ -36,7 +36,7 @@ public class VisionConsts {
     public static final double coralStationRightHeading = 125;
 
     // X value of the translation is irrelevant
-    public static final Translation2d netScore = new Translation2d(300*inToM, 300*inToM);
+    public static final Translation2d netScore = new Translation2d(295*inToM, 295*inToM);
 
     public static final int ATPipelineIndex = 0;
 

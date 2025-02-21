@@ -56,7 +56,7 @@ public final class DriveConstants {
     /**PID values for drive D */
     public static final double DRIVE_D = 0.1;
     /**PID values for driveF coefficient of momentum */
-    public static final double DRIVE_F_V = 0.00375 * 1.20894*157.48/125.5*157.5/155.75*157.5/159;//free speed of 22.2 ft/s becomes 266.4 in/s
+    public static final double DRIVE_F_V = 0.00375 * 1.20894*157.48/125.5*157.5/155.75*157.5/159*0.7;//free speed of 22.2 ft/s becomes 266.4 in/s
     /**PID values for drive F coefficient of kinetic friction */
     public static final double DRIVE_F_K = 0.016;
     /**PID values for drive F coefficient of inertia */
@@ -68,7 +68,7 @@ public final class DriveConstants {
     /**PID values for angle D */
     public static final double ANGLE_D = 0.0;
     /**Drive motor current limit */
-    public static final int DRIVE_CURRENT_LIMIT = 65;
+    public static final int DRIVE_CURRENT_LIMIT = 60;
     /**Angle motor current limit */
     public static final int ANGLE_CURRENT_LIMIT = 10;
     /**Swerve Module Names */

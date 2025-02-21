@@ -4,6 +4,7 @@ import org.wildstang.framework.auto.AutoStep;
 import org.wildstang.framework.core.Core;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.LED.LedController;
+import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.sample.subsystems.swerve.WsSwerveHelper;
 import org.wildstang.sample.subsystems.targeting.WsPose;
@@ -18,6 +19,7 @@ public class AutoSetupStep extends AutoStep{
     private SwerveDrive swerve;
     private Pose2d odoPose;
     private WsPose pose;
+    private SuperstructureSubsystem superstructure;
 
     /**
      * Setup the robot at start of autonomous
@@ -31,9 +33,11 @@ public class AutoSetupStep extends AutoStep{
         heading = pathHeading;
         Core.setAlliance(alliance);
         LedController led = (LedController) Core.getSubsystemManager().getSubsystem(WsSubsystems.LED);
+        superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
     }
 
     public void update(){
+        superstructure.setToAuto();
         // Gyro reset and reads within 1 degree of what we told it to
         if (WsSwerveHelper.angleDist(swerve.getGyroAngle(), heading) < 1) {
             // Sets odometry alliance relative

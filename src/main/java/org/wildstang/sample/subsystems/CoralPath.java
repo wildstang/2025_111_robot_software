@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralPath implements Subsystem{
 
-    private static final double CORAL_CURRENT_LIMIT = 40;
+    private static final double CORAL_CURRENT_LIMIT = 20;
     private static final double ALGAE_CURRENT_LIMIT = 40;
     private final double ALGAE_STALL_POWER = 0.5;
 
@@ -50,6 +50,7 @@ public class CoralPath implements Subsystem{
 
             // Delay before measuring current
             if (coralSpeed == 1.0) delayTimer.restart();
+            if (!leftShoulder.getValue()) hasCoral = true;
         } else if (source == rightShoulder) {
             if (algaeSpeed != ALGAE_STALL_POWER) algaeSpeed = rightShoulder.getValue() ? 1 : 0;
 
@@ -199,6 +200,9 @@ public class CoralPath implements Subsystem{
     // Start or stop scoring coral
     public void setScore(boolean score) {
         coralSpeed = score ? -1 : 0;
+    }
+    public void scored(){
+        hasCoral = false;
     }
     
 }
