@@ -22,6 +22,7 @@ public class LeftThreeCoralV1 extends AutoProgram {
     protected void defineSteps() {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         addStep(new AutoSetupStep(7.15, 5.48, 0, Alliance.Blue));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 1st Coral
         addStep(new SwervePathFollowerStep("LeftThreeCoralV1", swerve, 0));

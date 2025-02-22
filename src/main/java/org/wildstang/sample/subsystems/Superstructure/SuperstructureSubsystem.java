@@ -352,5 +352,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     public void setToAuto(){
         this.isAuto = true;
     }
+    public boolean isLevel1(){
+        return LevelReef.Reef_L1 == level;
+    }
 
 }

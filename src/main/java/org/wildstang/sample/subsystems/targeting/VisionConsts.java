@@ -27,6 +27,21 @@ public class VisionConsts {
         new Pose2d(4.06, 2.78, new Rotation2d(Math.toRadians(120))), //front right
         new Pose2d(3.66, 5.0, new Rotation2d(Math.toRadians(240))), //front left
         new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(0))));//back
+    public static final List<Pose2d> leftBranchL1 = List.of(
+        new Pose2d(3.218, 3.78, new Rotation2d(Math.toRadians(200))), //front
+        new Pose2d(4.911, 5.27, new Rotation2d(Math.toRadians(320))), //back left
+        new Pose2d(5.335, 3.026, new Rotation2d(Math.toRadians(80))),//back right
+        new Pose2d(4.06, 2.78, new Rotation2d(Math.toRadians(140))), //front right
+        new Pose2d(3.54, 5.11, new Rotation2d( Math.toRadians(260))),//front left
+        new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(20))));//back
+        public static final List<Pose2d> rightBranchL1 = List.of(
+            new Pose2d(3.218, 3.78, new Rotation2d(Math.toRadians(160))), //front
+            new Pose2d(4.911, 5.27, new Rotation2d(Math.toRadians(280))), //back left
+            new Pose2d(5.335, 3.026, new Rotation2d(Math.toRadians(40))),//back right
+            new Pose2d(4.06, 2.78, new Rotation2d(Math.toRadians(100))), //front right
+            new Pose2d(3.66, 5.0, new Rotation2d(Math.toRadians(220))), //front left
+            new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(340))));//back
+    
 
     public static final Translation2d reefCenter = new Translation2d(176*inToM, 158.5*inToM);
     public static final double halfwayAcrossFieldY = (317/2)*inToM;
