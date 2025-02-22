@@ -168,7 +168,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             desiredPosition = SuperstructurePosition.CLIMB;
         } else {
             if (swerve.isNearReef() && coralPath.hasCoral() && (level == LevelReef.Reef_L3 || level == LevelReef.Reef_L4)){
-                desiredPosition = SuperstructurePosition.STOWED_UP;
+                if (PickupSequence) desiredPosition = SuperstructurePosition.STOWED_UP;
+                else desiredPosition = SuperstructurePosition.STOWED_UP_TELEOP;
             } else {
                 desiredPosition = SuperstructurePosition.STOWED;
             }
