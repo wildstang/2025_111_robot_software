@@ -3,9 +3,11 @@ package org.wildstang.sample.robot;
 import org.wildstang.framework.core.AutoPrograms;
 import org.wildstang.sample.auto.Programs.Jubilee;
 import org.wildstang.sample.auto.Programs.Line;
-import org.wildstang.sample.auto.Programs.RightThreeCoralV1;
+import org.wildstang.sample.auto.Programs.RedLeftThreeCoralV1;
+import org.wildstang.sample.auto.Programs.RedRightThreeCoralV1;
 import org.wildstang.sample.auto.Programs.TestProgram;
-import org.wildstang.sample.auto.Programs.LeftThreeCoralV1;
+import org.wildstang.sample.auto.Programs.BlueLeftThreeCoralV1;
+import org.wildstang.sample.auto.Programs.BlueRightThreeCoralV1;
 
 
 /**
@@ -19,8 +21,10 @@ public enum WsAutoPrograms implements AutoPrograms {
     Line("Line", Line.class),
     TEST_PROGRAM("Test Program", TestProgram.class),
     Jubilee("Jubilee", Jubilee.class),
-    LEFT_THREE_CORAL("Left Three Coral", LeftThreeCoralV1.class),
-    RIGHT_THREE_CORAL("Right Three Coral", RightThreeCoralV1.class),
+    BLUE_LEFT_THREE_CORAL("Left Three Coral", BlueLeftThreeCoralV1.class),
+    BLUE_RIGHT_THREE_CORAL("Right Three Coral", BlueRightThreeCoralV1.class),
+    RED_LEFT_THREE_CORAL("Left Three Coral", RedLeftThreeCoralV1.class),
+    RED_RIGHT_THREE_CORAL("Right Three Coral", RedRightThreeCoralV1.class),
 
     ;
 

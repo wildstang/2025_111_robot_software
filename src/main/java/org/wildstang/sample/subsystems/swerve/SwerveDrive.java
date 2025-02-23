@@ -87,6 +87,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private CoralPath coralPath;
     private SuperstructureSubsystem superstructure;
     private Pose2d targetPose;
+    StructPublisher<Pose2d> targetPosePublisher = NetworkTableInstance.getDefault().getStructTopic("targetPose", Pose2d.struct).publish();
 
 
     private enum driveType {TELEOP, AUTO, CROSS, REEFSCORE, NETSCORE, PROCESSORSCORE, CORALSTATION, CLIMB};
@@ -334,8 +335,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             } else {
                 targetPose = superstructure.isScoreL1() ? pose.getClosestL1Branch(rightBranch) : pose.getClosestBranch(rightBranch);
             }
-            // targetPose = superstructure.isAlgaeRemoval() ? pose.getClosestBranch(false)
-            //     :pose.getClosestBranch(rightBranch);
             rotTarget = targetPose.getRotation().getDegrees();
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             xPower = xPower * 0.5 + pose.getAlignX(targetPose.getTranslation());
@@ -409,11 +408,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("@ speed", speedMagnitude());
         SmartDashboard.putBoolean("# right branch", rightBranch);
         SmartDashboard.putBoolean("# left branch", !rightBranch);
-        SmartDashboard.putNumber("@ X target", pose.getClosestBranch(rightBranch).getX());
-        SmartDashboard.putNumber("@ Y target", pose.getClosestBranch(rightBranch).getY());
         if (targetPose != null){
-        SmartDashboard.putNumber("@ targetPose X", targetPose.getX());
-        SmartDashboard.putNumber("@ targetpose Y", targetPose.getY());
+            targetPosePublisher.set(targetPose);
         }
         moduleStatePublisher.set(moduleStates());
     }

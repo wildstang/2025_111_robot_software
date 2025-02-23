@@ -16,12 +16,12 @@ import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-public class RightThreeCoralV1 extends AutoProgram {
+public class RedRightThreeCoralV1 extends AutoProgram {
 
     @Override
     protected void defineSteps() {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
-        addStep(new AutoSetupStep(7.15, 2.57, 0, Alliance.Blue));
+        addStep(new AutoSetupStep(7.15, 2.57, 0, Alliance.Red));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 1st Coral
@@ -69,7 +69,7 @@ public class RightThreeCoralV1 extends AutoProgram {
 
     @Override
     public String toString() {
-        return "Right Three Coral V1";
+        return "Red Right Three Coral V1";
     }
     
 }
