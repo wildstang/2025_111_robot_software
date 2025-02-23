@@ -23,7 +23,7 @@ public class Test_Climb implements Subsystem{
     private double pwmValue = 0;
     private boolean hasStarted = false;
     private PWM servo;
-    private double startPos = 230;
+    private double startPos = 95;//230 for ~215 deg rotation, now 90 deg rotation
     private double position;
     private boolean manual;
 
@@ -91,7 +91,7 @@ public class Test_Climb implements Subsystem{
         climbSpeed = 0;
         pwmValue = 0;
         manual = false;
-        position = 0;
+        position = 10;
     }
 
     @Override
