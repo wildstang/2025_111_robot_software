@@ -329,7 +329,12 @@ public class SwerveDrive extends SwerveDriveTemplate {
         } else if (driveState == driveType.REEFSCORE) {
 
             // Automatically p-loop translate to scoring position
-            Pose2d targetPose = superstructure.isAlgaeRemoval() ? pose.getClosestBranch(false)
+            if (superstructure.isAlgaeRemoval()) {
+                targetPose = pose.getClosestBranch(false);
+            } else {
+                targetPose = superstructure.isLevel1() ? pose.getClosestL1Branch(rightBranch) : pose.getClosestBranch(rightBranch);
+            }
+            targetPose = superstructure.isAlgaeRemoval() ? pose.getClosestBranch(false)
                 :pose.getClosestBranch(rightBranch);
             rotTarget = targetPose.getRotation().getDegrees();
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
@@ -401,8 +406,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("Roll", gyro.getRoll().getValueAsDouble());
         SmartDashboard.putNumber("Pitch", gyro.getPitch().getValueAsDouble());
         SmartDashboard.putNumber("Drive Speed", speedMagnitude());
-        SmartDashboard.putBoolean("Alliance Color", DriverStation.getAlliance().isPresent());
-        SmartDashboard.putBoolean("@ is blue", Core.isBlue());
         SmartDashboard.putNumber("@ mega2 gyro", getMegaTag2Yaw());
         SmartDashboard.putNumber("@ speed", speedMagnitude());
         SmartDashboard.putBoolean("# right branch", rightBranch);

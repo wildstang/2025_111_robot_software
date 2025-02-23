@@ -34,7 +34,7 @@ public class WsPose implements Subsystem {
     public WsLL right = new WsLL("limelight-right", true);
 
     private final double poseBufferSizeSec = 2;
-    public final double visionSpeedThreshold = 10.0;
+    public final double visionSpeedThreshold = 3.0;
     
     public SwerveDrive swerve;
 
@@ -68,16 +68,6 @@ public class WsPose implements Subsystem {
     @Override
     public void selfTest() {
     }
-
-    public Pose2d getClosestBranch(boolean right) {
-        if (right) {
-            return estimatedPose.nearest(VisionConsts.rightBranches);
-        } else {
-            return estimatedPose.nearest(VisionConsts.leftBranches);
-        }
-    }
-
-    
 
     @Override
     public void update() {
@@ -169,6 +159,34 @@ public class WsPose implements Subsystem {
     @Override
     public String getName() {
         return "Ws Vision";
+    }
+
+    // YEAR SUBSYSTEM ACCESS METHODS
+
+    /**
+     * Based on whether we are scoring left branch or right branch gets the closest scoring pose
+     * @param right // true if we are scoring on the right branch
+     * @return pose to align the robot to to score
+     */
+    public Pose2d getClosestBranch(boolean right) {
+        if (right) {
+            return estimatedPose.nearest(VisionConsts.rightBranches);
+        } else {
+            return estimatedPose.nearest(VisionConsts.leftBranches);
+        }
+    }
+
+    /**
+     * Based on whether we are scoring left branch or right branch gets the closest scoring pose
+     * @param right // true if we are scoring on the right branch
+     * @return pose to align the robot to to score
+     */
+    public Pose2d getClosestL1Branch(boolean right) {
+        if (right) {
+            return estimatedPose.nearest(VisionConsts.rightBranchL1);
+        } else {
+            return estimatedPose.nearest(VisionConsts.leftBranchL1);
+        }
     }
 
     /**

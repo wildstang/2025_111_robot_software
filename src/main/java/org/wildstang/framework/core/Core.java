@@ -16,6 +16,7 @@ import org.wildstang.framework.subsystems.SubsystemManager;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Core of robot framework.
@@ -167,7 +168,7 @@ public class Core {
     }
 
     public static Boolean isBlue() {
-        return s_alliance != Alliance.Red;
+        return s_alliance == Alliance.Blue;
     }
     public static boolean getIsDisabledMode(){
         return isDisabled;
@@ -242,6 +243,9 @@ public class Core {
      * Runs update function of all managers belonging to the framework.
      */
     public void executeUpdate() {
+        SmartDashboard.putBoolean("isBlue", isBlue());
+        setAlliance(SmartDashboard.getBoolean("isBlue", isBlue()) ? Alliance.Blue : Alliance.Red);
+
         // Read input from hardware
         s_inputManager.update();
 
