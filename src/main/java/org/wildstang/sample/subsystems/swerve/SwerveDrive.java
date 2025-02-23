@@ -332,7 +332,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             if (superstructure.isAlgaeRemoval()) {
                 targetPose = pose.getClosestBranch(false);
             } else {
-                targetPose = superstructure.isLevel1() ? pose.getClosestL1Branch(rightBranch) : pose.getClosestBranch(rightBranch);
+                targetPose = superstructure.isScoreL1() ? pose.getClosestL1Branch(rightBranch) : pose.getClosestBranch(rightBranch);
             }
             targetPose = superstructure.isAlgaeRemoval() ? pose.getClosestBranch(false)
                 :pose.getClosestBranch(rightBranch);
@@ -347,8 +347,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rotTarget = frontCloser(0) ? 0 : 180;
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             yPower = pose.getAlignY(VisionConsts.netScore);
-            xPower = xPower * 0.6;
-            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+            this.swerveSignal = swerveHelper.setDrive(xPower*0.6, yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 90
         } else if (driveState == driveType.PROCESSORSCORE) {
