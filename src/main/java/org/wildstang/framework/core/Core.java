@@ -168,7 +168,7 @@ public class Core {
     }
 
     public static Boolean isBlue() {
-        return s_alliance == Alliance.Blue;
+        return s_alliance != Alliance.Red;
     }
     public static boolean getIsDisabledMode(){
         return isDisabled;
@@ -244,7 +244,7 @@ public class Core {
      */
     public void executeUpdate() {
         SmartDashboard.putBoolean("isBlue", isBlue());
-        setAlliance(SmartDashboard.getBoolean("isBlue", isBlue()) ? Alliance.Blue : Alliance.Red);
+        //setAlliance(SmartDashboard.getBoolean("isBlue", isBlue()) ? Alliance.Blue : Alliance.Red);
 
         // Read input from hardware
         s_inputManager.update();

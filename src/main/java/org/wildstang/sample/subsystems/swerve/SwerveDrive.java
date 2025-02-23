@@ -334,8 +334,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
             } else {
                 targetPose = superstructure.isScoreL1() ? pose.getClosestL1Branch(rightBranch) : pose.getClosestBranch(rightBranch);
             }
-            targetPose = superstructure.isAlgaeRemoval() ? pose.getClosestBranch(false)
-                :pose.getClosestBranch(rightBranch);
+            // targetPose = superstructure.isAlgaeRemoval() ? pose.getClosestBranch(false)
+            //     :pose.getClosestBranch(rightBranch);
             rotTarget = targetPose.getRotation().getDegrees();
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             xPower = xPower * 0.5 + pose.getAlignX(targetPose.getTranslation());
@@ -554,6 +554,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         return pose.nearReef();
     }
     public boolean algaeLow(){
-        return pose.getClosestBranch(rightBranch).getRotation().getDegrees() % 120 == 0;
+        return rotTarget == 0 || rotTarget == 120 || rotTarget == 240;
     }
 }
