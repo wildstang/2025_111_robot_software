@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralPath implements Subsystem{
 
-    private static final double CORAL_CURRENT_LIMIT = 40;
+    private static final double CORAL_CURRENT_LIMIT = 20;
     private static final double ALGAE_CURRENT_LIMIT = 40;
     private final double ALGAE_STALL_POWER = 0.5;
 
@@ -50,6 +50,7 @@ public class CoralPath implements Subsystem{
 
             // Delay before measuring current
             if (coralSpeed == 1.0) delayTimer.restart();
+            if (!leftShoulder.getValue()) hasCoral = true;
         } else if (source == rightShoulder) {
             if (algaeSpeed != ALGAE_STALL_POWER) algaeSpeed = rightShoulder.getValue() ? 1 : 0;
 
@@ -58,7 +59,8 @@ public class CoralPath implements Subsystem{
         } else if (source == rightTrigger && !superstructure.isAlgaeRemoval()) {
             if (Math.abs(leftTrigger.getValue()) > 0.5 && Math.abs(rightTrigger.getValue()) > 0.5) {
                 if (!hasAlgae() || hasCoral()) {
-                    coralSpeed = -1;
+                    if (superstructure.isScoreL1()) coralSpeed = -0.3;
+                    else coralSpeed = -1.0;
                 } else {
                     algaeSpeed = -1;
                 }
@@ -66,7 +68,7 @@ public class CoralPath implements Subsystem{
             // Finish spitting out game piece
             } else if (rightTrigger.getValue() < 0.5 && !superstructure.isAlgaeRemoval()) {
                 if (algaeSpeed == -1) algaeSpeed = 0;
-                if (coralSpeed == -1){
+                if (coralSpeed == -0.3 || coralSpeed == -1.0){
                     coralSpeed = 0;
                     hasCoral = false;
                 }
@@ -86,7 +88,7 @@ public class CoralPath implements Subsystem{
         coral = (WsSpark) WsOutputs.CORAL_INTAKE.get();
 
         coral.setBrake();
-        coral.setCurrentLimit(50,50,0);
+        coral.setCurrentLimit(60,60,0);
         algae.setBrake();
         algae.setCurrentLimit(50,50,0);
 
@@ -144,6 +146,9 @@ public class CoralPath implements Subsystem{
                 }
             }
         }
+        // if (algae.getController().getOutputCurrent() > ALGAE_CURRENT_LIMIT && algaeSpeed == 0 && delayTimer.hasElapsed(0.25)){
+        //     algaeSpeed = ALGAE_STALL_POWER;
+        // }
         coral.setSpeed(coralSpeed);
         if (algaeSpeed == ALGAE_STALL_POWER && !holdTimer.hasElapsed(2.0)){
             algae.setSpeed(1);
@@ -190,11 +195,15 @@ public class CoralPath implements Subsystem{
     // Start or stop intaking coral
     public void setIntake(boolean intake) {
         coralSpeed = intake ? 1 : 0;
+        delayTimer.start();
     }
 
     // Start or stop scoring coral
     public void setScore(boolean score) {
         coralSpeed = score ? -1 : 0;
+    }
+    public void scored(){
+        hasCoral = false;
     }
     
 }

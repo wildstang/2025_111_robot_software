@@ -131,7 +131,7 @@ public class WsSwerveHelper {
      * @param i_gyro the gyro value, field centric, in bearing degrees
      * @return double that indicates what the rotational joystick value should be
      */
-    public double getRotControl(double i_target, double i_gyro) {
+    public double getRotControl(double i_target, double i_gyro, double i_factor) {
         rotDelta = i_target - i_gyro;
         if (rotDelta > 180) {
             rotPID = (rotDelta - 360) / 180;
@@ -142,7 +142,10 @@ public class WsSwerveHelper {
         else {
             rotPID = (rotDelta + 360) / 180;
         } 
-        return Math.signum(rotPID) * Math.min(Math.abs(rotPID*DriveConstants.PID_ROTATION), 1.0/DriveConstants.ROTATION_SPEED);
+        return Math.signum(rotPID) * i_factor * Math.min(Math.abs(rotPID*DriveConstants.PID_ROTATION), 1.0/DriveConstants.ROTATION_SPEED);
+    }
+    public double getRotControl(double i_target, double i_gyro){
+        return getRotControl(i_target, i_gyro, 1);
     }
     /*
      * getRotControl, but capped to -0.2 to 0.2

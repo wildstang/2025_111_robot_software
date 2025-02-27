@@ -13,32 +13,44 @@ public class VisionConsts {
     public final double mToIn = 39.37;
 
     // All Variables in Blue coordinate system
-    public static final List<Pose2d> leftTopBranches = List.of(
-        new Pose2d(146.8*inToM, 114.9*inToM, new Rotation2d(Math.toRadians(120))), 
-        new Pose2d(153.9*inToM, 206.2*inToM, new Rotation2d(Math.toRadians(240))), 
-        new Pose2d(229.5*inToM, 154.4*inToM, new Rotation2d(Math.toRadians(0))));
-    public static final List<Pose2d> rightTopBranches = List.of(
-        new Pose2d(158.1*inToM, 108.4*inToM, new Rotation2d(Math.toRadians(120))), 
-        new Pose2d(142.6*inToM, 199.7*inToM, new Rotation2d(Math.toRadians(240))), 
-        new Pose2d(229.5*inToM, 167.4*inToM, new Rotation2d(Math.toRadians(0))));
-    public static final List<Pose2d> leftBottomBranches = List.of(
-        new Pose2d(125.8*inToM, 162*inToM, new Rotation2d(Math.toRadians(180))), 
-        new Pose2d(206.7*inToM, 202.1*inToM, new Rotation2d(Math.toRadians(300))), 
-        new Pose2d(199.6*inToM, 110.8*inToM, new Rotation2d(Math.toRadians(60))));
-    public static final List<Pose2d> rightBottomBranches = List.of(
-        new Pose2d(125.8*inToM, 149.6*inToM, new Rotation2d(Math.toRadians(180))), 
-        new Pose2d(195.4*inToM, 208.6*inToM, new Rotation2d(Math.toRadians(300))), 
-        new Pose2d(210.8*inToM, 117.3*inToM, new Rotation2d(Math.toRadians(60))));
+    public static final List<Pose2d> leftBranches = List.of(
+        new Pose2d(3.18, 4.125, new Rotation2d(Math.toRadians(180))), //front
+        new Pose2d(5.218, 5.10, new Rotation2d(Math.toRadians(300))), //back left
+        new Pose2d(5.05, 2.84, new Rotation2d(Math.toRadians(60))),//back right
+        new Pose2d(3.75, 2.95, new Rotation2d(Math.toRadians(120))), //front right
+        new Pose2d(3.9, 5.2, new Rotation2d(Math.toRadians(240))), //front left
+        new Pose2d(5.80, 3.925, new Rotation2d(Math.toRadians(0))));//back
+    public static final List<Pose2d> rightBranches = List.of(
+        new Pose2d(3.218, 3.78, new Rotation2d(Math.toRadians(180))), //front
+        new Pose2d(4.911, 5.27, new Rotation2d(Math.toRadians(300))), //back left
+        new Pose2d(5.335, 3.026, new Rotation2d(Math.toRadians(60))),//back right
+        new Pose2d(4.06, 2.78, new Rotation2d(Math.toRadians(120))), //front right
+        new Pose2d(3.66, 5.0, new Rotation2d(Math.toRadians(240))), //front left
+        new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(0))));//back
+    public static final List<Pose2d> rightBranchL1 = List.of(
+        new Pose2d(3.06, 3.73, new Rotation2d(Math.toRadians(200))), //front
+        new Pose2d(4.946, 5.43, new Rotation2d(Math.toRadians(320))), //back left
+        new Pose2d(5.455, 2.916, new Rotation2d(Math.toRadians(80))),//back right
+        new Pose2d(4.03, 2.62, new Rotation2d(Math.toRadians(140))), //front right
+        new Pose2d(3.54, 5.11, new Rotation2d( Math.toRadians(260))),//front left
+        new Pose2d(5.94, 4.33, new Rotation2d(Math.toRadians(20))));//back
+    public static final List<Pose2d> leftBranchL1 = List.of(
+        new Pose2d(3.18, 4.125, new Rotation2d(Math.toRadians(160))), //front
+        new Pose2d(5.218, 5.10, new Rotation2d(Math.toRadians(280))), //back left
+        new Pose2d(5.05, 2.84, new Rotation2d(Math.toRadians(40))),//back right
+        new Pose2d(3.75, 2.95, new Rotation2d(Math.toRadians(100))), //front right
+        new Pose2d(3.9, 5.2, new Rotation2d(Math.toRadians(220))), //front left
+        new Pose2d(5.80, 3.925, new Rotation2d(Math.toRadians(340))));//back
+    
+
     public static final Translation2d reefCenter = new Translation2d(176*inToM, 158.5*inToM);
     public static final double halfwayAcrossFieldY = (317/2)*inToM;
-    // TODO: what are the actual values?
     public static final double coralStationLeftHeading = 235;
     public static final double coralStationRightHeading = 125;
 
     // X value of the translation is irrelevant
-    public static final Translation2d netScore = new Translation2d(300*inToM, 300*inToM);
+    public static final Translation2d netScore = new Translation2d(295*inToM, 295*inToM);
 
-    //TODO: what are the actual pipeline indices?
     public static final int ATPipelineIndex = 0;
 
     /*

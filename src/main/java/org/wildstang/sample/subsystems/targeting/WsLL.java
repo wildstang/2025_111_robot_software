@@ -98,7 +98,8 @@ public class WsLL {
             if (alliance3D != null && alliance3D.timestampSeconds == oldTimestamp) {
                 return Optional.empty();
             }
-            return Optional.of(alliance3D);
+            if (alliance3D != null) return Optional.of(alliance3D);
+            else return Optional.empty();
         }
         return Optional.empty();
     }

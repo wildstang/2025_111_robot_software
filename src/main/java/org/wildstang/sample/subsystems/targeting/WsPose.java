@@ -30,11 +30,11 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class WsPose implements Subsystem {
 
-    public WsLL left = new WsLL("limelight-back", true);
-    public WsLL right = new WsLL("limelight-front", true);
+    public WsLL left = new WsLL("limelight-left", true);
+    public WsLL right = new WsLL("limelight-right", true);
 
     private final double poseBufferSizeSec = 2;
-    public final double visionSpeedThreshold = 0.5;
+    public final double visionSpeedThreshold = 3.0;
     
     public SwerveDrive swerve;
 
@@ -68,24 +68,6 @@ public class WsPose implements Subsystem {
     @Override
     public void selfTest() {
     }
-
-    public Pose2d getClosestBranch(boolean right, boolean topTriangle) {
-        if (right) {
-            if (topTriangle) {
-                return estimatedPose.nearest(VisionConsts.rightTopBranches);
-            } else {
-                return estimatedPose.nearest(VisionConsts.rightBottomBranches);
-            }
-        } else {
-            if (topTriangle) {
-                return estimatedPose.nearest(VisionConsts.leftTopBranches);
-            } else {
-                return estimatedPose.nearest(VisionConsts.leftBottomBranches);
-            }
-        }
-    }
-
-    
 
     @Override
     public void update() {
@@ -179,6 +161,34 @@ public class WsPose implements Subsystem {
         return "Ws Vision";
     }
 
+    // YEAR SUBSYSTEM ACCESS METHODS
+
+    /**
+     * Based on whether we are scoring left branch or right branch gets the closest scoring pose
+     * @param right // true if we are scoring on the right branch
+     * @return pose to align the robot to to score
+     */
+    public Pose2d getClosestBranch(boolean right) {
+        if (right) {
+            return estimatedPose.nearest(VisionConsts.rightBranches);
+        } else {
+            return estimatedPose.nearest(VisionConsts.leftBranches);
+        }
+    }
+
+    /**
+     * Based on whether we are scoring left branch or right branch gets the closest scoring pose
+     * @param right // true if we are scoring on the right branch
+     * @return pose to align the robot to to score
+     */
+    public Pose2d getClosestL1Branch(boolean right) {
+        if (right) {
+            return estimatedPose.nearest(VisionConsts.rightBranchL1);
+        } else {
+            return estimatedPose.nearest(VisionConsts.leftBranchL1);
+        }
+    }
+
     /**
      * Gets closest coral station to robot to determine what direction to lock heading
      * @return boolean true for right, false for left
@@ -189,6 +199,14 @@ public class WsPose implements Subsystem {
         } else {
             return true;
         }
+    }
+
+    /**
+     * Returns if we are near the reef and can start raising lift to staged height
+     * @return true if we are within 2.5 m of the reef center
+     */
+    public boolean nearReef() {
+        return estimatedPose.getTranslation().getDistance(VisionConsts.reefCenter) < 2.5;
     }
 
     /**

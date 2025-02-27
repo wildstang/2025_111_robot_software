@@ -3,8 +3,13 @@ package org.wildstang.sample.robot;
 import org.wildstang.framework.core.AutoPrograms;
 import org.wildstang.sample.auto.Programs.Jubilee;
 import org.wildstang.sample.auto.Programs.Line;
+import org.wildstang.sample.auto.Programs.RedLeftThreeCoralV1;
+import org.wildstang.sample.auto.Programs.RedRightThreeCoralV1;
 import org.wildstang.sample.auto.Programs.TestProgram;
-import org.wildstang.sample.auto.Programs.ThreeCoralV1;
+import org.wildstang.sample.auto.Programs.TheDrakeBlue;
+import org.wildstang.sample.auto.Programs.TheDrakeRed;
+import org.wildstang.sample.auto.Programs.BlueLeftThreeCoralV1;
+import org.wildstang.sample.auto.Programs.BlueRightThreeCoralV1;
 
 
 /**
@@ -15,10 +20,16 @@ public enum WsAutoPrograms implements AutoPrograms {
 
     // enumerate programs
     //SAMPLE_PROGRAM("Sample", SampleAutoProgram.class),
-    Line("Line", Line.class),
-    TEST_PROGRAM("Test Program", TestProgram.class),
-    Jubilee("Jubilee", Jubilee.class),
-    THREE_CORAL("Three Coral", ThreeCoralV1.class)
+    //Line("Line", Line.class),
+    //TEST_PROGRAM("Test Program", TestProgram.class),
+    //Jubilee("Jubilee", Jubilee.class),
+    BLUE_LEFT_THREE_CORAL("Blue Left Three Coral V1", BlueLeftThreeCoralV1.class),
+    BLUE_RIGHT_THREE_CORAL("Blue Right Three Coral V1", BlueRightThreeCoralV1.class),
+    RED_LEFT_THREE_CORAL("Red Left Three Coral V1", RedLeftThreeCoralV1.class),
+    RED_RIGHT_THREE_CORAL("Red Right Three Coral V1", RedRightThreeCoralV1.class),
+    CENTER_BLUE("Center Blue", TheDrakeBlue.class),
+    CENTER_RED("Center Red", TheDrakeRed.class),
+
     ;
 
     /**
