@@ -29,7 +29,7 @@ public class AutoSetupStep extends AutoStep{
      * @param alliance // Set alliance in Core
      */
     public AutoSetupStep(double x, double y, double pathHeading, Alliance alliance){
-        odoPose = new Pose2d(x,y, Rotation2d.fromDegrees(360 - heading));
+        odoPose = new Pose2d(x,y, Rotation2d.fromDegrees(360 - pathHeading));
         heading = pathHeading;
         Core.setAlliance(alliance);
         LedController led = (LedController) Core.getSubsystemManager().getSubsystem(WsSubsystems.LED);

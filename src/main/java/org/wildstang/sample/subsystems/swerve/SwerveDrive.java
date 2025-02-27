@@ -358,7 +358,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             // Rotate to whichever coral station is closest
             rotTarget = pose.isClosestStationRight() ? VisionConsts.coralStationRightHeading : VisionConsts.coralStationLeftHeading;
             // Intake on closer side
-            if (!frontCloser(rotTarget)) {
+            if (!frontCloser(rotTarget) || coralPath.hasAlgae()) {
                 rotTarget = (rotTarget + 180) % 360;
             }
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
@@ -535,6 +535,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         return (WsSwerveHelper.angleDist(gyro.getRoll().getValueAsDouble(), 0) > 10) || (WsSwerveHelper.angleDist(gyro.getPitch().getValueAsDouble(), 0)) > 10;
     }
     public boolean isCoralStationFront(){
+        if (coralPath.hasAlgae()) return false;
         return frontCloser(pose.isClosestStationRight() ? VisionConsts.coralStationRightHeading : VisionConsts.coralStationLeftHeading);
     }
     public boolean isProcessorFront(){
