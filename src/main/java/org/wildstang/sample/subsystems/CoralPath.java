@@ -22,7 +22,7 @@ public class CoralPath implements Subsystem{
 
     private static final double CORAL_CURRENT_LIMIT = 20;
     private static final double ALGAE_CURRENT_LIMIT = 40;
-    private final double ALGAE_STALL_POWER = 0.5;
+    private final double ALGAE_STALL_POWER = 0.75;
 
     private Timer delayTimer = new Timer();
     private Timer currentTimer = new Timer();
@@ -41,10 +41,12 @@ public class CoralPath implements Subsystem{
     private double algaeSpeed;
     private double coralSpeed;
     private boolean hasCoral = false;
+    private boolean intakeOverride = false;
 
 
     @Override
     public void inputUpdate(Input source) {
+        intakeOverride = leftShoulder.getValue();
         if (source == leftShoulder) {
             coralSpeed = leftShoulder.getValue() ? 1.0 : 0.0;
 
@@ -149,7 +151,8 @@ public class CoralPath implements Subsystem{
         // if (algae.getController().getOutputCurrent() > ALGAE_CURRENT_LIMIT && algaeSpeed == 0 && delayTimer.hasElapsed(0.25)){
         //     algaeSpeed = ALGAE_STALL_POWER;
         // }
-        coral.setSpeed(coralSpeed);
+        if (intakeOverride) coral.setSpeed(1.0);
+        else coral.setSpeed(coralSpeed);
         if (algaeSpeed == ALGAE_STALL_POWER && !holdTimer.hasElapsed(2.0)){
             algae.setSpeed(1);
         } else {

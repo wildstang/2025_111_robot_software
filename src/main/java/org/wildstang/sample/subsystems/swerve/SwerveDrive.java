@@ -470,6 +470,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     /**sets autonomous values from the path data file in field relative */
     public void setAutoValues(double xVelocity, double yVelocity, Pose2d target) {
+        SmartDashboard.putNumber("Path Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
         // accel of 0 because currently not using acceleration for power since
         xPower = swerveHelper.getAutoPower(xVelocity, 0);
         yPower = swerveHelper.getAutoPower(yVelocity, 0);
@@ -551,6 +552,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         return pose.nearReef();
     }
     public boolean algaeLow(){
-        return rotTarget == 0 || rotTarget == 120 || rotTarget == 240;
+        //return rotTarget == 0 || rotTarget == 120 || rotTarget == 240;
+        return pose.currentID == 6 || pose.currentID == 8 || pose.currentID == 10
+             || pose.currentID == 17 || pose.currentID == 19 || pose.currentID == 21;
     }
 }

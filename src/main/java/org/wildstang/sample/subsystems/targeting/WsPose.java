@@ -36,6 +36,7 @@ public class WsPose implements Subsystem {
     private final double poseBufferSizeSec = 2;
     public final double visionSpeedThreshold = 3.0;
     
+    public int currentID = 0;
     public SwerveDrive swerve;
 
     // Always field relative (m and CCW rad)
@@ -92,8 +93,10 @@ public class WsPose implements Subsystem {
             }
             if (leftStdDev < rightStdDev) {
                 addVisionObservation(leftEstimate.get());
+                currentID = left.tid;
             } else if (rightStdDev < leftStdDev) {
                 addVisionObservation(rightEstimate.get());
+                currentID = right.tid;
             }
         }
 
