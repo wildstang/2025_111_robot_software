@@ -310,7 +310,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     @Override
     public void update() {
-        pose.addOdometryObservation(modulePositions(), odoAngle());
+        pose.addOdometryObservation(modulePositions(), odoAngle(), driveState == driveType.AUTO);
 
         if (driveState == driveType.CROSS) {
             //set to cross - done in inputupdate
@@ -379,9 +379,16 @@ public class SwerveDrive extends SwerveDriveTemplate {
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+            
+        SmartDashboard.putNumber("X Power", xPower);
+        SmartDashboard.putNumber("Y Power", yPower);
             xPower = 0;
             yPower = 0;
             // Pre generated power values in set auto
+        } else {
+            
+        SmartDashboard.putNumber("X Power", xPower);
+        SmartDashboard.putNumber("Y Power", yPower);
         }
 
         // Rossen tipping???
@@ -394,8 +401,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("# Robot X", pose.estimatedPose.getX());
         SmartDashboard.putNumber("# Robot Y", pose.estimatedPose.getY());
         SmartDashboard.putNumber("Gyro Reading", getGyroAngle());
-        SmartDashboard.putNumber("X Power", xPower);
-        SmartDashboard.putNumber("Y Power", yPower);
         SmartDashboard.putNumber("rotSpeed", rotSpeed);
         SmartDashboard.putString("Drive mode", driveState.toString());
         SmartDashboard.putBoolean("rotLocked", rotLocked);

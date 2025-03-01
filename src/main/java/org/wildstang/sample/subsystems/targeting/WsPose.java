@@ -39,6 +39,8 @@ public class WsPose implements Subsystem {
     public int currentID = 0;
     public SwerveDrive swerve;
 
+    private boolean isInAuto = false;
+
     // Always field relative (m and CCW rad)
     public Pose2d odometryPose = new Pose2d();
     public Pose2d estimatedPose = new Pose2d();
@@ -78,7 +80,8 @@ public class WsPose implements Subsystem {
         // Same standard deviation calculation as 6328 but only used for calculating validity of vision estimate
         double leftStdDev = Double.MAX_VALUE;
         double rightStdDev = Double.MAX_VALUE;
-        if (swerve.speedMagnitude() < visionSpeedThreshold) {
+        if (swerve.speedMagnitude() < visionSpeedThreshold && 
+            (!isInAuto || (estimatedPose.getTranslation().getDistance(VisionConsts.reefCenter) < 3))) {
             if (leftEstimate.isPresent() && leftEstimate.get().rawFiducials.length > 0) {
 
                 // Get distance to the closest tag from the array of raw fiducials
@@ -120,7 +123,7 @@ public class WsPose implements Subsystem {
         poseBuffer.clear();
     }
 
-    public void addOdometryObservation(SwerveModulePosition[] modulePositions, Rotation2d gyroAngle) {
+    public void addOdometryObservation(SwerveModulePosition[] modulePositions, Rotation2d gyroAngle, boolean isAuto) {
         if (lastWheelPositions.length == 0) { 
             lastWheelPositions = modulePositions;
             return; 
@@ -135,6 +138,7 @@ public class WsPose implements Subsystem {
         poseBuffer.addSample(Timer.getFPGATimestamp(), odometryPose);
 
         estimatedPose = estimatedPose.exp(twist);
+        isInAuto = isAuto;
     }
 
     public void addVisionObservation(PoseEstimate observation) {

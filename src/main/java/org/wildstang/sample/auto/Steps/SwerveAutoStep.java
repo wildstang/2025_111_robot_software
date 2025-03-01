@@ -84,7 +84,7 @@ public class SwerveAutoStep extends AutoStep {
             fieldAutoPose = sample.getPose();
 
             if (fieldAutoPose.getTranslation().getDistance(pathtraj.getFinalPose(false)
-                .get().getTranslation()) < 1.0){
+                .get().getTranslation()) < 1.5){
                     m_drive.setAutoValues(0.0, 0.0, pathtraj.getFinalPose(false).get());
                     m_drive.setAutoHeading(getHeading());
             } else {

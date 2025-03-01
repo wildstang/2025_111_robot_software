@@ -5,6 +5,7 @@ import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
+import org.wildstang.hardware.roborio.inputs.WsDPadButton;
 import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
@@ -22,7 +23,7 @@ public class CoralPath implements Subsystem{
 
     private static final double CORAL_CURRENT_LIMIT = 20;
     private static final double ALGAE_CURRENT_LIMIT = 40;
-    private final double ALGAE_STALL_POWER = 0.75;
+    private final double ALGAE_STALL_POWER = 0.95;
 
     private Timer delayTimer = new Timer();
     private Timer currentTimer = new Timer();
@@ -35,6 +36,7 @@ public class CoralPath implements Subsystem{
 
     private WsJoystickButton leftShoulder;
     private WsJoystickButton rightShoulder;
+    private WsDPadButton dpadRight;
     private WsJoystickAxis leftTrigger;
     private WsJoystickAxis rightTrigger;
 
@@ -61,8 +63,8 @@ public class CoralPath implements Subsystem{
         } else if (source == rightTrigger && !superstructure.isAlgaeRemoval()) {
             if (Math.abs(leftTrigger.getValue()) > 0.5 && Math.abs(rightTrigger.getValue()) > 0.5) {
                 if (!hasAlgae() || hasCoral()) {
-                    if (superstructure.isScoreL1()) coralSpeed = -0.3;
-                    else if (superstructure.isScoreL23()) coralSpeed = -0.8;
+                    if (superstructure.isScoreL1()) coralSpeed = -0.4;
+                    else if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
                     else coralSpeed = -1.0;
                 } else {
                     algaeSpeed = -1;
@@ -71,7 +73,7 @@ public class CoralPath implements Subsystem{
             // Finish spitting out game piece
             } else if (rightTrigger.getValue() < 0.5 && !superstructure.isAlgaeRemoval()) {
                 if (algaeSpeed == -1) algaeSpeed = 0;
-                if (coralSpeed == -0.3 || coralSpeed == -1.0 || coralSpeed == -0.8){
+                if (coralSpeed == -0.4 || coralSpeed == -1.0 || coralSpeed == -0.7){//-0.6 for med wheels
                     coralSpeed = 0;
                     hasCoral = false;
                 }
@@ -83,6 +85,9 @@ public class CoralPath implements Subsystem{
         } else if (Math.abs(leftTrigger.getValue()) < 0.5 && !hasAlgae()){
             algaeSpeed = 0;
         }
+        if (source == dpadRight && dpadRight.getValue()){
+            algaeSpeed = 0;
+        }
     }
 
     @Override
@@ -91,9 +96,9 @@ public class CoralPath implements Subsystem{
         coral = (WsSpark) WsOutputs.CORAL_INTAKE.get();
 
         coral.setBrake();
-        coral.setCurrentLimit(60,60,0);
+        coral.setCurrentLimit(80,80,0);//60 for med wheels
         algae.setBrake();
-        algae.setCurrentLimit(50,50,0);
+        algae.setCurrentLimit(60,60,0);
 
         leftShoulder = (WsJoystickButton) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_SHOULDER);
         leftShoulder.addInputListener(this);
@@ -103,6 +108,8 @@ public class CoralPath implements Subsystem{
         rightTrigger.addInputListener(this);
         leftTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_TRIGGER);
         leftTrigger.addInputListener(this);
+        dpadRight = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
+        dpadRight.addInputListener(this);
         // currentTimer.start();
         // delayTimer.start();
         holdTimer.start();
@@ -134,7 +141,7 @@ public class CoralPath implements Subsystem{
         } else if (algaeSpeed == 1.0) {
 
             // Wait to scan current until after 0.25s to clear ramp up current spike
-            if (delayTimer.hasElapsed(0.25)) {
+            if (delayTimer.hasElapsed(1.0)) {
                 if (algae.getController().getOutputCurrent() < ALGAE_CURRENT_LIMIT) {
                     currentTimer.reset();
                     currentTimer.stop();

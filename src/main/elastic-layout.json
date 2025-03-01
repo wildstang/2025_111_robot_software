@@ -148,8 +148,8 @@
         "containers": [
           {
             "title": "# Has Algae",
-            "x": 1056.0,
-            "y": 0.0,
+            "x": 1152.0,
+            "y": 96.0,
             "width": 96.0,
             "height": 96.0,
             "type": "Boolean Box",
@@ -182,7 +182,7 @@
           },
           {
             "title": "@ Alage Speed",
-            "x": 288.0,
+            "x": 96.0,
             "y": 0.0,
             "width": 96.0,
             "height": 96.0,
@@ -196,7 +196,7 @@
           },
           {
             "title": "@ Arm Position",
-            "x": 384.0,
+            "x": 192.0,
             "y": 0.0,
             "width": 96.0,
             "height": 96.0,
@@ -210,7 +210,7 @@
           },
           {
             "title": "@ Arm Target",
-            "x": 384.0,
+            "x": 192.0,
             "y": 96.0,
             "width": 96.0,
             "height": 96.0,
@@ -224,7 +224,7 @@
           },
           {
             "title": "@ Coral Speed",
-            "x": 288.0,
+            "x": 96.0,
             "y": 96.0,
             "width": 96.0,
             "height": 96.0,
@@ -238,7 +238,7 @@
           },
           {
             "title": "@ Lift Position",
-            "x": 480.0,
+            "x": 288.0,
             "y": 0.0,
             "width": 96.0,
             "height": 96.0,
@@ -252,7 +252,7 @@
           },
           {
             "title": "@ Lift Target",
-            "x": 480.0,
+            "x": 288.0,
             "y": 96.0,
             "width": 96.0,
             "height": 96.0,
@@ -266,8 +266,8 @@
           },
           {
             "title": "@ Superstructure position",
-            "x": 384.0,
-            "y": 288.0,
+            "x": 0.0,
+            "y": 192.0,
             "width": 288.0,
             "height": 96.0,
             "type": "Text Display",
@@ -311,8 +311,8 @@
           },
           {
             "title": "@ current timer",
-            "x": 768.0,
-            "y": 0.0,
+            "x": 1056.0,
+            "y": 96.0,
             "width": 96.0,
             "height": 96.0,
             "type": "Text Display",
@@ -325,7 +325,7 @@
           },
           {
             "title": "@ delay timer",
-            "x": 864.0,
+            "x": 1056.0,
             "y": 0.0,
             "width": 96.0,
             "height": 96.0,
@@ -339,8 +339,8 @@
           },
           {
             "title": "@ is stowed",
-            "x": 1056.0,
-            "y": 96.0,
+            "x": 1152.0,
+            "y": 192.0,
             "width": 96.0,
             "height": 96.0,
             "type": "Boolean Box",
@@ -356,8 +356,8 @@
           },
           {
             "title": "@ algae scoring",
-            "x": 768.0,
-            "y": 96.0,
+            "x": 1056.0,
+            "y": 288.0,
             "width": 96.0,
             "height": 96.0,
             "type": "Boolean Box",
@@ -373,8 +373,8 @@
           },
           {
             "title": "@ coral scoring",
-            "x": 864.0,
-            "y": 96.0,
+            "x": 1056.0,
+            "y": 192.0,
             "width": 96.0,
             "height": 96.0,
             "type": "Boolean Box",
@@ -390,8 +390,8 @@
           },
           {
             "title": "@ thing",
-            "x": 672.0,
-            "y": 96.0,
+            "x": 1056.0,
+            "y": 384.0,
             "width": 96.0,
             "height": 96.0,
             "type": "Boolean Box",
@@ -404,6 +404,138 @@
               "true_icon": "None",
               "false_icon": "None"
             }
+          },
+          {
+            "title": "Odo X",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Odo X",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Odo Y",
+            "x": 384.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Odo Y",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "limelight-backVision x",
+            "x": 576.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/limelight-backVision x",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "limelight-backVision y",
+            "x": 576.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/limelight-backVision y",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "limelight-frontVision x",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/limelight-frontVision x",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "limelight-frontVision y",
+            "x": 768.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/limelight-frontVision y",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "limelight-front tv",
+            "x": 768.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/limelight-front tv",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "limelight-back tv",
+            "x": 576.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/limelight-back tv",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "@ absolute arm",
+            "x": 960.0,
+            "y": 480.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/@ absolute arm",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
           }
         ]
       }
@@ -415,7 +547,7 @@
         "containers": [
           {
             "title": "# Reef L1",
-            "x": 1344.0,
+            "x": 1152.0,
             "y": 288.0,
             "width": 192.0,
             "height": 96.0,
@@ -432,7 +564,7 @@
           },
           {
             "title": "# Reef L2",
-            "x": 1344.0,
+            "x": 1152.0,
             "y": 192.0,
             "width": 192.0,
             "height": 96.0,
@@ -449,7 +581,7 @@
           },
           {
             "title": "# Reef L3",
-            "x": 1344.0,
+            "x": 1152.0,
             "y": 96.0,
             "width": 192.0,
             "height": 96.0,
@@ -466,7 +598,7 @@
           },
           {
             "title": "# Reef L4",
-            "x": 1344.0,
+            "x": 1152.0,
             "y": 0.0,
             "width": 192.0,
             "height": 96.0,
@@ -482,145 +614,43 @@
             }
           },
           {
-            "title": "# Bottom Triangle",
-            "x": 672.0,
-            "y": 96.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/# Bottom Triangle",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "# Bottom Triangle",
-            "x": 864.0,
-            "y": 288.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/# Bottom Triangle",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "# Bottom Triangle",
-            "x": 1056.0,
-            "y": 96.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/# Bottom Triangle",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "# Top Triangle",
-            "x": 672.0,
-            "y": 192.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/# Top Triangle",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "# Top Triangle",
-            "x": 1056.0,
-            "y": 192.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/# Top Triangle",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "# Top Triangle",
-            "x": 864.0,
-            "y": 0.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/# Top Triangle",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
             "title": "# Has Algae",
-            "x": 384.0,
-            "y": 0.0,
+            "x": 576.0,
+            "y": 96.0,
             "width": 192.0,
-            "height": 192.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/# Has Algae",
               "period": 0.06,
               "data_type": "boolean",
-              "true_color": 4283215696,
+              "true_color": 4282698453,
               "false_color": 4294198070,
               "true_icon": "None",
-              "false_icon": "None"
+              "false_icon": "X"
             }
           },
           {
             "title": "# Has Coral",
-            "x": 384.0,
-            "y": 192.0,
+            "x": 576.0,
+            "y": 0.0,
             "width": 192.0,
-            "height": 192.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/# Has Coral",
               "period": 0.06,
               "data_type": "boolean",
-              "true_color": 4283215696,
+              "true_color": 4293318731,
               "false_color": 4294198070,
               "true_icon": "None",
-              "false_icon": "None"
+              "false_icon": "X"
             }
           },
           {
             "title": "# Algae Pickup",
-            "x": 864.0,
-            "y": 96.0,
+            "x": 768.0,
+            "y": 0.0,
             "width": 192.0,
             "height": 192.0,
             "type": "Boolean Box",
@@ -628,18 +658,18 @@
               "topic": "/SmartDashboard/# Algae Pickup",
               "period": 0.06,
               "data_type": "boolean",
-              "true_color": 4283215696,
+              "true_color": 4281911250,
               "false_color": 4294198070,
               "true_icon": "None",
-              "false_icon": "None"
+              "false_icon": "X"
             }
           },
           {
             "title": "# Targeting Net",
-            "x": 1152.0,
-            "y": 384.0,
+            "x": 768.0,
+            "y": 192.0,
             "width": 192.0,
-            "height": 192.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/# Targeting Net",
@@ -652,53 +682,8 @@
             }
           },
           {
-            "title": "Alliance Color",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 192.0,
-            "height": 192.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SmartDashboard/Alliance Color",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4284263410,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Odo X",
-            "x": 0.0,
-            "y": 384.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Odo X",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Odo Y",
-            "x": 192.0,
-            "y": 384.0,
-            "width": 192.0,
-            "height": 96.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Odo Y",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
             "title": "Lock in auto program",
-            "x": 192.0,
+            "x": 0.0,
             "y": 0.0,
             "width": 192.0,
             "height": 192.0,
@@ -711,7 +696,7 @@
           },
           {
             "title": "Select Autonomous Program",
-            "x": 192.0,
+            "x": 0.0,
             "y": 192.0,
             "width": 192.0,
             "height": 192.0,
@@ -724,10 +709,10 @@
           },
           {
             "title": "# Targeting Processor",
-            "x": 1344.0,
-            "y": 384.0,
+            "x": 768.0,
+            "y": 288.0,
             "width": 192.0,
-            "height": 192.0,
+            "height": 96.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/# Targeting Processor",
@@ -741,7 +726,223 @@
           },
           {
             "title": "Gyro Reading",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Gyro Reading",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Preloaded Autonomous Program",
             "x": 0.0,
+            "y": 384.0,
+            "width": 384.0,
+            "height": 96.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Preloaded Autonomous Program",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "# Robot X",
+            "x": 384.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/# Robot X",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "# Robot Y",
+            "x": 576.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/# Robot Y",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "# climb ratchet on",
+            "x": 960.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 96.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/# climb ratchet on",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "# left branch",
+            "x": 960.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/# left branch",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "# right branch",
+            "x": 1344.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/# right branch",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "isBlue",
+            "x": 192.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/SmartDashboard/isBlue",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "isBlue",
+            "x": 192.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/isBlue",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4280493032,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vision",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "limelight-back",
+            "x": 1152.0,
+            "y": 0.0,
+            "width": 384.0,
+            "height": 384.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/limelight-back",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "# Robot X",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/# Robot X",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "# Robot Y",
+            "x": 960.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/# Robot Y",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Alliance Color",
+            "x": 576.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/Alliance Color",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Drive mode",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Drive mode",
+              "period": 0.06,
+              "data_type": "string",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Gyro Reading",
+            "x": 576.0,
             "y": 192.0,
             "width": 192.0,
             "height": 192.0,
@@ -751,6 +952,94 @@
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
+            }
+          },
+          {
+            "title": "Rotation target",
+            "x": 768.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Rotation target",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "rotLocked",
+            "x": 960.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/rotLocked",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "botpose_orb_wpiblue",
+            "x": 576.0,
+            "y": 384.0,
+            "width": 864.0,
+            "height": 192.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/limelight-back/botpose_orb_wpiblue",
+              "period": 0.06,
+              "data_type": "double[]",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "@ is blue",
+            "x": 384.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/SmartDashboard/@ is blue",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Lock in auto program",
+            "x": 192.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Lock in auto program",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "Select Autonomous Program",
+            "x": 192.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Select Autonomous Program",
+              "period": 0.06,
+              "sort_options": false
             }
           }
         ]
