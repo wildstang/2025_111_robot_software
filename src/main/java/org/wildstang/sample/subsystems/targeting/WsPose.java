@@ -87,12 +87,14 @@ public class WsPose implements Subsystem {
                 // Get distance to the closest tag from the array of raw fiducials
                 double closestTagDist = Arrays.stream(leftEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
                 leftStdDev = Math.pow(closestTagDist, 2) / leftEstimate.get().tagCount;
+                if (leftEstimate.get().avgTagDist > 3.5) leftStdDev = Double.MAX_VALUE;
             }
             if (rightEstimate.isPresent() && rightEstimate.get().rawFiducials.length > 0) {
 
                 // Get distance to the closest tag from the array of raw fiducials
                 double closestTagDist = Arrays.stream(rightEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
                 rightStdDev = Math.pow(closestTagDist, 2) / rightEstimate.get().tagCount;
+                if (rightEstimate.get().avgTagDist > 3.5) rightStdDev = Double.MAX_VALUE;
             }
             if (leftStdDev < rightStdDev) {
                 addVisionObservation(leftEstimate.get());
