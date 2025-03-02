@@ -96,7 +96,7 @@ public class CoralPath implements Subsystem{
         coral = (WsSpark) WsOutputs.CORAL_INTAKE.get();
 
         coral.setBrake();
-        coral.setCurrentLimit(80,80,0);//60 for med wheels
+        coral.setCurrentLimit(60,60,0);//60 for med wheels
         algae.setBrake();
         algae.setCurrentLimit(60,60,0);
 
