@@ -310,7 +310,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     @Override
     public void update() {
-        pose.addOdometryObservation(modulePositions(), odoAngle());
+        pose.addOdometryObservation(modulePositions(), odoAngle(), driveState == driveType.AUTO);
 
         if (driveState == driveType.CROSS) {
             //set to cross - done in inputupdate
@@ -379,9 +379,16 @@ public class SwerveDrive extends SwerveDriveTemplate {
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+            
+        SmartDashboard.putNumber("X Power", xPower);
+        SmartDashboard.putNumber("Y Power", yPower);
             xPower = 0;
             yPower = 0;
             // Pre generated power values in set auto
+        } else {
+            
+        SmartDashboard.putNumber("X Power", xPower);
+        SmartDashboard.putNumber("Y Power", yPower);
         }
 
         // Rossen tipping???
@@ -394,8 +401,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("# Robot X", pose.estimatedPose.getX());
         SmartDashboard.putNumber("# Robot Y", pose.estimatedPose.getY());
         SmartDashboard.putNumber("Gyro Reading", getGyroAngle());
-        SmartDashboard.putNumber("X Power", xPower);
-        SmartDashboard.putNumber("Y Power", yPower);
         SmartDashboard.putNumber("rotSpeed", rotSpeed);
         SmartDashboard.putString("Drive mode", driveState.toString());
         SmartDashboard.putBoolean("rotLocked", rotLocked);
@@ -470,6 +475,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     /**sets autonomous values from the path data file in field relative */
     public void setAutoValues(double xVelocity, double yVelocity, Pose2d target) {
+        SmartDashboard.putNumber("Path Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
         // accel of 0 because currently not using acceleration for power since
         xPower = swerveHelper.getAutoPower(xVelocity, 0);
         yPower = swerveHelper.getAutoPower(yVelocity, 0);
@@ -551,6 +557,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         return pose.nearReef();
     }
     public boolean algaeLow(){
-        return rotTarget == 0 || rotTarget == 120 || rotTarget == 240;
+        //return rotTarget == 0 || rotTarget == 120 || rotTarget == 240;
+        return pose.currentID == 6 || pose.currentID == 8 || pose.currentID == 10
+             || pose.currentID == 17 || pose.currentID == 19 || pose.currentID == 21;
     }
 }

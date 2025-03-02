@@ -91,7 +91,7 @@ public class Test_Climb implements Subsystem{
         climbSpeed = 0;
         pwmValue = 0;
         manual = false;
-        position = 10;
+        position = 15;
     }
 
     @Override
