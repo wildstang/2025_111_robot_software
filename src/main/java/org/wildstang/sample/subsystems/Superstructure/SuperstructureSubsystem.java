@@ -133,7 +133,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             desiredPosition = SuperstructurePosition.ALGAE_PRESTAGED;
         } 
         else if (LTHeld) {
-            if ((coralPath.hasAlgae() || isScoringAlgae()) && !(coralPath.hasCoral() || isScoringCoral()) && !PickupSequence) {
+            if (swerve.isScoringAlgae()) {
                 if (Algae_NetOrProces.Net == AlgaeState) {
                     if (swerve.isNetFront()){
                         desiredPosition = SuperstructurePosition.ALGAE_NET_FRONT;
@@ -179,16 +179,15 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             prevPosition = desiredPosition;
         }
 
-        if (!liftAtPosition() && !isArmClear(desiredPosition) && isScoringCoral()){
-            setArm(getClearArm(desiredPosition));
-        } else {
+        if (isReefPosition(desiredPosition) && !isReefPosition(prevPosition)){
+            setLift(desiredPosition.getLift());
+            setArm(liftAtPosition() ? desiredPosition.getArm() : BACK_CLEAR);
+        } else if (!isReefPosition(desiredPosition) && isReefPosition(prevPosition)){
+            setLift(isArmClearReef(armSpark.getPosition()) || armAtPosition() ? desiredPosition.getLift() : prevPosition.getLift());
             setArm(desiredPosition.getArm());
-        }
-
-        if (!isArmClear(armSpark.getPosition()) && !armAtPosition() && isReefPosition(prevPosition) && !isReefPosition(desiredPosition)){
-            setLift(LiftMax.getPosition());
         } else {
             setLift(desiredPosition.getLift());
+            setArm(desiredPosition.getArm());
         }
 
         displayNumbers();
@@ -276,7 +275,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         return PickupSequence;
     }
     private boolean liftAtPosition(){
-        return Math.abs(desiredPosition.getLift() - LiftMax.getPosition())<3;
+        return Math.abs(desiredPosition.getLift() - LiftMax.getPosition())<2;
     }
     private boolean armAtPosition(){
         return Math.abs(desiredPosition.getArm() - armSpark.getPosition())<0.5;
@@ -332,15 +331,11 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     private boolean isLiftHigh(double position){
         return position > LIFT_STAGE1;
     }
-    private boolean isArmClear(SuperstructurePosition position){
-        return isArmClear(position.getArm());
+    private boolean isArmClearReef(SuperstructurePosition position){
+        return isArmClearReef(position.getArm());
     }
-    private boolean isArmClear(double position){
-        return position < BACK_CLEAR && position > FRONT_CLEAR;
-    }
-    private double getClearArm(SuperstructurePosition position){
-        if (position.getArm() > BACK_CLEAR) return 68;//BACK_CLEAR;
-        else return 48;//FRONT_CLEAR;
+    private boolean isArmClearReef(double position){
+        return position < BACK_CLEAR;
     }
     private boolean isReefPosition(SuperstructurePosition position){
         return position == SuperstructurePosition.CORAL_REEF_L1 || 

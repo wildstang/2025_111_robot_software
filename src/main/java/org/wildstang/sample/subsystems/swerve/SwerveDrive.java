@@ -10,6 +10,7 @@ import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.swerve.SwerveDriveTemplate;
+import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.CANConstants;
 import org.wildstang.sample.robot.WsInputs;
@@ -42,16 +43,16 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private AnalogInput leftStickX;//translation joystick x
     private AnalogInput leftStickY;//translation joystick y
     private AnalogInput rightStickX;//rot joystick
-    private AnalogInput rightTrigger;//intake, score when aiming
-    private AnalogInput leftTrigger;//scoring to speaker
-    private DigitalInput rightBumper;//slowdown
-    private DigitalInput leftBumper;//lift up to amp
+    private AnalogInput rightTrigger;//intake, score when scoring sequence
+    private AnalogInput leftTrigger;//scoring sequence
+    private DigitalInput rightBumper;//prestaged algae intake
+    private DigitalInput leftBumper;//hp station pickup
     private DigitalInput select;//gyro reset
     private DigitalInput faceUp;//rotation lock 0 degrees
     private DigitalInput faceRight;//rotation lock 90 degrees
     private DigitalInput faceLeft;//rotation lock 270 degrees
     private DigitalInput faceDown;//rotation lock 180 degrees
-    private DigitalInput dpadLeft;//defense mode
+    private DigitalInput dpadLeft;
     private DigitalInput dpadRight;
     private DigitalInput driverStart; // Auto rotate to reef
     private DigitalInput operatorLeftBumper; // Select left branch auto align
@@ -61,6 +62,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private DigitalInput operatorFaceLeft;
     private DigitalInput operatorStart;
     private DigitalInput operatorSelect;
+    private WsJoystickAxis operatorRightTrigger;
+    private WsJoystickAxis operatorLeftTrigger;
 
     private double xPower;
     private double yPower;
@@ -71,6 +74,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private double rotTarget;
 
     private boolean isReef;
+    private boolean scoringAlgae = false;
     
     private final double mToIn = 39.37;
 
@@ -97,6 +101,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     @Override
     public void inputUpdate(Input source) {
+        if (Math.abs(operatorLeftTrigger.getValue()) > 0.5) scoringAlgae = true;
+        if (Math.abs(operatorRightTrigger.getValue()) > 0.5) scoringAlgae = false;
         
         // Operator controls set intent state variables
         if (source == operatorLeftBumper && operatorLeftBumper.getValue()) {
@@ -113,7 +119,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 isReef = false;
 
                 // Scoring algae
-                if (coralPath.hasAlgae() && !coralPath.hasCoral()) {
+                if ((scoringAlgae && !(coralPath.hasCoral() && !coralPath.hasAlgae())) || (coralPath.hasAlgae() && !coralPath.hasCoral())) {
                     if (algaeNet) {
                         driveState = driveType.NETSCORE;
                     } else {
@@ -284,6 +290,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
         operatorSelect.addInputListener(this);
         operatorStart = (DigitalInput) WsInputs.OPERATOR_START.get();
         operatorStart.addInputListener(this);
+        operatorLeftTrigger = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_TRIGGER.get();
+        operatorLeftTrigger.addInputListener(this);
+        operatorRightTrigger = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_TRIGGER.get();
+        operatorRightTrigger.addInputListener(this);
     }
 
     public void initOutputs() {
@@ -560,5 +570,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         //return rotTarget == 0 || rotTarget == 120 || rotTarget == 240;
         return pose.currentID == 6 || pose.currentID == 8 || pose.currentID == 10
              || pose.currentID == 17 || pose.currentID == 19 || pose.currentID == 21;
+    }
+    public boolean isScoringAlgae(){
+        return scoringAlgae;
     }
 }
