@@ -34,4 +34,7 @@ public final class CANConstants {
     public static final int ALGAE = 24;
     public static final int CLIMB1 = 25;
     public static final int CLIMB2 = 26;
+    public static final int GROUND1 = 27;
+    public static final int GROUND2 = 28;
+    public static final int PIVOT = 29;
 }

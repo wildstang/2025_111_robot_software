@@ -34,7 +34,10 @@ public enum WsOutputs implements Outputs {
     ALGAE_INTAKE("Algae Intake", new WsSparkConfig(CANConstants.ALGAE, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
     CLIMB1("Climb 1 Motor", new WsSparkConfig(CANConstants.CLIMB1, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
     CLIMB2("Climb 2 Motor Follow", new WsSparkFollowerConfig("Climb 1 Motor", CANConstants.CLIMB2, WsMotorControllers.SPARK_MAX_BRUSHLESS, true)),
-
+    GROUND1("Ground Intake 1 Motor", new WsSparkConfig(CANConstants.GROUND1, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
+    GROUND2("Ground Intake 2 Motor", new WsSparkConfig(CANConstants.GROUND2, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
+    PIVOT("Ground Intake Pivot", new WsSparkConfig(CANConstants.PIVOT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
+    
     // ---------------------------------
     // Other Motors
     // ---------------------------------
