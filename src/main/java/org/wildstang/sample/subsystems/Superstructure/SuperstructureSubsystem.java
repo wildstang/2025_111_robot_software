@@ -344,6 +344,9 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             position == SuperstructurePosition.CORAL_REEF_L3 || 
             position == SuperstructurePosition.CORAL_REEF_L4;
     }
+    public boolean isScoreL1() {
+        return level == LevelReef.Reef_L1;
+    }
     public void setPosition(SuperstructurePosition position){
         desiredPosition = position;
     }
