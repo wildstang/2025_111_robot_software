@@ -82,6 +82,7 @@ public class CoralPath implements Subsystem{
         } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
             algaeSpeed = 1;
             delayTimer.restart();
+            currentTimer.restart();
         } else if (Math.abs(leftTrigger.getValue()) < 0.5 && !hasAlgae()){
             algaeSpeed = 0;
         }
@@ -110,8 +111,6 @@ public class CoralPath implements Subsystem{
         leftTrigger.addInputListener(this);
         dpadRight = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
         dpadRight.addInputListener(this);
-        // currentTimer.start();
-        // delayTimer.start();
         holdTimer.start();
     }
 
@@ -156,9 +155,6 @@ public class CoralPath implements Subsystem{
                 }
             }
         }
-        // if (algae.getController().getOutputCurrent() > ALGAE_CURRENT_LIMIT && algaeSpeed == 0 && delayTimer.hasElapsed(0.25)){
-        //     algaeSpeed = ALGAE_STALL_POWER;
-        // }
         if (intakeOverride) coral.setSpeed(1.0);
         else coral.setSpeed(coralSpeed);
         if (algaeSpeed == ALGAE_STALL_POWER && !holdTimer.hasElapsed(2.0)){

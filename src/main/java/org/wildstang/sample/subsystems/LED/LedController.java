@@ -24,24 +24,15 @@ public class LedController implements Subsystem {
 
     @Override
     public void update(){
-        if (Core.getIsDisabledMode()){
-            if (Core.isAutoLocked()){
-                if (Core.isBlue()) color = BlinkinValues.TWINKLES_OCEAN_PALETTE;
-                else color = BlinkinValues.TWINKLES_LAVA_PALETTE;
-            } else color = BlinkinValues.RAINBOW_RAINBOW_PALETTE;
-        } else {
-            if (isScoring && superstructure.isAtPosition()){
-                color = BlinkinValues.GREEN;
-            } else if (isScoring && !superstructure.isAtPosition()){
-                color = BlinkinValues.DARK_RED;
-            } else if (superstructure.isAlgaeRemoval()){
-                color = BlinkinValues.WHITE;
-            } else if (coralPath.hasCoral()){
-                color = BlinkinValues.YELLOW;
-            } else if (coralPath.hasAlgae()){
-                color = BlinkinValues.SKY_BLUE;
-            } else color = BlinkinValues.RAINBOW_RAINBOW_PALETTE;
-        }
+        if (isScoring && superstructure.isAtPosition()){
+            color = BlinkinValues.GREEN;
+        } else if (isScoring && !superstructure.isAtPosition()){
+            color = BlinkinValues.DARK_RED;
+        } else if (swerve.isScoringAlgae()){
+            color = BlinkinValues.BLUE;
+        } else if (superstructure.isAlgaeRemoval()){
+            color = BlinkinValues.WHITE;
+        } else color = BlinkinValues.RAINBOW_RAINBOW_PALETTE;
         led.setColor(color);
     }
 
