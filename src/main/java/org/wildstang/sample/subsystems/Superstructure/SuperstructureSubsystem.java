@@ -13,6 +13,7 @@ import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.WsSwerveHelper;
+import org.wildstang.sample.subsystems.targeting.WsPose;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -40,6 +41,7 @@ private WsSpark LiftMax, lift2, armSpark ;
 private boolean isAuto = true;
 private SwerveDrive swerve;
 private CoralPath coralPath;
+private WsPose pose;
 private final double LIFT_FF = 0;
 private final double BACK_CLEAR = 72;
 private final double FRONT_CLEAR = 44;
@@ -111,10 +113,13 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         LiftMax.setCurrentLimit(80, 80, 0);
         lift2.setCurrentLimit(80, 80, 0);
 
+        
     }
 
 @Override
     public void update() {
+
+        AlgaeState = pose.isAlgaeScoreNet() ? Algae_NetOrProces.Net : Algae_NetOrProces.Processor;
 
         if (isAuto){
             //do nothing
@@ -210,12 +215,6 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             level = LevelReef.Reef_L4;
         }
         if (source == X && X.getValue()) PickupSequence = !PickupSequence;
-        if(DPad_UP.getValue()){
-           AlgaeState = Algae_NetOrProces.Net;
-        }
-        if(DPad_LEFT.getValue()){
-            AlgaeState = Algae_NetOrProces.Processor;
-        }
         if(DPad_DOWN.getValue()){
             level = LevelReef.Reef_L1;
         }
@@ -232,6 +231,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     public void initSubsystems() {
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
+        pose = (WsPose) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_POSE);
     }
     @Override
     public void selfTest() {
