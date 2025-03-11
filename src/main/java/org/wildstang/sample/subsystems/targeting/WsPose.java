@@ -173,6 +173,16 @@ public class WsPose implements Subsystem {
     // YEAR SUBSYSTEM ACCESS METHODS
 
     /**
+     * Coral pose
+     * 
+     * @return 
+     */
+    private Optional<Pose2d> getCoralPose() {
+        double 
+    }
+
+
+    /**
      * Based on whether we are scoring left branch or right branch gets the closest scoring pose
      * @param right // true if we are scoring on the right branch
      * @return pose to align the robot to to score
