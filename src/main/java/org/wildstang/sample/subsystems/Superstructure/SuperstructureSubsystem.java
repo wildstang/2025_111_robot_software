@@ -45,8 +45,8 @@ private WsPose pose;
 private final double LIFT_FF = 0;
 private final double BACK_CLEAR = 72;
 private final double FRONT_CLEAR = 44;
-private final double LIFT_STAGE1 = 50;
-private final double LIFT_LOW = 25;
+private final double LIFT_STAGE1 = 50 * 5.0/9.0;
+private final double LIFT_LOW = 25 * 5.0/9.0;
 
 
 private enum LevelReef{
@@ -275,7 +275,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         return PickupSequence;
     }
     private boolean liftAtPosition(){
-        return Math.abs(desiredPosition.getLift() - LiftMax.getPosition())<2;
+        return Math.abs(desiredPosition.getLift() - LiftMax.getPosition())<1.5;
     }
     private boolean armAtPosition(){
         return Math.abs(desiredPosition.getArm() - armSpark.getPosition())<0.5;
@@ -318,11 +318,11 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             lift2.setPosition(1, 1, LIFT_FF);
         }
         if (desiredPosition.getLift() < LiftMax.getPosition()){
-            LiftMax.setPosition(liftPos, 1, LIFT_FF);
-            lift2.setPosition(-liftPos, 1, -LIFT_FF);
+            LiftMax.setPosition(liftPos * 5.0/9.0, 1, LIFT_FF);
+            lift2.setPosition(-liftPos * 5.0/9.0, 1, -LIFT_FF);
         } else {
-            LiftMax.setPosition(liftPos, 0, LIFT_FF);
-            lift2.setPosition(-liftPos, 0, -LIFT_FF);
+            LiftMax.setPosition(liftPos * 5.0/9.0, 0, LIFT_FF);
+            lift2.setPosition(-liftPos * 5.0/9.0, 0, -LIFT_FF);
         }
     }
     private boolean isLiftHigh(SuperstructurePosition position){

@@ -115,7 +115,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
                 // Scoring algae
                 if ((scoringAlgae && !(coralPath.hasCoral() && !coralPath.hasAlgae())) || (coralPath.hasAlgae() && !coralPath.hasCoral())) {
-                    if (algaeNet) {
+                    if (pose.isAlgaeScoreNet()) {
                         driveState = driveType.NETSCORE;
                     } else {
                         driveState = driveType.PROCESSORSCORE;
