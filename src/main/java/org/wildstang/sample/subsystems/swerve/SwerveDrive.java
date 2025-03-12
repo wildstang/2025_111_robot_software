@@ -97,7 +97,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private enum driveType {TELEOP, AUTO, CROSS, REEFSCORE, NETSCORE, PROCESSORSCORE, CORALSTATION, CLIMB};
     private driveType driveState;
     public boolean rightBranch;
-    public boolean algaeNet;
 
     @Override
     public void inputUpdate(Input source) {
@@ -109,18 +108,14 @@ public class SwerveDrive extends SwerveDriveTemplate {
             rightBranch = false;
         } else if (source == operatorRightBumper && operatorRightBumper.getValue()) {
             rightBranch = true;
-        } else if (source == operatorDpadUp && operatorDpadUp.getValue()) {
-            algaeNet = true;
-        } else if (source == operatorDpadLeft && operatorDpadLeft.getValue()) {
-            algaeNet = false;
         } else if (source == leftTrigger) {
 
-            if (leftTrigger.getValue() > 0.5) {
+            if (Math.abs(leftTrigger.getValue()) > 0.5) {
                 isReef = false;
 
                 // Scoring algae
                 if ((scoringAlgae && !(coralPath.hasCoral() && !coralPath.hasAlgae())) || (coralPath.hasAlgae() && !coralPath.hasCoral())) {
-                    if (algaeNet) {
+                    if (pose.isAlgaeScoreNet()) {
                         driveState = driveType.NETSCORE;
                     } else {
                         driveState = driveType.PROCESSORSCORE;

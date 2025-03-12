@@ -211,6 +211,14 @@ public class WsPose implements Subsystem {
     }
 
     /**
+     * 
+     * @return true if we are on the net side of the field and should be scoring in the net if we have algae
+     */
+    public boolean isAlgaeScoreNet() {
+        return estimatedPose.getTranslation().getY() > 3.7;
+    }
+
+    /**
      * Returns if we are near the reef and can start raising lift to staged height
      * @return true if we are within 2.5 m of the reef center
      */
