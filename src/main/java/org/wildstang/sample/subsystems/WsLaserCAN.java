@@ -1,15 +1,17 @@
 package org.wildstang.sample.subsystems;
 
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
-import au.grapplerobotics.LaserCAN;
+import au.grapplerobotics.LaserCan;
 
 public class WsLaserCAN {
 
     private double[] savedLcDistance = {-1.0, -1.0, -1.0, -1.0, -1.0};
     private int idNumber;
+    private LaserCan lc;
     
     public WsLaserCAN(int id) {
         id = idNumber;
+        lc = new LaserCan(id);
     }
 
     public boolean haveAlgae (int id) {

@@ -6,6 +6,7 @@ import org.wildstang.framework.logger.Log.LogLevel;
 import org.wildstang.hardware.roborio.RoboRIOInputFactory;
 import org.wildstang.hardware.roborio.RoboRIOOutputFactory;
 
+import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -28,6 +29,9 @@ public class Robot extends TimedRobot {
     Core core;
     private SendableChooser<LogLevel> logChooser;
 
+    public Robot(){
+        CanBridge.runTCP();
+    }
     /**
      * Runs on initialization, creates and configures the framework Core.
      */
