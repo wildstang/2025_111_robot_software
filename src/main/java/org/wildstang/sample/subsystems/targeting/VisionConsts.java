@@ -86,8 +86,8 @@ public class VisionConsts {
 
     public static final int ATPipelineIndex = 0;
 
-    // Transform from the camera in the center of the robot to 
-    public static final Transform3d objectCameraTransform = new Transform3d();
+    // Transform from center of robot to camera pose
+    public static final Transform3d camTransform = new Transform3d();
     /*
      * April Tag IDs:
      *  -Red Coral stations: left 1, right 2

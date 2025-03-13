@@ -33,6 +33,9 @@ public class WsPose implements Subsystem {
     public WsLL left = new WsLL("limelight-left", true);
     public WsLL right = new WsLL("limelight-right", true);
 
+    // Object detection camera
+    public WsLL front = new WsLL("limelight-front", false);
+
     private final double poseBufferSizeSec = 2;
     public final double visionSpeedThreshold = 3.0;
     
@@ -175,10 +178,21 @@ public class WsPose implements Subsystem {
     /**
      * Coral pose
      * 
-     * @return 
+     * @return field relative pose of the coral if the coral is present
      */
-    private Optional<Pose2d> getCoralPose() {
-        double 
+    public Optional<Translation2d> getCoralPose() {
+        if (!front.targetInView()) return Optional.empty();
+
+        // Assumes the angle of depression is gonna be negative
+        double camToCoralDist = VisionConsts.camTransform.getZ() / -Math.tan(VisionConsts.camTransform.getRotation().getY() + front.ty);
+
+        Transform2d camToCoralTransform = new Transform2d(Math.cos(front.tx) * camToCoralDist, Math.sin(front.tx) * camToCoralDist, new Rotation2d(front.tx));
+
+        // Transform from camera to coral
+        Transform2d camTransform2d = new Transform2d(VisionConsts.camTransform.getX(), VisionConsts.camTransform.getX(), new Rotation2d(VisionConsts.camTransform.getRotation().getZ()));
+
+        // Combines transformations to get coral pose in field coordinates
+        return Optional.of(estimatedPose.plus(camTransform2d).plus(camToCoralTransform).getTranslation());
     }
 
 
@@ -218,6 +232,14 @@ public class WsPose implements Subsystem {
         } else {
             return true;
         }
+    }
+
+    /**
+     * 
+     * @return true if we are on the net side of the field and should be scoring in the net if we have algae
+     */
+    public boolean isAlgaeScoreNet() {
+        return estimatedPose.getTranslation().getY() > 3.7;
     }
 
     /**

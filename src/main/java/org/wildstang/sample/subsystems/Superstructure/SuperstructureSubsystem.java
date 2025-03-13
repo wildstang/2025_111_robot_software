@@ -13,6 +13,7 @@ import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.WsSwerveHelper;
+import org.wildstang.sample.subsystems.targeting.WsPose;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -40,11 +41,12 @@ private WsSpark LiftMax, lift2, armSpark ;
 private boolean isAuto = true;
 private SwerveDrive swerve;
 private CoralPath coralPath;
+private WsPose pose;
 private final double LIFT_FF = 0;
 private final double BACK_CLEAR = 72;
 private final double FRONT_CLEAR = 44;
-private final double LIFT_STAGE1 = 50;
-private final double LIFT_LOW = 25;
+private final double LIFT_STAGE1 = 50 * 5.0/9.0;
+private final double LIFT_LOW = 25 * 5.0/9.0;
 
 
 private enum LevelReef{
@@ -98,23 +100,26 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         armSpark.addClosedLoop(1, 0.1, 0, 0, 0);
         armSpark.setCoast();
         armSpark.setPosition(0);
-        armSpark.setCurrentLimit(35, 35, 0);
+        armSpark.setCurrentLimit(50, 50, 0);
         LiftMax = (WsSpark) WsOutputs.LIFT.get();
         lift2 = (WsSpark) WsOutputs.LIFT_FOLLOWER.get();
-        LiftMax.initClosedLoop(1.0,0,0.1,0);
-        lift2.initClosedLoop(1.0,0,0.1,0);
-        LiftMax.addClosedLoop(1, 0.1, 0.0, 0.05, 0);
-        lift2.addClosedLoop(1, 0.1, 0, 0.05, 0);
+        LiftMax.initClosedLoop(0.2,0,0.1,0);
+        lift2.initClosedLoop(0.2,0,0.1,0);
+        LiftMax.addClosedLoop(1, 0.05, 0.0, 0.05, 0);
+        lift2.addClosedLoop(1, 0.05, 0, 0.05, 0);
         LiftMax.setBrake();
         lift2.setBrake();
         lift2.setPosition(LiftMax.getPosition());
         LiftMax.setCurrentLimit(80, 80, 0);
         lift2.setCurrentLimit(80, 80, 0);
 
+        
     }
 
 @Override
     public void update() {
+
+        AlgaeState = pose.isAlgaeScoreNet() ? Algae_NetOrProces.Net : Algae_NetOrProces.Processor;
 
         if (isAuto){
             //do nothing
@@ -209,12 +214,6 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             level = LevelReef.Reef_L4;
         }
         if (source == X && X.getValue()) PickupSequence = !PickupSequence;
-        if(DPad_UP.getValue()){
-           AlgaeState = Algae_NetOrProces.Net;
-        }
-        if(DPad_LEFT.getValue()){
-            AlgaeState = Algae_NetOrProces.Processor;
-        }
         if(DPad_DOWN.getValue()){
             level = LevelReef.Reef_L1;
         }
@@ -231,6 +230,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     public void initSubsystems() {
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
+        pose = (WsPose) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_POSE);
     }
     @Override
     public void selfTest() {
@@ -275,7 +275,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         return PickupSequence;
     }
     private boolean liftAtPosition(){
-        return Math.abs(desiredPosition.getLift() - LiftMax.getPosition())<2;
+        return Math.abs(desiredPosition.getLift() - LiftMax.getPosition())<1.5;
     }
     private boolean armAtPosition(){
         return Math.abs(desiredPosition.getArm() - armSpark.getPosition())<0.5;
@@ -318,11 +318,11 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             lift2.setPosition(1, 1, LIFT_FF);
         }
         if (desiredPosition.getLift() < LiftMax.getPosition()){
-            LiftMax.setPosition(liftPos, 1, LIFT_FF);
-            lift2.setPosition(-liftPos, 1, -LIFT_FF);
+            LiftMax.setPosition(liftPos * 5.0/9.0, 1, LIFT_FF);
+            lift2.setPosition(-liftPos * 5.0/9.0, 1, -LIFT_FF);
         } else {
-            LiftMax.setPosition(liftPos, 0, LIFT_FF);
-            lift2.setPosition(-liftPos, 0, -LIFT_FF);
+            LiftMax.setPosition(liftPos * 5.0/9.0, 0, LIFT_FF);
+            lift2.setPosition(-liftPos * 5.0/9.0, 0, -LIFT_FF);
         }
     }
     private boolean isLiftHigh(SuperstructurePosition position){
