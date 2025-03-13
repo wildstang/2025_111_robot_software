@@ -32,12 +32,11 @@ public class ScoreCoralStep extends AutoStep {
 
         // Execute once
         if (superstructure.isAtPosition() && swerveDrive.isAtPosition() && timer.isRunning() == false) {
-            coralPath.setScore(true);
+            coralPath.setIntake(CoralPath.IntakeState.SCORING);
             timer.start();
         }
         if (timer.hasElapsed(SCORE_DURATION)) {
-            coralPath.setScore(false);
-            coralPath.scored();
+            coralPath.setIntake(CoralPath.IntakeState.NEUTRAL);
             setFinished();
         }
      }

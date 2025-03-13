@@ -33,7 +33,7 @@ public class IntakeCoralStep extends AutoStep {
     public void initialize() {
         coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
         timer.start();
-        coralPath.setIntake(true);
+        coralPath.setIntake(CoralPath.IntakeState.INTAKING);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class IntakeCoralStep extends AutoStep {
         if (coralPath.hasCoral()) {
             this.setFinished();
         } else if (timer.hasElapsed(timeout)) {
-            coralPath.setIntake(false);
+            coralPath.setIntake(CoralPath.IntakeState.NEUTRAL);
             this.setFinished();
         }
      }

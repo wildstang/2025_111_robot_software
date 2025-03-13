@@ -34,72 +34,46 @@ public class CoralPath implements Subsystem{
     private WsDPadButton dpadRight;
     private WsJoystickAxis leftTrigger;
     private WsJoystickAxis rightTrigger;
-    public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN);
-    public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN);
+    private WsAnalogInput operatorLeftTrigger;
+    private WsAnalogInput operatorRightTrigger;
+    public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN, 0);
+    public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN, 0);
+
+    private boolean scoringAlgae;
 
 
     private double algaeSpeed;
     private double coralSpeed;
-    private boolean hasCoral = false;
-    private boolean intakeOverride = false;
-    public WsLaserCAN lc = new WsLaserCAN(CANConstants.ALGAE_LASERCAN);
+    public enum IntakeState { NEUTRAL, INTAKING, SCORING }
+    private IntakeState coralState;
+    private IntakeState algaeState;
 
 
     @Override
     public void inputUpdate(Input source) {
-        if (source == leftShoulder && leftShoulder.getValue()) {
-            coralState = IntakeState.INTAKING;
-        } else if (source == rightShoulder && rightShoulder.getValue()) {
-            algaeState = IntakeState.INTAKING;
-        } else if (source == rightTrigger && !superstructure.isAlgaeRemoval()) {
-            
-        }
-
-
-
-
+        if (Math.abs(operatorLeftTrigger.getValue()) > 0.5) scoringAlgae = true;
+        if (Math.abs(operatorRightTrigger.getValue()) > 0.5) scoringAlgae = false;
 
         if (source == leftShoulder) {
-            coralSpeed = leftShoulder.getValue() ? 1.0 : 0.0;
-
-            // Delay before measuring current
-            if (coralSpeed == 1.0) delayTimer.restart();
-            if (!leftShoulder.getValue()) hasCoral = true;
+            coralState = leftShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
         } else if (source == rightShoulder) {
-            if (algaeSpeed != ALGAE_STALL_POWER) algaeSpeed = rightShoulder.getValue() ? 1 : 0;
-
-            // Delay before measuring current
-            if (algaeSpeed == 1.0) delayTimer.restart();
+            algaeState = rightShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
         } else if (source == rightTrigger && !superstructure.isAlgaeRemoval()) {
             if (Math.abs(leftTrigger.getValue()) > 0.5 && Math.abs(rightTrigger.getValue()) > 0.5) {
-                if (!hasAlgae() || hasCoral()) {
-                    if (superstructure.isScoreL1()) coralSpeed = -0.4;
-                    else if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
-                    else coralSpeed = -1.0;
-                } else {
-                    algaeSpeed = -1;
+                if (hasCoral() && (!hasAlgae() || !scoringAlgae)) {
+                    coralState = IntakeState.SCORING;
+                } else if (hasAlgae() && (!hasCoral() || !scoringAlgae)) {
+                    algaeState = IntakeState.SCORING;
                 }
 
             // Finish spitting out game piece
             } else if (rightTrigger.getValue() < 0.5 && !superstructure.isAlgaeRemoval()) {
-                if (algaeSpeed == -1) algaeSpeed = 0;
-                if (coralSpeed == -0.4 || coralSpeed == -1.0 || coralSpeed == -0.7){//-0.6 for med wheels
-                    coralSpeed = 0;
-                    hasCoral = false;
-                }
+                coralState = IntakeState.NEUTRAL;
+                algaeState = IntakeState.NEUTRAL;
             }
-
         } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
-            algaeSpeed = 1;
-            delayTimer.restart();
-            currentTimer.restart();
-        } else if (Math.abs(leftTrigger.getValue()) < 0.5 && !hasAlgae()){
-            algaeSpeed = 0;
+            algaeState = IntakeState.INTAKING;
         }
-        if (source == dpadRight && dpadRight.getValue()){
-            algaeSpeed = 0;
-        }
-        
     }
 
     @Override
@@ -122,6 +96,10 @@ public class CoralPath implements Subsystem{
         leftTrigger.addInputListener(this);
         dpadRight = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
         dpadRight.addInputListener(this);
+        operatorLeftTrigger = (WsAnalogInput) Core.getInputManager().getInput(WsInputs.OPERATOR_LEFT_TRIGGER);
+        operatorLeftTrigger.addInputListener(this);
+        operatorRightTrigger = (WsAnalogInput) Core.getInputManager().getInput(WsInputs.OPERATOR_RIGHT_TRIGGER);
+        operatorRightTrigger.addInputListener(this);
     }
 
     @Override
@@ -130,9 +108,40 @@ public class CoralPath implements Subsystem{
 
     @Override
     public void update() {
+        switch (coralState) {
+            case INTAKING:
+                coralSpeed = 1.0;
+                break;
+            case SCORING:
+                if (superstructure.isScoreL1()) coralSpeed = -0.4;
+                else if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
+                else coralSpeed = -1.0;
+                break;
+            case NEUTRAL:
+                coralSpeed = 0.0;
+                break;
+        }
+        switch (algaeState) {
+            case INTAKING:
+                algaeSpeed = 1.0;
+                break;
+            case SCORING:
+                algaeSpeed = -1.0;
+                break;
+            case NEUTRAL:
+                if (hasAlgae()) {
+
+                    // Stall current
+                    algaeSpeed = 0.75;
+                } else {
+                    algaeSpeed = 0.0;
+                }
+                break;
+        }
         
         displayNumbers();
-        lc.putData();
+        algaeLC.updateMeasurements();
+        coralLC.updateMeasurements();
     }
 
     @Override
@@ -148,7 +157,15 @@ public class CoralPath implements Subsystem{
     }
 
     public boolean hasCoral() {
+        return coralLC.blocked();
+    }
 
+    public boolean hasAlgae() {
+        return algaeLC.blocked();
+    }
+
+    public void setIntake(IntakeState state) {
+        coralState = state;
     }
 
     @Override
