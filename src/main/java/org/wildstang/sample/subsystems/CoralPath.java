@@ -10,6 +10,7 @@ import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
+import org.wildstang.sample.robot.CANConstants;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
@@ -44,6 +45,7 @@ public class CoralPath implements Subsystem{
     private double coralSpeed;
     private boolean hasCoral = false;
     private boolean intakeOverride = false;
+    public WsLaserCAN lc = new WsLaserCAN(CANConstants.ALGAE_LASERCAN);
 
 
     @Override
@@ -164,6 +166,7 @@ public class CoralPath implements Subsystem{
         }
 
         displayNumbers();
+        lc.putData();
     }
 
     @Override
