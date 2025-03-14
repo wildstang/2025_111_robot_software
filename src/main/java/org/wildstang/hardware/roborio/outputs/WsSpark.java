@@ -179,6 +179,7 @@ public class WsSpark extends WsMotorController {
         if (follower != null){
             followerConfig.smartCurrentLimit(limit, limit, 0);
         }
+        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     /**
