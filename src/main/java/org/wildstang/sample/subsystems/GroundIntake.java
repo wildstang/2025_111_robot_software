@@ -101,6 +101,15 @@ public class GroundIntake implements Subsystem {
         deploy = true;
     }
 
+    public void deploy() {
+        deploy = true;
+    }
+
+    public void groundOn() {
+        ground1Speed = 1;
+        ground2Speed = 1;
+    }
+
     @Override
     public String getName() {
         return "Ground Intake";
