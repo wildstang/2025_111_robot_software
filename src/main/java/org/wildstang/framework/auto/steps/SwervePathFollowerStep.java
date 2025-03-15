@@ -29,8 +29,7 @@ public class SwervePathFollowerStep extends AutoStep {
     private SwerveSample sample;
 
     // x and y field relative
-    private Pose2d fieldAutoPose, fieldRobotPose;
-    private double xOffset, yOffset;
+    private Pose2d fieldAutoPose;
 
     private Timer timer;
 
@@ -41,7 +40,12 @@ public class SwervePathFollowerStep extends AutoStep {
      * @param isBlue whether the robot is on the blue alliance
      */
     public SwervePathFollowerStep(String pathData, SwerveDriveTemplate drive) {
-        this.pathtraj = getTraj(pathData);
+        // this.pathtraj = getTraj(pathData);
+        // m_drive = drive;
+        // timer = new Timer();
+        var traj = Choreo.loadTrajectory(pathData).get();
+        this.pathtraj = (Trajectory<SwerveSample>)traj;
+        //this.pathtraj = getTraj(pathData).getSplit(split).get();
         m_drive = drive;
         timer = new Timer();
     }
@@ -77,7 +81,6 @@ public class SwervePathFollowerStep extends AutoStep {
         } else {
             sample = pathtraj.sampleAt(timer.get(), false).get();
             
-            fieldRobotPose = m_drive.returnPose();
             fieldAutoPose = sample.getPose();
 
             m_drive.setAutoHeading(getHeading());

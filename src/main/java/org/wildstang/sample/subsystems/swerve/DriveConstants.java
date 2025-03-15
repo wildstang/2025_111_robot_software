@@ -21,11 +21,11 @@ public final class DriveConstants {
     /**speed with which the rotation PID is controlled by */
     public static final double PID_ROTATION = 1.5;
     /**drive motor gear ratio */
-    public static final double DRIVE_RATIO = 4.0;
+    public static final double DRIVE_RATIO = 5.5;
     /**angle motor gear ratio */
     //public static final double ANGLE_RATIO = 12.8;
     /**diameter of drive wheel, in inches */
-    public static final double WHEEL_DIAMETER = 3.0;
+    public static final double WHEEL_DIAMETER = 2.81875;
     /**offset of module 1, the front left module, in degrees */
     public static final double FRONT_LEFT_OFFSET = -90;
     /**offset of module 2, the front right module, in degrees */
@@ -56,7 +56,7 @@ public final class DriveConstants {
     /**PID values for drive D */
     public static final double DRIVE_D = 0.1;
     /**PID values for driveF coefficient of momentum */
-    public static final double DRIVE_F_V = 0.00375 * 157.5/144.5*157.5/142;//free speed of 22.2 ft/s becomes 266.4 in/s
+    public static final double DRIVE_F_V = 0.00375 * 1.20894*157.48/125.5*157.5/155.75*157.5/159*0.7;//free speed of 22.2 ft/s becomes 266.4 in/s
     /**PID values for drive F coefficient of kinetic friction */
     public static final double DRIVE_F_K = 0.016;
     /**PID values for drive F coefficient of inertia */

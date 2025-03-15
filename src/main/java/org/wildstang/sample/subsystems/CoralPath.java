@@ -5,10 +5,12 @@ import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
+import org.wildstang.hardware.roborio.inputs.WsDPadButton;
 import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
+import org.wildstang.sample.robot.CANConstants;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
@@ -20,9 +22,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralPath implements Subsystem{
 
-    private static final double CORAL_CURRENT_LIMIT = 40;
+    private static final double CORAL_CURRENT_LIMIT = 20;
     private static final double ALGAE_CURRENT_LIMIT = 40;
-    private final double ALGAE_STALL_POWER = 0.5;
+    private final double ALGAE_STALL_POWER = 0.95;
 
     private Timer delayTimer = new Timer();
     private Timer currentTimer = new Timer();
@@ -35,21 +37,26 @@ public class CoralPath implements Subsystem{
 
     private WsJoystickButton leftShoulder;
     private WsJoystickButton rightShoulder;
+    private WsDPadButton dpadRight;
     private WsJoystickAxis leftTrigger;
     private WsJoystickAxis rightTrigger;
 
     private double algaeSpeed;
     private double coralSpeed;
     private boolean hasCoral = false;
+    private boolean intakeOverride = false;
+    public WsLaserCAN lc = new WsLaserCAN(CANConstants.ALGAE_LASERCAN);
 
 
     @Override
     public void inputUpdate(Input source) {
+        intakeOverride = leftShoulder.getValue();
         if (source == leftShoulder) {
             coralSpeed = leftShoulder.getValue() ? 1.0 : 0.0;
 
             // Delay before measuring current
             if (coralSpeed == 1.0) delayTimer.restart();
+            if (!leftShoulder.getValue()) hasCoral = true;
         } else if (source == rightShoulder) {
             if (algaeSpeed != ALGAE_STALL_POWER) algaeSpeed = rightShoulder.getValue() ? 1 : 0;
 
@@ -58,7 +65,9 @@ public class CoralPath implements Subsystem{
         } else if (source == rightTrigger && !superstructure.isAlgaeRemoval()) {
             if (Math.abs(leftTrigger.getValue()) > 0.5 && Math.abs(rightTrigger.getValue()) > 0.5) {
                 if (!hasAlgae() || hasCoral()) {
-                    coralSpeed = -1;
+                    if (superstructure.isScoreL1()) coralSpeed = -0.4;
+                    else if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
+                    else coralSpeed = -1.0;
                 } else {
                     algaeSpeed = -1;
                 }
@@ -66,7 +75,7 @@ public class CoralPath implements Subsystem{
             // Finish spitting out game piece
             } else if (rightTrigger.getValue() < 0.5 && !superstructure.isAlgaeRemoval()) {
                 if (algaeSpeed == -1) algaeSpeed = 0;
-                if (coralSpeed == -1){
+                if (coralSpeed == -0.4 || coralSpeed == -1.0 || coralSpeed == -0.7){//-0.6 for med wheels
                     coralSpeed = 0;
                     hasCoral = false;
                 }
@@ -75,7 +84,11 @@ public class CoralPath implements Subsystem{
         } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
             algaeSpeed = 1;
             delayTimer.restart();
+            currentTimer.restart();
         } else if (Math.abs(leftTrigger.getValue()) < 0.5 && !hasAlgae()){
+            algaeSpeed = 0;
+        }
+        if (source == dpadRight && dpadRight.getValue()){
             algaeSpeed = 0;
         }
     }
@@ -86,9 +99,9 @@ public class CoralPath implements Subsystem{
         coral = (WsSpark) WsOutputs.CORAL_INTAKE.get();
 
         coral.setBrake();
-        coral.setCurrentLimit(50,50,0);
+        coral.setCurrentLimit(60,60,0);//60 for med wheels
         algae.setBrake();
-        algae.setCurrentLimit(50,50,0);
+        algae.setCurrentLimit(60,60,0);
 
         leftShoulder = (WsJoystickButton) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_SHOULDER);
         leftShoulder.addInputListener(this);
@@ -98,8 +111,8 @@ public class CoralPath implements Subsystem{
         rightTrigger.addInputListener(this);
         leftTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_TRIGGER);
         leftTrigger.addInputListener(this);
-        // currentTimer.start();
-        // delayTimer.start();
+        dpadRight = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
+        dpadRight.addInputListener(this);
         holdTimer.start();
     }
 
@@ -129,7 +142,7 @@ public class CoralPath implements Subsystem{
         } else if (algaeSpeed == 1.0) {
 
             // Wait to scan current until after 0.25s to clear ramp up current spike
-            if (delayTimer.hasElapsed(0.25)) {
+            if (delayTimer.hasElapsed(1.0)) {
                 if (algae.getController().getOutputCurrent() < ALGAE_CURRENT_LIMIT) {
                     currentTimer.reset();
                     currentTimer.stop();
@@ -144,7 +157,8 @@ public class CoralPath implements Subsystem{
                 }
             }
         }
-        coral.setSpeed(coralSpeed);
+        if (intakeOverride) coral.setSpeed(1.0);
+        else coral.setSpeed(coralSpeed);
         if (algaeSpeed == ALGAE_STALL_POWER && !holdTimer.hasElapsed(2.0)){
             algae.setSpeed(1);
         } else {
@@ -152,6 +166,7 @@ public class CoralPath implements Subsystem{
         }
 
         displayNumbers();
+        lc.putData();
     }
 
     @Override
@@ -190,11 +205,15 @@ public class CoralPath implements Subsystem{
     // Start or stop intaking coral
     public void setIntake(boolean intake) {
         coralSpeed = intake ? 1 : 0;
+        delayTimer.start();
     }
 
     // Start or stop scoring coral
     public void setScore(boolean score) {
         coralSpeed = score ? -1 : 0;
+    }
+    public void scored(){
+        hasCoral = false;
     }
     
 }

@@ -37,4 +37,7 @@ public final class CANConstants {
     public static final int GROUND1 = 27;
     public static final int GROUND2 = 28;
     public static final int PIVOT = 29;
+
+    public static final int ALGAE_LASERCAN = 31;
+    public static final int CORAL_LASERCAN = 32;
 }

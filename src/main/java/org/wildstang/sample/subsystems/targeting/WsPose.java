@@ -30,13 +30,16 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class WsPose implements Subsystem {
 
-    public WsLL left = new WsLL("limelight-back", true);
-    public WsLL right = new WsLL("limelight-front", true);
+    public WsLL left = new WsLL("limelight-left", true);
+    public WsLL right = new WsLL("limelight-right", true);
 
     private final double poseBufferSizeSec = 2;
-    public final double visionSpeedThreshold = 0.5;
+    public final double visionSpeedThreshold = 3.0;
     
+    public int currentID = 0;
     public SwerveDrive swerve;
+
+    private boolean isInAuto = false;
 
     // Always field relative (m and CCW rad)
     public Pose2d odometryPose = new Pose2d();
@@ -69,24 +72,6 @@ public class WsPose implements Subsystem {
     public void selfTest() {
     }
 
-    public Pose2d getClosestBranch(boolean right, boolean topTriangle) {
-        if (right) {
-            if (topTriangle) {
-                return estimatedPose.nearest(VisionConsts.rightTopBranches);
-            } else {
-                return estimatedPose.nearest(VisionConsts.rightBottomBranches);
-            }
-        } else {
-            if (topTriangle) {
-                return estimatedPose.nearest(VisionConsts.leftTopBranches);
-            } else {
-                return estimatedPose.nearest(VisionConsts.leftBottomBranches);
-            }
-        }
-    }
-
-    
-
     @Override
     public void update() {
         Optional<PoseEstimate> leftEstimate = left.update(swerve.getMegaTag2Yaw());
@@ -95,23 +80,28 @@ public class WsPose implements Subsystem {
         // Same standard deviation calculation as 6328 but only used for calculating validity of vision estimate
         double leftStdDev = Double.MAX_VALUE;
         double rightStdDev = Double.MAX_VALUE;
-        if (swerve.speedMagnitude() < visionSpeedThreshold) {
+        if (swerve.speedMagnitude() < visionSpeedThreshold && 
+            (!isInAuto || (estimatedPose.getTranslation().getDistance(VisionConsts.reefCenter) < 3))) {
             if (leftEstimate.isPresent() && leftEstimate.get().rawFiducials.length > 0) {
 
                 // Get distance to the closest tag from the array of raw fiducials
                 double closestTagDist = Arrays.stream(leftEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
                 leftStdDev = Math.pow(closestTagDist, 2) / leftEstimate.get().tagCount;
+                if (leftEstimate.get().avgTagDist > 3.5) leftStdDev = Double.MAX_VALUE;
             }
             if (rightEstimate.isPresent() && rightEstimate.get().rawFiducials.length > 0) {
 
                 // Get distance to the closest tag from the array of raw fiducials
                 double closestTagDist = Arrays.stream(rightEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
                 rightStdDev = Math.pow(closestTagDist, 2) / rightEstimate.get().tagCount;
+                if (rightEstimate.get().avgTagDist > 3.5) rightStdDev = Double.MAX_VALUE;
             }
             if (leftStdDev < rightStdDev) {
                 addVisionObservation(leftEstimate.get());
+                currentID = left.tid;
             } else if (rightStdDev < leftStdDev) {
                 addVisionObservation(rightEstimate.get());
+                currentID = right.tid;
             }
         }
 
@@ -135,7 +125,7 @@ public class WsPose implements Subsystem {
         poseBuffer.clear();
     }
 
-    public void addOdometryObservation(SwerveModulePosition[] modulePositions, Rotation2d gyroAngle) {
+    public void addOdometryObservation(SwerveModulePosition[] modulePositions, Rotation2d gyroAngle, boolean isAuto) {
         if (lastWheelPositions.length == 0) { 
             lastWheelPositions = modulePositions;
             return; 
@@ -150,6 +140,7 @@ public class WsPose implements Subsystem {
         poseBuffer.addSample(Timer.getFPGATimestamp(), odometryPose);
 
         estimatedPose = estimatedPose.exp(twist);
+        isInAuto = isAuto;
     }
 
     public void addVisionObservation(PoseEstimate observation) {
@@ -179,6 +170,34 @@ public class WsPose implements Subsystem {
         return "Ws Vision";
     }
 
+    // YEAR SUBSYSTEM ACCESS METHODS
+
+    /**
+     * Based on whether we are scoring left branch or right branch gets the closest scoring pose
+     * @param right // true if we are scoring on the right branch
+     * @return pose to align the robot to to score
+     */
+    public Pose2d getClosestBranch(boolean right) {
+        if (right) {
+            return estimatedPose.nearest(VisionConsts.rightBranches);
+        } else {
+            return estimatedPose.nearest(VisionConsts.leftBranches);
+        }
+    }
+
+    /**
+     * Based on whether we are scoring left branch or right branch gets the closest scoring pose
+     * @param right // true if we are scoring on the right branch
+     * @return pose to align the robot to to score
+     */
+    public Pose2d getClosestL1Branch(boolean right) {
+        if (right) {
+            return estimatedPose.nearest(VisionConsts.rightBranchL1);
+        } else {
+            return estimatedPose.nearest(VisionConsts.leftBranchL1);
+        }
+    }
+
     /**
      * Gets closest coral station to robot to determine what direction to lock heading
      * @return boolean true for right, false for left
@@ -189,6 +208,22 @@ public class WsPose implements Subsystem {
         } else {
             return true;
         }
+    }
+
+    /**
+     * 
+     * @return true if we are on the net side of the field and should be scoring in the net if we have algae
+     */
+    public boolean isAlgaeScoreNet() {
+        return estimatedPose.getTranslation().getY() > 3.7;
+    }
+
+    /**
+     * Returns if we are near the reef and can start raising lift to staged height
+     * @return true if we are within 2.5 m of the reef center
+     */
+    public boolean nearReef() {
+        return estimatedPose.getTranslation().getDistance(VisionConsts.reefCenter) < 2.5;
     }
 
     /**
