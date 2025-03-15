@@ -38,23 +38,26 @@ public class GroundIntake implements Subsystem {
 
     @Override
     public void inputUpdate(Input source){
-        if (source == rightTrigger){
+        if (source == rightTrigger && Math.abs(rightTrigger.getValue()) > 0.5){
             if(Math.abs(leftTrigger.getValue()) < 0.5 && superstructure.isScoreL1()){
                 ground1Speed = 1;
                 ground2Speed = -1;
-                deploy = true;
             }
             else if (superstructure.isScoreL1()){
                 ground1Speed = -1;
                 ground2Speed = -1;
-                deploy = false;
             }
             else if (Math.abs(leftTrigger.getValue()) < 0.5){
                 ground1Speed = 1;
                 ground2Speed = 1;
-                deploy = true;
             }
         }
+       if (source == leftTrigger && Math.abs(leftTrigger.getValue()) > 0.5){
+          if (superstructure.isScoreL1()){
+            deploy = false;
+          }
+       }
+       else deploy = true;
     }  
 
     @Override
