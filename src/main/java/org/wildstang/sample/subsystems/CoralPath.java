@@ -51,8 +51,10 @@ public class CoralPath implements Subsystem{
     @Override
     public void inputUpdate(Input source) {
         intakeOverride = leftShoulder.getValue();
-        if (source == leftShoulder) {
-            coralSpeed = leftShoulder.getValue() ? 1.0 : 0.0;
+        if (source == leftShoulder || (source == rightTrigger && Math.abs(leftTrigger.getValue())<0.5)) {
+            if (leftShoulder.getValue()) coralSpeed = 1.0;
+            else if (Math.abs(rightTrigger.getValue())> 0.5 && Math.abs(leftTrigger.getValue()) < 0.5) coralSpeed = 1;
+            else coralSpeed = 0;
 
             // Delay before measuring current
             if (coralSpeed == 1.0) delayTimer.restart();

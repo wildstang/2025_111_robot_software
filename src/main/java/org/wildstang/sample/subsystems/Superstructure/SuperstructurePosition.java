@@ -20,7 +20,8 @@ public enum SuperstructurePosition {
     CLIMB(22,0, "Climb Stow"),
     STOWED(58,0, "Stowed"),
     STOWED_UP(58, 0, "Stowed up"),
-    STOWED_UP_TELEOP(58, 0, "Stowed up Tele");
+    STOWED_UP_TELEOP(58, 0, "Stowed up Tele"),
+    GROUND_INTAKE(38.9, 0, "Ground Intake");
     
    public final double Arm;
    public final double Lift;
