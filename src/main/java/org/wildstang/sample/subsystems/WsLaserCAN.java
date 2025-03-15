@@ -23,9 +23,9 @@ public class WsLaserCAN {
     public void updateMeasurements() {
         LaserCan.Measurement measurement = lc.getMeasurement();
         if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-        System.out.println(measurement.distance_mm);
-        double tempvalue = savedLcDistance[0];
-        double changeValue = measurement.distance_mm;
+            System.out.println(measurement.distance_mm);
+            double tempvalue = savedLcDistance[0];
+            double changeValue = measurement.distance_mm;
         for(int n = 0; n > 5; n++) {
             tempvalue = savedLcDistance[n];
             savedLcDistance[n] = changeValue;
@@ -34,11 +34,11 @@ public class WsLaserCAN {
         }
     }
 
-    public boolean blocked () {
+    public boolean blocked (double threshold) {
         
        int numberCorrect = 0;
         for(int n = 0; n > 5; n++) {
-            if(savedLcDistance[n] < thresholdDistance) {
+            if(savedLcDistance[n] < threshold) {
                 numberCorrect++;
             }
         }
@@ -49,10 +49,8 @@ public class WsLaserCAN {
             return false;
         }
     }
-    public boolean hasObject(double objectDistance){
-        if (lc.getMeasurement() != null){
-            return objectDistance > lc.getMeasurement().distance_mm;
-        } else return false;
+    public boolean blocked(){
+        return blocked(thresholdDistance);
     }
     public void putData(){
         if (lc.getMeasurement() != null){

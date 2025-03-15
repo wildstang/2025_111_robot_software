@@ -36,8 +36,8 @@ public class CoralPath implements Subsystem{
     private WsJoystickAxis rightTrigger;
     private WsAnalogInput operatorLeftTrigger;
     private WsAnalogInput operatorRightTrigger;
-    public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN, 0);
-    public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN, 0);
+    public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN, 30);
+    public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN, 30);
 
     private boolean scoringAlgae;
 
@@ -108,9 +108,13 @@ public class CoralPath implements Subsystem{
 
     @Override
     public void update() {
+        algaeLC.updateMeasurements();
+        coralLC.updateMeasurements();
+        
         switch (coralState) {
             case INTAKING:
                 coralSpeed = 1.0;
+                if (hasCoral()) coralState = IntakeState.INTAKING;
                 break;
             case SCORING:
                 if (superstructure.isScoreL1()) coralSpeed = -0.4;
@@ -124,24 +128,33 @@ public class CoralPath implements Subsystem{
         switch (algaeState) {
             case INTAKING:
                 algaeSpeed = 1.0;
+                algae.tempCurrentLimit(60);
+                if (hasAlgae()) algaeState = IntakeState.NEUTRAL;
                 break;
             case SCORING:
                 algaeSpeed = -1.0;
+                algae.tempCurrentLimit(60);
                 break;
             case NEUTRAL:
-                if (hasAlgae()) {
-
+                if (algaeLC.blocked(25)) {
                     // Stall current
-                    algaeSpeed = 0.75;
+                    algaeSpeed = 0.4;
+                    algae.tempCurrentLimit(20);
+                } else if (algaeLC.blocked(35)){
+                    algaeSpeed = 0.7;
+                    algae.tempCurrentLimit(40);
+                } else if (algaeLC.blocked(50)){
+                    algaeSpeed = 1.0;
+                    algae.tempCurrentLimit(60);
                 } else {
                     algaeSpeed = 0.0;
                 }
                 break;
         }
         
+        coral.setSpeed(coralSpeed);
+        algae.setSpeed(algaeSpeed);
         displayNumbers();
-        algaeLC.updateMeasurements();
-        coralLC.updateMeasurements();
     }
 
     @Override
@@ -154,6 +167,16 @@ public class CoralPath implements Subsystem{
     }
 
     private void displayNumbers(){
+        SmartDashboard.putBoolean("# Has Coral", hasCoral());
+        SmartDashboard.putBoolean("# Has Algae", hasAlgae());
+        SmartDashboard.putNumber("@ Coral Speed", coralSpeed);
+        SmartDashboard.putNumber("@ Algae Speed", algaeSpeed);
+        SmartDashboard.putNumber("@ Coral Current", coral.getController().getOutputCurrent());
+        SmartDashboard.putNumber("@ Algae Current", algae.getController().getOutputCurrent());
+        SmartDashboard.putString("@ Algae State", algaeState.toString());
+        SmartDashboard.putString("@ Coral State", coralState.toString());
+        algaeLC.putData();
+        coralLC.putData();
     }
 
     public boolean hasCoral() {
