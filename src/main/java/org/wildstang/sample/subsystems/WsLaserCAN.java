@@ -49,6 +49,11 @@ public class WsLaserCAN {
             return false;
         }
     }
+    public boolean hasObject(double objectDistance){
+        if (lc.getMeasurement() != null){
+            return objectDistance > lc.getMeasurement().distance_mm;
+        } else return false;
+    }
     public void putData(){
         if (lc.getMeasurement() != null){
             SmartDashboard.putNumber("@ Algae LASERCAN", lc.getMeasurement().distance_mm);

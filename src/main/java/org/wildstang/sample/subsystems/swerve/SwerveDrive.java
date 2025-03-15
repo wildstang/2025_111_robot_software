@@ -293,7 +293,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         operatorStart.addInputListener(this);
         operatorLeftTrigger = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_TRIGGER.get();
         operatorLeftTrigger.addInputListener(this);
-        operatorRightTrigger = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_TRIGGER.get();
+        operatorRightTrigger = (WsJoystickAxis) WsInputs.OPERATOR_RIGHT_TRIGGER.get();
         operatorRightTrigger.addInputListener(this);
     }
 
@@ -442,6 +442,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("@ speed", speedMagnitude());
         SmartDashboard.putBoolean("# right branch", rightBranch);
         SmartDashboard.putBoolean("# left branch", !rightBranch);
+        SmartDashboard.putBoolean("# scoring element", scoringAlgae);
         if (targetPose != null){
             targetPosePublisher.set(targetPose);
         }
@@ -592,5 +593,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
     public boolean isScoringAlgae(){
         return scoringAlgae;
+    }
+    public boolean isScoringCoral(){
+        return driveState == driveType.REEFSCORE;
     }
 }
