@@ -31,9 +31,9 @@ public class SuperstructureSubsystem implements Subsystem {
     };
 
 private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select;
-private WsJoystickAxis LT,operator_RT, operator_LT;
+private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger;
 private WsDPadButton DPad_UP, DPad_LEFT, DPad_DOWN;
-private boolean LShoulderHeld,RshoulderHeld,StartHeld,SelectHeld,LTHeld;
+private boolean LShoulderHeld,RshoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld;
 private boolean PickupSequence;
 public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
 private SuperstructurePosition prevPosition = SuperstructurePosition.STOWED;
@@ -93,6 +93,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         operator_RT.addInputListener(this);
         operator_LT = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.OPERATOR_LEFT_TRIGGER);
         operator_LT.addInputListener(this);
+        rightTrigger = (WsJoystickAxis) WsInputs.DRIVER_RIGHT_TRIGGER.get();
+        rightTrigger.addInputListener(this);
        
         armSpark = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ARM);
         armSpark.initClosedLoop(0.4, 0, 0, 0);
@@ -164,7 +166,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             } 
             else {
                 if (LevelReef.Reef_L1 == level) {
-                    desiredPosition = SuperstructurePosition.CORAL_REEF_L1;
+                    //desiredPosition = SuperstructurePosition.CORAL_REEF_L1;
+                    desiredPosition = SuperstructurePosition.STOWED;
                 } else if (LevelReef.Reef_L2 == level) {
                     desiredPosition = SuperstructurePosition.CORAL_REEF_L2;
                 } else if (LevelReef.Reef_L3 == level) {
@@ -173,6 +176,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                     desiredPosition = SuperstructurePosition.CORAL_REEF_L4;
                 }
             }
+        } else if (RTHeld){
+            desiredPosition = SuperstructurePosition.GROUND_INTAKE;
         } else {
             if (swerve.isNearReef() && coralPath.hasCoral() && (level == LevelReef.Reef_L3 || level == LevelReef.Reef_L4)){
                 if (PickupSequence) desiredPosition = SuperstructurePosition.STOWED_UP_TELEOP;
@@ -185,7 +190,25 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             prevPosition = desiredPosition;
         }
 
-        if (isReefPosition(desiredPosition) && !isReefPosition(prevPosition)){
+        if (desiredPosition == SuperstructurePosition.CORAL_STATION_FRONT){
+
+            if (armSpark.getPosition() > 15){
+                setLift(25);
+            } else setLift(desiredPosition.getLift());
+            if (LiftMax.getPosition() < 20 && armSpark.getPosition() > 20){
+                setArm(40);
+            } else setArm(desiredPosition.getArm());
+
+        } else if (prevPosition == SuperstructurePosition.CORAL_STATION_FRONT){
+
+            if (armSpark.getPosition() < 40){
+                setLift(25);
+            } else setLift(desiredPosition.getLift());
+            if (armSpark.getPosition() < 40 && LiftMax.getPosition() < 25){
+                setArm(15);
+            } else setArm(desiredPosition.getArm());
+
+        } else if (isReefPosition(desiredPosition) && !isReefPosition(prevPosition)){
             setLift(desiredPosition.getLift());
             setArm(liftAtPosition() ? desiredPosition.getArm() : BACK_CLEAR);
         } else if (!isReefPosition(desiredPosition) && isReefPosition(prevPosition)){
@@ -205,6 +228,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         LShoulderHeld = LShoulder.getValue();
         RshoulderHeld = Rshoulder.getValue();
         LTHeld = Math.abs(LT.getValue()) > 0.5;
+        RTHeld = Math.abs(rightTrigger.getValue()) > 0.5;
         if(A.getValue()){
             level = LevelReef.Reef_L2;
         }
@@ -315,8 +339,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     }
     private void setLift(double liftPos){
         if (liftAtPosition() && desiredPosition.getLift() == 0){
-            LiftMax.setPosition(-1, 1, LIFT_FF);
-            lift2.setPosition(1, 1, LIFT_FF);
+            LiftMax.setPosition(-0.5, 1, LIFT_FF);
+            lift2.setPosition(0.5, 1, LIFT_FF);
         }
         if (desiredPosition.getLift() < LiftMax.getPosition()){
             LiftMax.setPosition(liftPos, 1, LIFT_FF);

@@ -70,6 +70,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private double rotSpeed;
     private boolean rotLocked;
 
+    public double autonomousScalar = 2.0;
+
     /**Direction to face */
     private double rotTarget;
 
@@ -408,10 +410,15 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());
+            if (Math.hypot(xPower,yPower) > autonomousScalar){
+                double temphypot = Math.hypot(xPower, yPower);
+                xPower *= (autonomousScalar / temphypot);
+                yPower *= (autonomousScalar / temphypot);
+            }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             
-        SmartDashboard.putNumber("X Power", xPower);
-        SmartDashboard.putNumber("Y Power", yPower);
+            SmartDashboard.putNumber("X Power", xPower);
+            SmartDashboard.putNumber("Y Power", yPower);
             xPower = 0;
             yPower = 0;
             // Pre generated power values in set auto
@@ -596,5 +603,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
     public boolean isScoringCoral(){
         return driveState == driveType.REEFSCORE;
+    }
+    public void setAutoScalar(double scalar){
+        this.autonomousScalar = scalar;
     }
 }
