@@ -582,7 +582,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         return frontCloser(pose.isClosestStationRight() ? VisionConsts.coralStationRightHeading : VisionConsts.coralStationLeftHeading);
     }
     public boolean isProcessorFront(){
-        return frontCloser(90);
+        return false;
+        //return frontCloser(90);
     }
     public boolean isNetFront(){
         return frontCloser(0);

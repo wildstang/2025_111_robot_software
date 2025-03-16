@@ -50,6 +50,8 @@ public class WsPose implements Subsystem {
 
     StructPublisher<Pose2d> odometryPosePublisher;
     StructPublisher<Pose2d> estimatedPosePublisher;
+    StructPublisher<Pose2d> coralPosePublisher = NetworkTableInstance.getDefault().getStructTopic("coralPose", Pose2d.struct).publish();
+
 
     private final TimeInterpolatableBuffer<Pose2d> poseBuffer = TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
 
@@ -106,6 +108,9 @@ public class WsPose implements Subsystem {
                 addVisionObservation(rightEstimate.get());
                 currentID = right.tid;
             }
+        }
+        if (getCoralPose().isPresent()) {
+            coralPosePublisher.set(new Pose2d(getCoralPose().get(), new Rotation2d()));
         }
 
         odometryPosePublisher.set(odometryPose);

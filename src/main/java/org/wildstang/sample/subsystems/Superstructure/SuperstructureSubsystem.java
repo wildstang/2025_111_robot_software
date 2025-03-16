@@ -36,7 +36,7 @@ private WsDPadButton DPad_UP, DPad_LEFT, DPad_DOWN;
 private boolean LShoulderHeld,RshoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld;
 private boolean PickupSequence;
 public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
-private SuperstructurePosition prevPosition = SuperstructurePosition.STOWED;
+private SuperstructurePosition prevPosition = SuperstructurePosition.CORAL_STATION_FRONT;
 private WsSpark LiftMax, lift2, armSpark ;
 private boolean isAuto = true;
 private SwerveDrive swerve;
@@ -192,20 +192,20 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
 
         if (desiredPosition == SuperstructurePosition.CORAL_STATION_FRONT){
 
-            if (armSpark.getPosition() > 15){
-                setLift(25);
+            if (armSpark.getPosition() > 11){
+                setLift(16);
             } else setLift(desiredPosition.getLift());
-            if (LiftMax.getPosition() < 20 && armSpark.getPosition() > 20){
-                setArm(40);
+            if (LiftMax.getPosition() < 14 && armSpark.getPosition() > 12){
+                setArm(56);
             } else setArm(desiredPosition.getArm());
 
         } else if (prevPosition == SuperstructurePosition.CORAL_STATION_FRONT){
 
-            if (armSpark.getPosition() < 40){
-                setLift(25);
+            if (armSpark.getPosition() < 56){
+                setLift(16);
             } else setLift(desiredPosition.getLift());
-            if (armSpark.getPosition() < 40 && LiftMax.getPosition() < 25){
-                setArm(15);
+            if (armSpark.getPosition() < 54 && LiftMax.getPosition() < 14){
+                setArm(11);
             } else setArm(desiredPosition.getArm());
 
         } else if (isReefPosition(desiredPosition) && !isReefPosition(prevPosition)){
@@ -280,6 +280,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         SmartDashboard.putNumber("@ Lift Target", desiredPosition.getLift());
         SmartDashboard.putNumber("@ Lift Position", LiftMax.getPosition());
         SmartDashboard.putString("@ Superstructure position", desiredPosition.getName());
+        SmartDashboard.putString("@ Super prevPosition", prevPosition.getName());
         SmartDashboard.putBoolean("# Targeting Net", AlgaeState == Algae_NetOrProces.Net);
         SmartDashboard.putBoolean("# Targeting Processor", AlgaeState == Algae_NetOrProces.Processor);
         SmartDashboard.putString("# Reef Level", reefLevelNames[level.ordinal()]);

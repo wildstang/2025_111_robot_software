@@ -5,6 +5,7 @@ import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
+import org.wildstang.hardware.roborio.inputs.WsDPadButton;
 import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
@@ -27,6 +28,7 @@ public class GroundIntake implements Subsystem {
     private WsJoystickAxis leftTrigger;
     private WsJoystickAxis rightTrigger;
     private WsJoystickButton leftShoulder;
+    private WsDPadButton DpadUp;
 
     private SuperstructureSubsystem superstructure;
 
@@ -56,6 +58,10 @@ public class GroundIntake implements Subsystem {
                 ground1Speed = 1;
                 ground2Speed = -1;
             }
+        } else if (DpadUp.getValue()){
+            //reverse
+            ground1Speed = -1;
+            ground2Speed = 1;
         } else {
             ground1Speed = 0;
             ground2Speed = 0;
@@ -75,7 +81,7 @@ public class GroundIntake implements Subsystem {
         pivot.initClosedLoop(0.1,0,0,0);
         ground1.setCoast();
         ground2.setCoast();
-        pivot.setCoast();
+        pivot.setBrake();
         ground1.setCurrentLimit(50, 50, 0);
         ground2.setCurrentLimit(50, 50, 0);
         pivot.setCurrentLimit(50, 50, 0);
@@ -86,6 +92,8 @@ public class GroundIntake implements Subsystem {
         leftTrigger.addInputListener(this);
         leftShoulder = (WsJoystickButton) WsInputs.DRIVER_LEFT_SHOULDER.get();
         leftShoulder.addInputListener(this);
+        DpadUp = (WsDPadButton) WsInputs.OPERATOR_DPAD_UP.get();
+        DpadUp.addInputListener(this);
         
     }
 
