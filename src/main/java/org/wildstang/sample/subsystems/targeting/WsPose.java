@@ -137,7 +137,7 @@ public class WsPose implements Subsystem {
         lastWheelPositions = modulePositions;
         lastGyroAngle = gyroAngle;
         // Add pose to buffer at timestamp
-        poseBuffer.addSample(Timer.getFPGATimestamp(), odometryPose);
+        poseBuffer.addSample(Timer.getTimestamp(), odometryPose);
 
         estimatedPose = estimatedPose.exp(twist);
         isInAuto = isAuto;

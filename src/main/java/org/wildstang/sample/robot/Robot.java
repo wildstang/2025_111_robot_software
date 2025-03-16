@@ -1,5 +1,12 @@
 package org.wildstang.sample.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.littletonrobotics.urcl.URCL;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.logger.Log;
 import org.wildstang.framework.logger.Log.LogLevel;
@@ -9,7 +16,6 @@ import org.wildstang.hardware.roborio.RoboRIOOutputFactory;
 import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -24,12 +30,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * 
  * @see <a href="https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj/IterativeRobotBase.html">IterativeRobotBase</a>
  */
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
 
     Core core;
     private SendableChooser<LogLevel> logChooser;
 
     public Robot(){
+        if (isReal()) {
+            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+        } else {
+            setUseTiming(false); // Run as fast as possible
+            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+            Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+        }
+        Logger.registerURCL(URCL.startExternal());
+
         CanBridge.runTCP();
     }
     /**
@@ -56,7 +73,7 @@ public class Robot extends TimedRobot {
         DataLogManager.start();
         // Record both DS control and joystick data
         DriverStation.startDataLog(DataLogManager.getLog());
-
+        Logger.start();
     }
 
     /**
