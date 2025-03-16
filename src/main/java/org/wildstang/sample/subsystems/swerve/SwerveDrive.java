@@ -142,7 +142,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             driveState = driveType.CORALINTAKE;
 
         // If none of those conditions are met, return to Teleop mode
-        } else if (driveState != driveType.CLIMB) {
+        } else if (driveState != driveType.CLIMB && Math.abs(leftTrigger.getValue()) < 0.5 && leftBumper.getValue() == false) {
             driveState = driveType.TELEOP;
         }
 
@@ -366,12 +366,14 @@ public class SwerveDrive extends SwerveDriveTemplate {
             if (superstructure.isAlgaeRemoval()) {
                 targetPose = pose.getClosestBranch(false);
             } else {
-                targetPose = superstructure.isScoreL1() ? pose.getClosestL1Branch(rightBranch) : pose.getClosestBranch(rightBranch);
+                targetPose = pose.getClosestBranch(rightBranch);
             }
-            rotTarget = targetPose.getRotation().getDegrees();
-            rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            xPower = xPower * 0.5 + pose.getAlignX(targetPose.getTranslation());
-            yPower = yPower * 0.5 + pose.getAlignY(targetPose.getTranslation());
+            if (!superstructure.isScoreL1()){
+                xPower = xPower * 0.5 + pose.getAlignX(targetPose.getTranslation());
+                yPower = yPower * 0.5 + pose.getAlignY(targetPose.getTranslation());
+                rotTarget = targetPose.getRotation().getDegrees();
+                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
+            }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 0 and translate to right y position
@@ -383,7 +385,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
         // Align closest scoring side to 90
         } else if (driveState == driveType.PROCESSORSCORE) {
-            rotTarget = frontCloser(90) ? 90 : 270;
+            rotTarget = 270;//frontCloser(90) ? 90 : 270;
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
         } else if (driveState == driveType.CORALSTATION) {
@@ -407,6 +409,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
+            rotSpeed = swerveHelper.getAutoRotation((360-targetPose.getRotation().getDegrees())%360, getGyroAngle());
 
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());

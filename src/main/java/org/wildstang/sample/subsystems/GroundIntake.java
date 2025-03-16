@@ -50,8 +50,8 @@ public class GroundIntake implements Subsystem {
             }
             else if (superstructure.isScoreL1()){
                 //score L1
-                ground1Speed = -1;
-                ground2Speed = 1;
+                ground1Speed = -0.25;
+                ground2Speed = 0.25;
             }
             else if (Math.abs(leftTrigger.getValue()) < 0.5){
                 //nomral intake

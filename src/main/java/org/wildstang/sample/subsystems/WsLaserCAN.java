@@ -35,22 +35,22 @@ public class WsLaserCAN {
     }
 
     public boolean blocked (double threshold) {
-        // LaserCan.Measurement measurement = lc.getMeasurement();
-        // if (measurement == null) return false;
-        // return threshold > measurement.distance_mm;
+        LaserCan.Measurement measurement = lc.getMeasurement();
+        if (measurement == null) return false;
+        return threshold > measurement.distance_mm;
         
-       int numberCorrect = 0;
-        for(int n = 0; n < 5; n++) {
-            if(savedLcDistance[n] < threshold) {
-                numberCorrect++;
-            }
-        }
-        if(numberCorrect > 2) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    //    int numberCorrect = 0;
+    //     for(int n = 0; n < 5; n++) {
+    //         if(savedLcDistance[n] < threshold) {
+    //             numberCorrect++;
+    //         }
+    //     }
+    //     if(numberCorrect > 2) {
+    //         return true;
+    //     }
+    //     else {
+    //         return false;
+    //     }
     }
     public boolean blocked(){
         return blocked(thresholdDistance);

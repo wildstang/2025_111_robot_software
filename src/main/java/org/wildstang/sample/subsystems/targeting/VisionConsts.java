@@ -4,8 +4,10 @@ import java.util.List;
 
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 
@@ -87,7 +89,7 @@ public class VisionConsts {
     public static final int ATPipelineIndex = 0;
 
     // Transform from center of robot to camera pose
-    public static final Transform3d camTransform = new Transform3d();
+    public static final Transform3d camTransform = new Transform3d(new Translation3d(.193031, .199778, 1.020310), new Rotation3d(0, -32 * Math.PI /180, 10 * Math.PI / 180));
     /*
      * April Tag IDs:
      *  -Red Coral stations: left 1, right 2

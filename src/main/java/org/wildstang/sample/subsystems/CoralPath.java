@@ -17,6 +17,7 @@ import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.robot.CANConstants;
 //import au.grapplerobotics.LaserCan;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
+import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,6 +26,7 @@ public class CoralPath implements Subsystem{
 
 
     private SuperstructureSubsystem superstructure;
+    private SwerveDrive swerve;
 
     private WsSpark algae;
     private WsSpark coral;
@@ -65,22 +67,33 @@ public class CoralPath implements Subsystem{
             algaeState = rightShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
         } else if (source == rightTrigger && !superstructure.isAlgaeRemoval()) {
             if (Math.abs(leftTrigger.getValue()) > 0.5 && Math.abs(rightTrigger.getValue()) > 0.5) {
-                if (hasCoral() && (!hasAlgae() || !scoringAlgae)) {
+                if (swerve.isScoringCoral()) {
                     coralState = IntakeState.SCORING;
-                    //temp
-                    hasCoral = false;
-                } else if (hasAlgae() && (!hasCoral() || !scoringAlgae)) {
-                    algaeState = IntakeState.SCORING;
-                } else coralState = IntakeState.SCORING;
+                    hasCoral = true;
+                } else algaeState = IntakeState.SCORING;
+                // if (hasCoral() && (!hasAlgae() || !scoringAlgae)) {
+                //     coralState = IntakeState.SCORING;
+                //     //temp
+                //     hasCoral = false;
+                // } else if (hasAlgae() && (!hasCoral() || !scoringAlgae)) {
+                //     algaeState = IntakeState.SCORING;
+                // } else coralState = IntakeState.SCORING;
             } else if (Math.abs(rightTrigger.getValue()) > 0.5){
                 coralState = IntakeState.INTAKING;
+                hasCoral = true;
             // Finish spitting out game piece
             } else if (rightTrigger.getValue() < 0.5 && !superstructure.isAlgaeRemoval()) {
+                coralState = IntakeState.NEUTRAL;
+                algaeState = IntakeState.NEUTRAL;
+            } else {
                 coralState = IntakeState.NEUTRAL;
                 algaeState = IntakeState.NEUTRAL;
             }
         } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
             algaeState = IntakeState.INTAKING;
+        } else if (Math.abs(rightTrigger.getValue()) > 0.5) {
+            coralState = IntakeState.INTAKING;
+            hasCoral = true;
         }
 
         //temp
@@ -124,16 +137,19 @@ public class CoralPath implements Subsystem{
         
         switch (coralState) {
             case INTAKING:
+                coral.tempCurrentLimit(60);
                 coralSpeed = 1.0;
                 if (hasCoral()) coralState = IntakeState.INTAKING;
                 break;
             case SCORING:
+                coral.tempCurrentLimit(60);
                 if (superstructure.isScoreL1()) coralSpeed = -0.4;
                 else if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
                 else coralSpeed = -1.0;
                 break;
             case NEUTRAL:
-                coralSpeed = 0.0;
+                coral.tempCurrentLimit(20);
+                coralSpeed = 0.1;
                 break;
         }
         switch (algaeState) {
@@ -175,6 +191,7 @@ public class CoralPath implements Subsystem{
     @Override
     public void initSubsystems() {
         superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
+        swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
     }
 
     private void displayNumbers(){
