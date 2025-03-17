@@ -96,7 +96,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     StructPublisher<Pose2d> targetPosePublisher = NetworkTableInstance.getDefault().getStructTopic("targetPose", Pose2d.struct).publish();
 
 
-    private enum driveType {TELEOP, AUTO, CROSS, REEFSCORE, NETSCORE, PROCESSORSCORE, CORALSTATION, CLIMB, CORALINTAKE};
+    private enum driveType {TELEOP, AUTO, CROSS, REEFSCORE, NETSCORE, PROCESSORSCORE, CORALSTATION, CORALINTAKE};
     private driveType driveState;
     public boolean rightBranch;
 
@@ -106,70 +106,46 @@ public class SwerveDrive extends SwerveDriveTemplate {
         if (Math.abs(operatorRightTrigger.getValue()) > 0.5) scoringAlgae = false;
         
         // Operator controls set intent state variables
-        if (source == operatorLeftBumper && operatorLeftBumper.getValue()) {
+        if (operatorLeftBumper.getValue()) {
             rightBranch = false;
-        } else if (source == operatorRightBumper && operatorRightBumper.getValue()) {
+        } 
+        if (operatorRightBumper.getValue()) {
             rightBranch = true;
-        } else if (source == leftTrigger) {
-
-            if (Math.abs(leftTrigger.getValue()) > 0.5) {
+        } 
+        if (Math.abs(leftTrigger.getValue()) > 0.5) {
                 isReef = false;
-
                 // Scoring algae
-                if ((scoringAlgae && !(coralPath.hasCoral() && !coralPath.hasAlgae())) || (coralPath.hasAlgae() && !coralPath.hasCoral())) {
+                if (isScoringAlgae()) {
                     if (pose.isAlgaeScoreNet()) {
                         driveState = driveType.NETSCORE;
                     } else {
                         driveState = driveType.PROCESSORSCORE;
                     }
-                 } else {
-
+                } else {
                     // No matter where we're positioning on the reef to score, we are
                     driveState = driveType.REEFSCORE;
                 }
-            } 
-        } else if (source == leftBumper) {
-            if (leftBumper.getValue()) {
+        } else if (leftBumper.getValue()) {
                 driveState = driveType.CORALSTATION;
-            } else {
-                if (coralPath.hasCoral()) {
+                if (!superstructure.isScoreL1()){
                     isReef = true;
                 }
-            }
-
         // If we are only holding down right trigger and now left trigger (for ground intaking) and we have a face button held down then set to intake based on object detection pipeline
-        } else if (Math.abs(rightTrigger.getValue()) > 0.5 && !(Math.abs(leftTrigger.getValue()) < 0.5) && ((faceUp.getValue() || faceDown.getValue() || faceLeft.getValue() || faceRight.getValue()))) {
+        } else if (Math.abs(rightTrigger.getValue()) > 0.5 && ((faceUp.getValue() || faceDown.getValue() || faceLeft.getValue() || faceRight.getValue()))) {
             driveState = driveType.CORALINTAKE;
-
         // If none of those conditions are met, return to Teleop mode
-        } else if (driveState != driveType.CLIMB && Math.abs(leftTrigger.getValue()) < 0.5 && leftBumper.getValue() == false) {
+        } else {
             driveState = driveType.TELEOP;
         }
 
-        if (operatorStart.getValue() && operatorSelect.getValue()) {
-            driveState = driveType.CLIMB;
+        //start isReef once we've picked up a coral from the ground
+        if (Math.abs(rightTrigger.getValue()) > 0.5 && !superstructure.isScoreL1() && coralPath.hasCoral()){
+            isReef = true;
         }
-
-
-        //determine if we are in cross or teleop
-        // if (driveState != driveType.AUTO && dpadLeft.getValue()) {
-        //     driveState = driveType.CROSS;
-        //     for (int i = 0; i < modules.length; i++) {
-        //         modules[i].setDriveBrake(true);
-        //     }
-        //     this.swerveSignal = new SwerveSignal(new double[]{0, 0, 0, 0 }, swerveHelper.setCross().getAngles());
-        // }
-        // else if (driveState == driveType.CROSS || driveState == driveType.AUTO) {
-        //     driveState = driveType.TELEOP;
-        // }
 
         // Toggle auto rotate to reef
         if (driverStart.getValue() && source == driverStart) {
             isReef = !isReef;
-            rotLocked = isReef;
-        }
-        if (!leftBumper.getValue() && source == leftBumper && coralPath.hasAlgae()){
-            isReef = true;
             rotLocked = isReef;
         }
 
@@ -216,22 +192,11 @@ public class SwerveDrive extends SwerveDriveTemplate {
         //get rotational joystick
         rotSpeed = rightStickX.getValue()*Math.abs(rightStickX.getValue());
         rotSpeed = swerveHelper.scaleDeadband(rotSpeed, DriveConstants.DEADBAND);
-        // if (rotSpeed == 0 && rotLocked == false){
-        //     if (Math.abs(getGyroAngle() - rotTarget) < 1.0) rotLocked = true;
-        //     rotTarget = getGyroAngle();
-        // }
         //if the rotational joystick is being used, the robot should not be auto tracking heading
         if (rotSpeed != 0) {
             rotLocked = false;
             isReef = false;
         }
-        
-        //assign thrust - no thrust this year, low cg robot means max speed all the time
-        // thrustValue = 1 - DriveConstants.DRIVE_THRUST + DriveConstants.DRIVE_THRUST * Math.abs(rightTrigger.getValue());
-        // xSpeed *= thrustValue;
-        // ySpeed *= thrustValue;
-        // rotSpeed *= thrustValue;
-
     }
  
     @Override
@@ -330,7 +295,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             this.swerveSignal = swerveHelper.setCross();
         } else if (driveState == driveType.TELEOP) {
             if (rotLocked){
-                if (isReef){
+                if (isReef && coralPath.hasCoral()){
                     // Oops, the scoring side is on the "back" of the robot now
                     rotTarget = (pose.turnToTarget(VisionConsts.reefCenter)+180)%360;
                     rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle(), 1.50);
@@ -400,13 +365,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
             // Gyro 0 for robot centric X, Y
             this.swerveSignal = swerveHelper.setDrive(0.75*xPower, 0.75*yPower, rotSpeed, getGyroAngle());
 
-        // Just heading lock to 90 (climb on left side of robot) so Rossen doesn't accidentally turn
-        } else if (driveState == driveType.CLIMB) {
-            //rotSpeed = swerveHelper.getRotControl(90, getGyroAngle());
-            if (rotLocked){
-                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            }
-            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
             rotSpeed = swerveHelper.getAutoRotation((360-targetPose.getRotation().getDegrees())%360, getGyroAngle());
@@ -453,6 +411,12 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putBoolean("# right branch", rightBranch);
         SmartDashboard.putBoolean("# left branch", !rightBranch);
         SmartDashboard.putBoolean("# scoring element", scoringAlgae);
+        SmartDashboard.putBoolean("# robot scoring algae", isScoringAlgae());
+        SmartDashboard.putBoolean("@ is Reef", isReef);
+        if (pose.getCoralPose().isPresent()) {
+            SmartDashboard.putNumber("@ coral pose X", pose.getCoralPose().get().getX());
+            SmartDashboard.putNumber("@ coral pose Y", pose.getCoralPose().get().getY());
+        }
         if (targetPose != null){
             targetPosePublisher.set(targetPose);
         }
@@ -603,7 +567,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
              || pose.currentID == 17 || pose.currentID == 19 || pose.currentID == 21;
     }
     public boolean isScoringAlgae(){
-        return scoringAlgae;
+        return (scoringAlgae && !(coralPath.hasCoral() && !coralPath.hasAlgae())) || (coralPath.hasAlgae() && !coralPath.hasCoral());
     }
     public boolean isScoringCoral(){
         return driveState == driveType.REEFSCORE;

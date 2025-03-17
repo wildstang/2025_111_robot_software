@@ -26,31 +26,26 @@ public class WsLaserCAN {
             //System.out.println(measurement.distance_mm);
             double tempvalue = savedLcDistance[0];
             double changeValue = measurement.distance_mm;
-        for(int n = 0; n < 5; n++) {
-            tempvalue = savedLcDistance[n];
-            savedLcDistance[n] = changeValue;
-            changeValue = tempvalue;
-        }
+            for(int n = 0; n < 5; n++) {
+                tempvalue = savedLcDistance[n];
+                savedLcDistance[n] = changeValue;
+                changeValue = tempvalue;
+            }
         }
     }
 
     public boolean blocked (double threshold) {
-        LaserCan.Measurement measurement = lc.getMeasurement();
-        if (measurement == null) return false;
-        return threshold > measurement.distance_mm;
+        // LaserCan.Measurement measurement = lc.getMeasurement();
+        // if (measurement == null) return false;
+        // return threshold > measurement.distance_mm;
         
-    //    int numberCorrect = 0;
-    //     for(int n = 0; n < 5; n++) {
-    //         if(savedLcDistance[n] < threshold) {
-    //             numberCorrect++;
-    //         }
-    //     }
-    //     if(numberCorrect > 2) {
-    //         return true;
-    //     }
-    //     else {
-    //         return false;
-    //     }
+       int numberCorrect = 0;
+        for(int n = 0; n < 5; n++) {
+            if(savedLcDistance[n] < threshold) {
+                numberCorrect++;
+            }
+        }
+        return numberCorrect > 2;
     }
     public boolean blocked(){
         return blocked(thresholdDistance);
@@ -58,6 +53,11 @@ public class WsLaserCAN {
     public void putData(){
         if (lc.getMeasurement() != null){
             SmartDashboard.putNumber("@ Algae LASERCAN", lc.getMeasurement().distance_mm);
+            SmartDashboard.putNumber("lasercan saved 1", savedLcDistance[0]);
+            SmartDashboard.putNumber("lasercan saved 2", savedLcDistance[1]);
+            SmartDashboard.putNumber("lasercan saved 3", savedLcDistance[2]);
+            SmartDashboard.putNumber("lasercan saved 4", savedLcDistance[3]);
+            SmartDashboard.putNumber("lasercan saved 5", savedLcDistance[4]);
         }
         
     }

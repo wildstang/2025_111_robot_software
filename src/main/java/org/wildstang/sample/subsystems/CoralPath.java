@@ -41,9 +41,6 @@ public class CoralPath implements Subsystem{
     public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN, 30);
     public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN, 30);
 
-    private boolean scoringAlgae;
-
-
     private double algaeSpeed;
     private double coralSpeed;
     public enum IntakeState { NEUTRAL, INTAKING, SCORING }
@@ -56,48 +53,41 @@ public class CoralPath implements Subsystem{
 
     @Override
     public void inputUpdate(Input source) {
-        if (Math.abs(operatorLeftTrigger.getValue()) > 0.5) scoringAlgae = true;
-        if (Math.abs(operatorRightTrigger.getValue()) > 0.5) scoringAlgae = false;
 
+        
+        if (Math.abs(rightTrigger.getValue()) > 0.5) {
+            if (Math.abs(leftTrigger.getValue()) > 0.5) {
+                if (swerve.isScoringCoral()) {
+                    if (!superstructure.isAlgaeRemoval()){
+                        coralState = IntakeState.SCORING;
+                        //temp
+                        hasCoral = false;
+                    }
+                } else {
+                    algaeState = IntakeState.SCORING;
+                }
+            } else {
+                coralState = IntakeState.INTAKING;
+                //temp
+                hasCoral = true;
+            } 
+        } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
+            algaeState = IntakeState.INTAKING;
+        } else {
+            coralState = IntakeState.NEUTRAL;
+            algaeState = IntakeState.NEUTRAL;
+        }
+        
         if (source == leftShoulder) {
             coralState = leftShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
             //temp
             hasCoral = true;
-        } else if (source == rightShoulder) {
+        }
+        if (source == rightShoulder) {
             algaeState = rightShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
-        } else if (source == rightTrigger && !superstructure.isAlgaeRemoval()) {
-            if (Math.abs(leftTrigger.getValue()) > 0.5 && Math.abs(rightTrigger.getValue()) > 0.5) {
-                if (swerve.isScoringCoral()) {
-                    coralState = IntakeState.SCORING;
-                    hasCoral = true;
-                } else algaeState = IntakeState.SCORING;
-                // if (hasCoral() && (!hasAlgae() || !scoringAlgae)) {
-                //     coralState = IntakeState.SCORING;
-                //     //temp
-                //     hasCoral = false;
-                // } else if (hasAlgae() && (!hasCoral() || !scoringAlgae)) {
-                //     algaeState = IntakeState.SCORING;
-                // } else coralState = IntakeState.SCORING;
-            } else if (Math.abs(rightTrigger.getValue()) > 0.5){
-                coralState = IntakeState.INTAKING;
-                hasCoral = true;
-            // Finish spitting out game piece
-            } else if (rightTrigger.getValue() < 0.5 && !superstructure.isAlgaeRemoval()) {
-                coralState = IntakeState.NEUTRAL;
-                algaeState = IntakeState.NEUTRAL;
-            } else {
-                coralState = IntakeState.NEUTRAL;
-                algaeState = IntakeState.NEUTRAL;
-            }
-        } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
-            algaeState = IntakeState.INTAKING;
-        } else if (Math.abs(rightTrigger.getValue()) > 0.5) {
-            coralState = IntakeState.INTAKING;
-            hasCoral = true;
         }
 
         //temp
-        if (Math.abs(rightTrigger.getValue()) > 0.5 && Math.abs(leftTrigger.getValue()) < 0.5) hasCoral = false;
     }
 
     @Override
@@ -139,7 +129,7 @@ public class CoralPath implements Subsystem{
             case INTAKING:
                 coral.tempCurrentLimit(60);
                 coralSpeed = 1.0;
-                if (hasCoral()) coralState = IntakeState.INTAKING;
+                if (hasCoral()) coralState = IntakeState.INTAKING;//later neutral
                 break;
             case SCORING:
                 coral.tempCurrentLimit(60);
@@ -148,8 +138,12 @@ public class CoralPath implements Subsystem{
                 else coralSpeed = -1.0;
                 break;
             case NEUTRAL:
-                coral.tempCurrentLimit(20);
-                coralSpeed = 0.1;
+                if (hasCoral()){
+                    coral.tempCurrentLimit(20);
+                    coralSpeed = 0.1;
+                } else {
+                    coralSpeed = 0.0;
+                }
                 break;
         }
         switch (algaeState) {
@@ -166,10 +160,10 @@ public class CoralPath implements Subsystem{
                 if (algaeLC.blocked(25)) {
                     // Stall current
                     algaeSpeed = 0.4;
-                    algae.tempCurrentLimit(20);
+                    algae.tempCurrentLimit(30);
                 } else if (algaeLC.blocked(35)){
                     algaeSpeed = 0.7;
-                    algae.tempCurrentLimit(40);
+                    algae.tempCurrentLimit(30);
                 } else if (algaeLC.blocked(50)){
                     algaeSpeed = 1.0;
                     algae.tempCurrentLimit(60);
@@ -208,13 +202,13 @@ public class CoralPath implements Subsystem{
     }
 
     public boolean hasCoral() {
-        //return coralLC.blocked();
+        //return coralLC.blocked() || superstructure.isScoringCoral();
         //temp
-        return hasCoral;
+        return hasCoral || superstructure.isScoringCoral();
     }
 
     public boolean hasAlgae() {
-        return algaeLC.blocked();
+        return algaeLC.blocked() || superstructure.isScoringAlgae();
     }
 
     public void setIntake(IntakeState state) {
