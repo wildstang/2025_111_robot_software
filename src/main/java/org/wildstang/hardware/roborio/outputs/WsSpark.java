@@ -166,9 +166,9 @@ public class WsSpark extends WsMotorController {
      * Burn to flash the current config files
      */
     public void configure(){
-        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        motor.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         if (follower != null){
-            follower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            follower.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         }
     }
 
@@ -183,7 +183,7 @@ public class WsSpark extends WsMotorController {
             if (follower != null){
                 followerConfig.smartCurrentLimit(limit, limit, 0);
             }
-            motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+            motor.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         }
     }
 
