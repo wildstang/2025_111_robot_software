@@ -515,7 +515,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         return (gyro.getYaw().getValueAsDouble() + (Core.isBlue() ? 0 : 180));
     }
     /** 
-     * @return Returns alliance relative CCW gyro angle for use with always alliance relative pose
+     * @return Returns alliance relative CCW degrees gyro angle for use with always alliance relative pose
      */
     public Rotation2d odoAngle(){
         return Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble());

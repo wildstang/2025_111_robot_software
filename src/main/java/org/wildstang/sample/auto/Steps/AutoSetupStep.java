@@ -23,9 +23,9 @@ public class AutoSetupStep extends AutoStep{
 
     /**
      * Setup the robot at start of autonomous
-     * @param x // Choreo blue alliance starting x position (m)
-     * @param y // Choreo blue allinace starting y position (m)
-     * @param pathHeading CW Heading
+     * @param x // WPI blue starting x position (m)
+     * @param y // WPI blue starting y position (m)
+     * @param pathHeading CW Heading (degrees)
      * @param alliance // Set alliance in Core
      */
     public AutoSetupStep(double x, double y, double pathHeading, Alliance alliance){

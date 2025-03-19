@@ -1,20 +1,10 @@
 package org.wildstang.sample.auto.Steps;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.Optional;
-
 import org.wildstang.framework.auto.AutoStep;
-import org.wildstang.framework.core.Core;
-import org.wildstang.framework.subsystems.swerve.SwerveDriveTemplate;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 
@@ -23,10 +13,17 @@ public class SwerveToPointStep extends AutoStep {
     private final double startingPower = 0.5;//initial power limit at the start
     private final double timeToMaxSpeed = 0.25;//time until full speed
     private SwerveDrive swerve;
+    private double turnStartTime; // Time to start turning to the end heading
 
     private Pose2d fieldAutoPose;
 
     private Timer timer;
+
+    public SwerveToPointStep(SwerveDrive drive, Pose2d pose, double turnStart) {
+        swerve = drive;
+        timer = new Timer();
+        fieldAutoPose = pose;
+    }
 
     public SwerveToPointStep(SwerveDrive drive, Pose2d pose) {
         swerve = drive;
@@ -42,7 +39,11 @@ public class SwerveToPointStep extends AutoStep {
 
     @Override
     public void update() {
-        swerve.setAutoValues(0.0,0.0, fieldAutoPose);
+        if (timer.hasElapsed(turnStartTime)) {
+            swerve.setAutoValues(0,0,new Pose2d(fieldAutoPose.getTranslation(), swerve.odoAngle()));
+        } else {
+            swerve.setAutoValues(0.0,0.0, fieldAutoPose);
+        }
         swerve.setAutoScalar(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed));
         if (swerve.isAtPosition()) {
             swerve.setAutoScalar(2.0);
