@@ -19,8 +19,9 @@ public enum SuperstructurePosition {
     STOWED_AFTER_PICKUP_LOW(58, 9, "Post Pickup Low"),
     CLIMB(22,0, "Climb Stow"),
     STOWED(58,0, "Stowed"),
-    STOWED_UP(58, 0, "Stowed up"),
+    STOWED_UP(58, 20, "Stowed up"),
     STOWED_UP_TELEOP(58, 0, "Stowed up Tele"),
+    OVERRIDE(85, 15, "Override"),
     GROUND_INTAKE(38.9, 0, "Ground Intake");
     
    public final double Arm;

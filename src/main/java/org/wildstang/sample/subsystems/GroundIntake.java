@@ -39,7 +39,8 @@ public class GroundIntake implements Subsystem {
     private final double DEPLOYED = 0;
     private double ground1Speed;
     private double ground2Speed;
-    private double deploy = DEPLOYED;
+    private double deploy = STARTING; 
+    private Timer L1timer = new Timer();
 
 
     @Override
@@ -47,8 +48,8 @@ public class GroundIntake implements Subsystem {
         if (Math.abs(rightTrigger.getValue()) > 0.5){
             if (superstructure.isScoreL1() && Math.abs(leftTrigger.getValue()) > 0.5){
                 //score L1
-                ground1Speed = -0.75;
-                ground2Speed = 0.4;
+                ground1Speed = -1;
+                ground2Speed = 0.25;
             }
             else if (Math.abs(leftTrigger.getValue()) < 0.5){
                 //nomral intake
@@ -58,7 +59,7 @@ public class GroundIntake implements Subsystem {
         } else if (DpadUp.getValue() || driverDPadLeft.getValue()){
             //reverse
             ground1Speed = -1;
-            ground2Speed = 0.5;
+            ground2Speed = 0.25;
         } else if (rightShoulder.getValue()){
             //intake for L1
             ground1Speed = -1;
@@ -73,6 +74,7 @@ public class GroundIntake implements Subsystem {
         }
        if (Math.abs(leftTrigger.getValue()) > 0.5 && superstructure.isScoreL1()){
           deploy = L1;
+          L1timer.reset();
        } else if (leftShoulder.getValue()){
         deploy = STARTING;
        } else deploy = DEPLOYED;
@@ -84,8 +86,8 @@ public class GroundIntake implements Subsystem {
         ground2 = (WsSpark) WsOutputs.GROUND2.get();
         pivot = (WsSpark) WsOutputs.PIVOT.get();
         pivot.initClosedLoop(0.1,0,0,0);
-        ground1.setCoast();
-        ground2.setCoast();
+        ground1.setBrake();
+        ground2.setBrake();
         pivot.setBrake();
         ground1.setCurrentLimit(50, 50, 0);
         ground2.setCurrentLimit(50, 50, 0);
@@ -104,6 +106,7 @@ public class GroundIntake implements Subsystem {
         driverDPadLeft = (WsDPadButton) WsInputs.DRIVER_DPAD_LEFT.get();
         driverDPadLeft.addInputListener(this);
         
+        L1timer.start();
     }
 
     @Override
@@ -117,7 +120,11 @@ public class GroundIntake implements Subsystem {
 
     @Override
     public void update() {
-        ground1.setSpeed(ground1Speed);
+        if (!L1timer.hasElapsed(0.1)){
+            ground1.setSpeed(0.2);
+        } else {
+            ground1.setSpeed(ground1Speed);
+        }
         ground2.setSpeed(ground2Speed);
 
         pivot.setPosition(deploy);
@@ -137,7 +144,7 @@ public class GroundIntake implements Subsystem {
 
     public void groundOn() {
         ground1Speed = 1;
-        ground2Speed = 1;
+        ground2Speed = -1;
     }
 
     @Override

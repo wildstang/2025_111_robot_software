@@ -72,7 +72,7 @@ public class VisionConsts {
     public static final double coralStationRightHeading = 125;
 
     // X value of the translation is irrelevant
-    public static final Translation2d netScore = new Translation2d(295*inToM, 295*inToM);
+    public static final Translation2d netScore = new Translation2d(290*inToM, 290*inToM);
 
     // Transform from center of robot to camera pose
     public static final Transform3d camTransform = new Transform3d(new Translation3d(.193031, .199778, 1.020310), new Rotation3d(0, -32 * Math.PI / 180, 10 * Math.PI / 180));

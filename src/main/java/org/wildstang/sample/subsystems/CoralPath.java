@@ -47,6 +47,8 @@ public class CoralPath implements Subsystem{
     private IntakeState coralState = IntakeState.NEUTRAL;
     private IntakeState algaeState = IntakeState.NEUTRAL;
 
+    private Timer timer = new Timer();
+
     //temp
     private boolean hasCoral = true;
 
@@ -127,17 +129,21 @@ public class CoralPath implements Subsystem{
         
         switch (coralState) {
             case INTAKING:
+                timer.start();
+                if (timer.hasElapsed(0.75) && coral.getController().getOutputCurrent() > 30) hasCoral = true;
                 //coral.tempCurrentLimit(60);
                 coralSpeed = 1.0;
                 //if (hasCoral()) coralState = IntakeState.INTAKING;//later neutral
                 break;
             case SCORING:
+                timer.reset();
                 //coral.tempCurrentLimit(60);
                 if (superstructure.isScoreL1()) coralSpeed = -0.4;
                 else if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
                 else coralSpeed = -1.0;
                 break;
             case NEUTRAL:
+                timer.reset();
                 if (hasCoral()){
                     //coral.tempCurrentLimit(20);
                     coralSpeed = 0.1;

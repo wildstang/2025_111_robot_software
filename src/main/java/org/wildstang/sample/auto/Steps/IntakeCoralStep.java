@@ -39,6 +39,7 @@ public class IntakeCoralStep extends AutoStep {
     @Override
     public void update() {
         if (coralPath.hasCoral()) {
+            coralPath.setIntake(CoralPath.IntakeState.NEUTRAL);
             this.setFinished();
         } else if (timer.hasElapsed(timeout)) {
             coralPath.setIntake(CoralPath.IntakeState.NEUTRAL);
