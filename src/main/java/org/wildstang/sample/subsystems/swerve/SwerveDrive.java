@@ -11,6 +11,7 @@ import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.swerve.SwerveDriveTemplate;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
+import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.CANConstants;
 import org.wildstang.sample.robot.WsInputs;
@@ -64,6 +65,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private DigitalInput operatorSelect;
     private WsJoystickAxis operatorRightTrigger;
     private WsJoystickAxis operatorLeftTrigger;
+    private WsJoystickButton operatorX;
 
     private double xPower;
     private double yPower;
@@ -103,7 +105,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     @Override
     public void inputUpdate(Input source) {
         if (Math.abs(operatorLeftTrigger.getValue()) > 0.5) scoringAlgae = true;
-        if (Math.abs(operatorRightTrigger.getValue()) > 0.5) scoringAlgae = false;
+        if (Math.abs(operatorRightTrigger.getValue()) > 0.5 || operatorX.getValue()) scoringAlgae = false;
         
         // Operator controls set intent state variables
         if (operatorLeftBumper.getValue()) {
@@ -131,7 +133,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
                     isReef = true;
                 }
         // If we are only holding down right trigger and now left trigger (for ground intaking) and we have a face button held down then set to intake based on object detection pipeline
-        } else if (Math.abs(rightTrigger.getValue()) > 0.5 && ((faceUp.getValue() || faceDown.getValue() || faceLeft.getValue() || faceRight.getValue()))) {
+        } else if ((Math.abs(rightTrigger.getValue()) > 0.5 || rightBumper.getValue()) && 
+                ((faceUp.getValue() || faceDown.getValue() || faceLeft.getValue() || faceRight.getValue()))) {
             driveState = driveType.CORALINTAKE;
         // If none of those conditions are met, return to Teleop mode
         } else {
@@ -262,6 +265,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         operatorLeftTrigger.addInputListener(this);
         operatorRightTrigger = (WsJoystickAxis) WsInputs.OPERATOR_RIGHT_TRIGGER.get();
         operatorRightTrigger.addInputListener(this);
+        operatorX = (WsJoystickButton) WsInputs.OPERATOR_FACE_LEFT.get();
+        operatorX.addInputListener(this);
     }
 
     public void initOutputs() {

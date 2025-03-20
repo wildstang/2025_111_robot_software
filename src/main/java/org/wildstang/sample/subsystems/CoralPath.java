@@ -38,7 +38,7 @@ public class CoralPath implements Subsystem{
     private WsJoystickAxis rightTrigger;
     private WsJoystickAxis operatorLeftTrigger;
     private WsJoystickAxis operatorRightTrigger;
-    public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN, 30);
+    public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN, 36);
     public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN, 30);
 
     private double algaeSpeed;
@@ -83,9 +83,9 @@ public class CoralPath implements Subsystem{
             //temp
             hasCoral = true;
         }
-        if (source == rightShoulder) {
-            algaeState = rightShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
-        }
+        // if (source == rightShoulder) {
+        //     algaeState = rightShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
+        // }
 
         //temp
     }
@@ -127,19 +127,19 @@ public class CoralPath implements Subsystem{
         
         switch (coralState) {
             case INTAKING:
-                coral.tempCurrentLimit(60);
+                //coral.tempCurrentLimit(60);
                 coralSpeed = 1.0;
-                if (hasCoral()) coralState = IntakeState.INTAKING;//later neutral
+                //if (hasCoral()) coralState = IntakeState.INTAKING;//later neutral
                 break;
             case SCORING:
-                coral.tempCurrentLimit(60);
+                //coral.tempCurrentLimit(60);
                 if (superstructure.isScoreL1()) coralSpeed = -0.4;
                 else if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
                 else coralSpeed = -1.0;
                 break;
             case NEUTRAL:
                 if (hasCoral()){
-                    coral.tempCurrentLimit(20);
+                    //coral.tempCurrentLimit(20);
                     coralSpeed = 0.1;
                 } else {
                     coralSpeed = 0.0;
@@ -149,24 +149,24 @@ public class CoralPath implements Subsystem{
         switch (algaeState) {
             case INTAKING:
                 algaeSpeed = 1.0;
-                algae.tempCurrentLimit(60);
+                //algae.tempCurrentLimit(60);
                 if (hasAlgae()) algaeState = IntakeState.NEUTRAL;
                 break;
             case SCORING:
                 algaeSpeed = -1.0;
-                algae.tempCurrentLimit(60);
+                //algae.tempCurrentLimit(60);
                 break;
             case NEUTRAL:
                 if (algaeLC.blocked(25)) {
                     // Stall current
                     algaeSpeed = 0.4;
-                    algae.tempCurrentLimit(30);
+                    //algae.tempCurrentLimit(30);
                 } else if (algaeLC.blocked(35)){
                     algaeSpeed = 0.7;
-                    algae.tempCurrentLimit(30);
+                    //algae.tempCurrentLimit(30);
                 } else if (algaeLC.blocked(50)){
                     algaeSpeed = 1.0;
-                    algae.tempCurrentLimit(60);
+                    //algae.tempCurrentLimit(60);
                 } else {
                     algaeSpeed = 0.0;
                 }

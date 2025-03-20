@@ -10,8 +10,9 @@ public class WsLaserCAN {
 
     private double thresholdDistance;
 
-    // Array used to store the last 5 laserCAN measurements
-    private double[] savedLcDistance = { Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE };
+    // Array used to store the last 9 laserCAN measurements
+    private double[] savedLcDistance = { Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, 
+        Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE };
     private LaserCan lc;
     
     public WsLaserCAN(int id, double distance) {
@@ -26,7 +27,7 @@ public class WsLaserCAN {
             //System.out.println(measurement.distance_mm);
             double tempvalue = savedLcDistance[0];
             double changeValue = measurement.distance_mm;
-            for(int n = 0; n < 5; n++) {
+            for(int n = 0; n < 9; n++) {
                 tempvalue = savedLcDistance[n];
                 savedLcDistance[n] = changeValue;
                 changeValue = tempvalue;
@@ -40,12 +41,12 @@ public class WsLaserCAN {
         // return threshold > measurement.distance_mm;
         
        int numberCorrect = 0;
-        for(int n = 0; n < 5; n++) {
+        for(int n = 0; n < 9; n++) {
             if(savedLcDistance[n] < threshold) {
                 numberCorrect++;
             }
         }
-        return numberCorrect > 2;
+        return numberCorrect > 4;
     }
     public boolean blocked(){
         return blocked(thresholdDistance);
@@ -58,6 +59,7 @@ public class WsLaserCAN {
             SmartDashboard.putNumber("lasercan saved 3", savedLcDistance[2]);
             SmartDashboard.putNumber("lasercan saved 4", savedLcDistance[3]);
             SmartDashboard.putNumber("lasercan saved 5", savedLcDistance[4]);
+            SmartDashboard.putBoolean("lasercan blocked", blocked());
         }
         
     }

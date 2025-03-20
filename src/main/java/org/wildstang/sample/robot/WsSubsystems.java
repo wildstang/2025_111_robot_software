@@ -16,7 +16,7 @@ import org.wildstang.sample.subsystems.targeting.WsPose;
 public enum WsSubsystems implements Subsystems {
 
     // enumerate subsystems
-    WS_POSE("Ws Vision", WsPose.class),
+    WS_POSE("Ws Pose", WsPose.class),
     SWERVE_DRIVE("Swerve Drive", SwerveDrive.class),
     LED("Led Controller", LedController.class),
     SUPERSTRUCTURE("Superstructure Subsystem", SuperstructureSubsystem.class),

@@ -28,12 +28,14 @@ public class GroundIntake implements Subsystem {
     private WsJoystickAxis leftTrigger;
     private WsJoystickAxis rightTrigger;
     private WsJoystickButton leftShoulder;
+    private WsJoystickButton rightShoulder;
     private WsDPadButton DpadUp;
+    private WsDPadButton driverDPadLeft;
 
     private SuperstructureSubsystem superstructure;
 
     private final double STARTING = -23.1;
-    private final double L1 = -13;
+    private final double L1 = -16;
     private final double DEPLOYED = 0;
     private double ground1Speed;
     private double ground2Speed;
@@ -42,26 +44,29 @@ public class GroundIntake implements Subsystem {
 
     @Override
     public void inputUpdate(Input source){
-        if (source == rightTrigger && Math.abs(rightTrigger.getValue()) > 0.5){
-            if(Math.abs(leftTrigger.getValue()) < 0.5 && superstructure.isScoreL1()){
-                //intake for L1
-                ground1Speed = -1;
-                ground2Speed = -1;
-            }
-            else if (superstructure.isScoreL1()){
+        if (Math.abs(rightTrigger.getValue()) > 0.5){
+            if (superstructure.isScoreL1() && Math.abs(leftTrigger.getValue()) > 0.5){
                 //score L1
-                ground1Speed = -0.25;
-                ground2Speed = 0.25;
+                ground1Speed = -0.75;
+                ground2Speed = 0.4;
             }
             else if (Math.abs(leftTrigger.getValue()) < 0.5){
                 //nomral intake
                 ground1Speed = 1;
                 ground2Speed = -1;
             }
-        } else if (DpadUp.getValue()){
+        } else if (DpadUp.getValue() || driverDPadLeft.getValue()){
             //reverse
             ground1Speed = -1;
-            ground2Speed = 1;
+            ground2Speed = 0.5;
+        } else if (rightShoulder.getValue()){
+            //intake for L1
+            ground1Speed = -1;
+            ground2Speed = -1;
+        } else if (superstructure.isScoreL1()){
+            //hold in L1
+            ground1Speed = 0;
+            ground2Speed = -0.2;
         } else {
             ground1Speed = 0;
             ground2Speed = 0;
@@ -92,8 +97,12 @@ public class GroundIntake implements Subsystem {
         leftTrigger.addInputListener(this);
         leftShoulder = (WsJoystickButton) WsInputs.DRIVER_LEFT_SHOULDER.get();
         leftShoulder.addInputListener(this);
+        rightShoulder = (WsJoystickButton) WsInputs.DRIVER_RIGHT_SHOULDER.get();
+        rightShoulder.addInputListener(this);
         DpadUp = (WsDPadButton) WsInputs.OPERATOR_DPAD_UP.get();
         DpadUp.addInputListener(this);
+        driverDPadLeft = (WsDPadButton) WsInputs.DRIVER_DPAD_LEFT.get();
+        driverDPadLeft.addInputListener(this);
         
     }
 

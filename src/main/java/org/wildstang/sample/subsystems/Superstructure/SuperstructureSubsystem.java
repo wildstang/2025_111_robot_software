@@ -39,6 +39,7 @@ public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
 private SuperstructurePosition prevPosition = SuperstructurePosition.CORAL_STATION_FRONT;
 private WsSpark LiftMax, lift2, armSpark ;
 private boolean isAuto = true;
+private boolean isLevel1 = false;
 private SwerveDrive swerve;
 private CoralPath coralPath;
 private WsPose pose;
@@ -135,9 +136,9 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                 desiredPosition = SuperstructurePosition.CORAL_STATION_BACK;
             }
         } 
-        else if (RshoulderHeld) {
-            desiredPosition = SuperstructurePosition.ALGAE_PRESTAGED;
-        } 
+        // else if (RshoulderHeld) {
+        //     desiredPosition = SuperstructurePosition.ALGAE_PRESTAGED;
+        // } 
         else if (LTHeld) {
             if (swerve.isScoringAlgae()) {
                 if (Algae_NetOrProces.Net == AlgaeState) {
@@ -165,7 +166,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                 }
             } 
             else {
-                if (LevelReef.Reef_L1 == level) {
+                // if (LevelReef.Reef_L1 == level) {
+                if (isLevel1){
                     //desiredPosition = SuperstructurePosition.CORAL_REEF_L1;
                     desiredPosition = SuperstructurePosition.STOWED;
                 } else if (LevelReef.Reef_L2 == level) {
@@ -241,9 +243,11 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             level = LevelReef.Reef_L4;
         }
         if (source == X && X.getValue()) PickupSequence = !PickupSequence;
-        if(DPad_DOWN.getValue()){
-            level = LevelReef.Reef_L1;
-        }
+        // if(DPad_DOWN.getValue()){
+        //     level = LevelReef.Reef_L1;
+        // }
+        if (Rshoulder.getValue()) isLevel1 = true;
+        if (Math.abs(rightTrigger.getValue()) > 0.5 && Math.abs(LT.getValue()) < 0.5) isLevel1 = false;
         StartHeld = Start.getValue();
         SelectHeld = Select.getValue();
         if (desiredPosition == SuperstructurePosition.CLIMB){
@@ -374,7 +378,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             position == SuperstructurePosition.CORAL_REEF_L4;
     }
     public boolean isScoreL1() {
-        return level == LevelReef.Reef_L1;
+        // return level == LevelReef.Reef_L1;
+        return isLevel1;
     }
     public boolean isScoreL23(){
         return level == LevelReef.Reef_L2 || level == LevelReef.Reef_L3;
