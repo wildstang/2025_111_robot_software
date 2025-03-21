@@ -73,8 +73,8 @@ public class GroundIntake implements Subsystem {
             ground2Speed = 0;
         }
        if (Math.abs(leftTrigger.getValue()) > 0.5 && superstructure.isScoreL1()){
+        if (deploy != L1) L1timer.reset(); 
           deploy = L1;
-          L1timer.reset();
        } else if (leftShoulder.getValue()){
         deploy = STARTING;
        } else deploy = DEPLOYED;
@@ -121,7 +121,7 @@ public class GroundIntake implements Subsystem {
     @Override
     public void update() {
         if (!L1timer.hasElapsed(0.1)){
-            ground1.setSpeed(0.2);
+            ground1.setSpeed(0.15);
         } else {
             ground1.setSpeed(ground1Speed);
         }

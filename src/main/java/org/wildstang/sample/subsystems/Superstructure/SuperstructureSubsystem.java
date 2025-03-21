@@ -32,7 +32,7 @@ public class SuperstructureSubsystem implements Subsystem {
 
 private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select;
 private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger;
-private WsDPadButton DPad_UP, DPad_LEFT, DPad_DOWN, driverDright;
+private WsDPadButton DPad_UP, DPad_LEFT, DPad_DOWN, operatorDleft;
 private boolean LShoulderHeld,RshoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld;
 private boolean PickupSequence;
 public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
@@ -97,8 +97,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         operator_LT.addInputListener(this);
         rightTrigger = (WsJoystickAxis) WsInputs.DRIVER_RIGHT_TRIGGER.get();
         rightTrigger.addInputListener(this);
-        driverDright = (WsDPadButton) WsInputs.DRIVER_DPAD_RIGHT.get();
-        driverDright.addInputListener(this);
+        operatorDleft = (WsDPadButton) WsInputs.OPERATOR_DPAD_LEFT.get();
+        operatorDleft.addInputListener(this);
        
         armSpark = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ARM);
         armSpark.initClosedLoop(0.4, 0, 0, 0);
@@ -255,7 +255,9 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             StartHeld = true;
             SelectHeld = true;
         }
-        if (driverDright.getValue() && source == driverDright) override = !override;
+        if (operatorDleft.getValue() && source == operatorDleft) {
+            override = !override;
+        }
         
     }
     @Override
@@ -390,5 +392,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     }
     public void setToAuto(){
         this.isAuto = true;
+    }
+    public boolean isOverride(){
+        return override;
     }
 }
