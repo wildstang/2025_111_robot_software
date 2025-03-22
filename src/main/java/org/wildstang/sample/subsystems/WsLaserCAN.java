@@ -32,6 +32,14 @@ public class WsLaserCAN {
                 savedLcDistance[n] = changeValue;
                 changeValue = tempvalue;
             }
+        } else {
+            double tempvalue = savedLcDistance[0];
+            double changeValue = 400;
+            for(int n = 0; n < 9; n++) {
+                tempvalue = savedLcDistance[n];
+                savedLcDistance[n] = changeValue;
+                changeValue = tempvalue;
+            }
         }
     }
 

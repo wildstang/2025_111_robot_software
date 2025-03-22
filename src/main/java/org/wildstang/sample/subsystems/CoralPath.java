@@ -114,7 +114,7 @@ public class CoralPath implements Subsystem{
         switch (coralState) {
             case INTAKING:
                 coralSpeed = 1.0;
-                if (hasCoral()) coralSpeed = 0.1;
+                if (hasCoral()) coralSpeed = 0.05;
                 break;
             case SCORING:
                 if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
