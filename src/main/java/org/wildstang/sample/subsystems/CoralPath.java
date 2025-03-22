@@ -47,11 +47,6 @@ public class CoralPath implements Subsystem{
     private IntakeState coralState = IntakeState.NEUTRAL;
     private IntakeState algaeState = IntakeState.NEUTRAL;
 
-    private Timer timer = new Timer();
-
-    //temp
-    private boolean hasCoral = true;
-
 
     @Override
     public void inputUpdate(Input source) {
@@ -62,16 +57,12 @@ public class CoralPath implements Subsystem{
                 if (swerve.isScoringCoral()) {
                     if (!superstructure.isAlgaeRemoval()){
                         coralState = IntakeState.SCORING;
-                        //temp
-                        hasCoral = false;
                     }
                 } else {
                     algaeState = IntakeState.SCORING;
                 }
             } else {
                 coralState = IntakeState.INTAKING;
-                //temp
-                hasCoral = true;
             } 
         } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
             algaeState = IntakeState.INTAKING;
@@ -82,14 +73,7 @@ public class CoralPath implements Subsystem{
         
         if (source == leftShoulder) {
             coralState = leftShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
-            //temp
-            hasCoral = true;
         }
-        // if (source == rightShoulder) {
-        //     algaeState = rightShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
-        // }
-
-        //temp
     }
 
     @Override
@@ -125,27 +109,19 @@ public class CoralPath implements Subsystem{
     @Override
     public void update() {
         algaeLC.updateMeasurements();
-        //coralLC.updateMeasurements();
+        coralLC.updateMeasurements();
         
         switch (coralState) {
             case INTAKING:
-                timer.start();
-                if (timer.hasElapsed(0.75) && coral.getController().getOutputCurrent() > 30) hasCoral = true;
-                //coral.tempCurrentLimit(60);
                 coralSpeed = 1.0;
-                //if (hasCoral()) coralState = IntakeState.INTAKING;//later neutral
+                if (hasCoral()) coralState = IntakeState.NEUTRAL;
                 break;
             case SCORING:
-                timer.reset();
-                //coral.tempCurrentLimit(60);
-                if (superstructure.isScoreL1()) coralSpeed = -0.4;
-                else if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
+                if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
                 else coralSpeed = -1.0;
                 break;
             case NEUTRAL:
-                timer.reset();
                 if (hasCoral()){
-                    //coral.tempCurrentLimit(20);
                     coralSpeed = 0.1;
                 } else {
                     coralSpeed = 0.0;
@@ -155,24 +131,19 @@ public class CoralPath implements Subsystem{
         switch (algaeState) {
             case INTAKING:
                 algaeSpeed = 1.0;
-                //algae.tempCurrentLimit(60);
                 if (hasAlgae()) algaeState = IntakeState.NEUTRAL;
                 break;
             case SCORING:
                 algaeSpeed = -1.0;
-                //algae.tempCurrentLimit(60);
                 break;
             case NEUTRAL:
                 if (algaeLC.blocked(25)) {
                     // Stall current
                     algaeSpeed = 0.4;
-                    //algae.tempCurrentLimit(30);
                 } else if (algaeLC.blocked(35)){
                     algaeSpeed = 0.7;
-                    //algae.tempCurrentLimit(30);
                 } else if (algaeLC.blocked(50)){
                     algaeSpeed = 1.0;
-                    //algae.tempCurrentLimit(60);
                 } else {
                     algaeSpeed = 0.0;
                 }
@@ -204,13 +175,11 @@ public class CoralPath implements Subsystem{
         SmartDashboard.putString("@ Algae State", algaeState.toString());
         SmartDashboard.putString("@ Coral State", coralState.toString());
         algaeLC.putData();
-        //coralLC.putData();
+        coralLC.putData();
     }
 
     public boolean hasCoral() {
-        //return coralLC.blocked() || superstructure.isScoringCoral();
-        //temp
-        return hasCoral || superstructure.isScoringCoral();
+        return coralLC.blocked() || superstructure.isScoringCoral();
     }
 
     public boolean hasAlgae() {
