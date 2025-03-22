@@ -39,7 +39,7 @@ public class CoralPath implements Subsystem{
     private WsJoystickAxis operatorLeftTrigger;
     private WsJoystickAxis operatorRightTrigger;
     public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN, 36);
-    public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN, 30);
+    public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN, 20);
 
     private double algaeSpeed;
     private double coralSpeed;
@@ -114,7 +114,7 @@ public class CoralPath implements Subsystem{
         switch (coralState) {
             case INTAKING:
                 coralSpeed = 1.0;
-                if (hasCoral()) coralState = IntakeState.NEUTRAL;
+                if (hasCoral()) coralSpeed = 0.1;
                 break;
             case SCORING:
                 if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
