@@ -1,7 +1,11 @@
 package org.wildstang.sample.subsystems.targeting;
 
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.wildstang.framework.core.Core;
 import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
 
@@ -12,21 +16,20 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class WsLL {
+public class WsLL implements LoggableInputs {
 
     private final double mToIn = 39.3701;
 
-    private PoseEstimate blue3D;
-    private PoseEstimate red3D;
     public PoseEstimate alliance3D;
     public int tid;
     public boolean tv;
     public double tx;
     public double ty;
-    public double tl;
-    public double tc;
     public double ta;
     StructPublisher<Pose2d> posePublisher;
+
+    // Method to get swerve drive gyro yaw
+    DoubleSupplier yaw;
 
     // Name of Limelight
     public String CameraID;
@@ -35,26 +38,8 @@ public class WsLL {
     /*
      * Argument is String ID of the limelight networktable entry, aka what it's called
      */
-    public WsLL(String CameraID, boolean isAprilTag){
+    public WsLL(String CameraID, boolean isAprilTag, DoubleSupplier yaw){
         posePublisher = NetworkTableInstance.getDefault().getStructTopic(CameraID + "/metatag2 alliance pose", Pose2d.struct).publish();
-        
-        tv = LimelightHelpers.getTV(CameraID); // 1 if valid target exists. 0 if no valid targets exist
-        tx = LimelightHelpers.getTX(CameraID); // Horrizontal offset from crosshair to target
-        ty = LimelightHelpers.getTY(CameraID); // Vertical offset from crosshair to target
-        tl = LimelightHelpers.getLatency_Pipeline(CameraID); // The pipeline's latency contribution (ms)
-        tc = LimelightHelpers.getLatency_Capture(CameraID); // Capture pipeline latency (ms)
-        ta = LimelightHelpers.getTA(CameraID); // Target area
-
-        if (isAprilTag) {
-            tid = (int) LimelightHelpers.getFiducialID(CameraID); // ID of the primary in view april tag
-            blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
-            red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
-            alliance3D = Core.isBlue() ? blue3D : red3D;
-            if (alliance3D != null){
-                posePublisher.set(alliance3D.pose);
-            }
-        }
-
         this.CameraID = CameraID;
         this.isAprilTag = isAprilTag;
     }
@@ -74,34 +59,29 @@ public class WsLL {
 
     /**
      * Updates all values to the latest value
-     * @param yaw Yaw value for MegaTag2 pose disambiguation
-     * @return pose estimate if valid
      */
-    public Optional<PoseEstimate> update(double yaw){
-        LimelightHelpers.SetRobotOrientation(CameraID, yaw, 0, 0, 0, 0, 0); 
+    public Optional<PoseEstimate> update(){
+        LimelightHelpers.SetRobotOrientation(CameraID, yaw.getAsDouble(), 0, 0, 0, 0, 0); 
         
         tid = (int) LimelightHelpers.getFiducialID(CameraID); // ID of the primary in view april tag
         tv = LimelightHelpers.getTV(CameraID); // 1 if valid target exists. 0 if no valid targets exist
         tx = LimelightHelpers.getTX(CameraID); // Horrizontal offset from crosshair to target
         ty = LimelightHelpers.getTY(CameraID); // Vertical offset from crosshair to target
-        tl = LimelightHelpers.getLatency_Pipeline(CameraID); // The pipeline's latency contribution (ms)
-        tc = LimelightHelpers.getLatency_Capture(CameraID); // Capture pipeline latency (ms)
         ta = LimelightHelpers.getTA(CameraID); // Target area
-        if (tv && isAprilTag ){
-            double oldTimestamp = alliance3D != null ? alliance3D.timestampSeconds : Double.MAX_VALUE;
-            blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
-            red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
-            alliance3D = Core.isBlue() ? blue3D : red3D;
-            if (alliance3D != null) posePublisher.set(alliance3D.pose);
+        double oldTimestamp = alliance3D != null ? alliance3D.timestampSeconds : Double.NaN;
+        PoseEstimate blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
+        PoseEstimate red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
+        alliance3D = Core.isBlue() ? blue3D : red3D;
+        boolean newEstimate = alliance3D != null ? (alliance3D.timestampSeconds != oldTimestamp) : false;
+        
 
-            // We don't actually have a new frame and MegTag2 pose to return
-            if (alliance3D != null && alliance3D.timestampSeconds == oldTimestamp) {
-                return Optional.empty();
-            }
-            if (alliance3D != null) return Optional.of(alliance3D);
-            else return Optional.empty();
+        Logger.processInputs("Vision/Camera/" + CameraID, this);
+        if (newEstimate) {
+            posePublisher.set(alliance3D.pose);
+            return Optional.of(alliance3D);
+        } else {
+            return Optional.empty();
         }
-        return Optional.empty();
     }
     /*
      * returns true if a target is seen, false otherwise
@@ -109,20 +89,12 @@ public class WsLL {
     public boolean TargetInView(){
         return tv;
     }
-    
-    /*
-     * returns total latency, capture latency + pipeline latency
-     */
-    public double getTotalLatency(){
-        return tc + tl;
-    }
     /*
      * Sets the pipeline (0-9) with argument
      */
     public void setPipeline(int pipeline){
         LimelightHelpers.setPipelineIndex(CameraID, pipeline);
     }
-
 
     public enum LEDState { DEFAULT, OFF, BLINK, ON}
     /*
@@ -139,5 +111,25 @@ public class WsLL {
             case ON:
                 LimelightHelpers.setLEDMode_ForceOn(CameraID);
         }
+    }
+
+    @Override
+    public void toLog(LogTable table) {
+        table.put("alliance3D", alliance3D);
+        table.put("tid", tid);
+        table.put("tv", tv);
+        table.put("tx", tx);
+        table.put("ty", ty);
+        table.put("ta", ta);
+    }
+
+    @Override
+    public void fromLog(LogTable table) {
+        alliance3D = table.get("alliance3D", alliance3D);
+        tid = table.get("tid", tid);
+        tv = table.get("tv", tv);
+        tx = table.get("tx", tx);
+        ty = table.get("ty", ty);
+        ta = table.get("ta", ta);        
     }
 }

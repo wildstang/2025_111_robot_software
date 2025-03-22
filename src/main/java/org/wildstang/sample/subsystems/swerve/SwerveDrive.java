@@ -2,9 +2,9 @@ package org.wildstang.sample.subsystems.swerve;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
-import java.util.Arrays;
-
-import org.wildstang.framework.auto.steps.LambdaStep;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
@@ -18,20 +18,17 @@ import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
-import org.wildstang.sample.subsystems.targeting.TargetCoordinate;
 import org.wildstang.sample.subsystems.targeting.VisionConsts;
 import org.wildstang.sample.subsystems.targeting.WsPose;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**Class: SwerveDrive
@@ -39,7 +36,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * outputs: four swerveModule objects
  * description: controls a swerve drive for four swerveModules through autonomous and teleoperated control
  */
-public class SwerveDrive extends SwerveDriveTemplate {
+public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     private AnalogInput leftStickX;//translation joystick x
     private AnalogInput leftStickY;//translation joystick y
     private AnalogInput rightStickX;//rot joystick
@@ -64,6 +61,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private DigitalInput operatorSelect;
     private WsJoystickAxis operatorRightTrigger;
     private WsJoystickAxis operatorLeftTrigger;
+
+    private double gyroReading; // Reading from gyro CW degrees
 
     private double xPower;
     private double yPower;
@@ -315,6 +314,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     @Override
     public void update() {
+        gyroReading = gyro.getYaw().getValueAsDouble();
+
+        Logger.processInputs("Swerve", this);
+
         pose.addOdometryObservation(modulePositions(), odoAngle(), driveState == driveType.AUTO);
 
         if (driveState == driveType.CROSS) {
@@ -507,10 +510,11 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
 
     public double getGyroAngle() {
-        return (360 - gyro.getYaw().getValueAsDouble()+360)%360;
+        return (360 - gyroReading+360)%360;
     }  
 
     /**
+     * Doesn't need to use gyroReading since it isn't used as an input
      * @return Returns the field relative CCW gyro angle for use with Limelight MegaTag2
      */
     public double getMegaTag2Yaw(){
@@ -520,7 +524,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
      * @return Returns alliance relative CCW gyro angle for use with always alliance relative pose
      */
     public Rotation2d odoAngle(){
-        return Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble());
+        return Rotation2d.fromDegrees(gyroReading);
     }
     public double speedMagnitude(){
         return Math.sqrt(Math.pow(speeds().vxMetersPerSecond, 2) + Math.pow(speeds().vyMetersPerSecond, 2));
@@ -572,5 +576,15 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
     public boolean isScoringCoral(){
         return driveState == driveType.REEFSCORE;
+    }
+
+    @Override
+    public void toLog(LogTable table) {
+        gyroReading = table.get("gyroReading", gyroReading);
+    }
+
+    @Override
+    public void fromLog(LogTable table) {
+        table.put("gyroReading", gyroReading);
     }
 }

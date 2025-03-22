@@ -7,6 +7,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
+import edu.wpi.first.util.struct.StructSerializable;
+
 import org.wildstang.sample.subsystems.targeting.LimelightHelpers.LimelightResults;
 import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -530,7 +532,7 @@ public class LimelightHelpers {
     /**
      * Represents a 3D Pose Estimate.
      */
-    public static class PoseEstimate {
+    public static class PoseEstimate implements StructSerializable {
         public Pose2d pose;
         public double timestampSeconds;
         public double latency;

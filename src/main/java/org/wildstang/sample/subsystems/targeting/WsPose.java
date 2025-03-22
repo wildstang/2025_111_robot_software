@@ -11,6 +11,7 @@ import org.wildstang.sample.subsystems.targeting.LimelightHelpers.RawFiducial;
 
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
 import org.wildstang.framework.core.Core;
 
 import org.wildstang.framework.io.inputs.Input;
@@ -30,8 +31,8 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class WsPose implements Subsystem {
 
-    public WsLL left = new WsLL("limelight-left", true);
-    public WsLL right = new WsLL("limelight-right", true);
+    public WsLL left;
+    public WsLL right;
 
     private final double poseBufferSizeSec = 2;
     public final double visionSpeedThreshold = 3.0;
@@ -45,8 +46,8 @@ public class WsPose implements Subsystem {
     public Pose2d odometryPose = new Pose2d();
     public Pose2d estimatedPose = new Pose2d();
 
-    StructPublisher<Pose2d> odometryPosePublisher;
-    StructPublisher<Pose2d> estimatedPosePublisher;
+    StructPublisher<Pose2d> odometryPosePublisher = NetworkTableInstance.getDefault().getStructTopic("odometryPose", Pose2d.struct).publish();
+    StructPublisher<Pose2d> estimatedPosePublisher = NetworkTableInstance.getDefault().getStructTopic("estimatedPose", Pose2d.struct).publish();
 
     private final TimeInterpolatableBuffer<Pose2d> poseBuffer = TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
 
@@ -64,8 +65,8 @@ public class WsPose implements Subsystem {
 
     @Override
     public void init() {
-        odometryPosePublisher = NetworkTableInstance.getDefault().getStructTopic("odometryPose", Pose2d.struct).publish();
-        estimatedPosePublisher = NetworkTableInstance.getDefault().getStructTopic("estimatedPose", Pose2d.struct).publish();
+        left = new WsLL("limelight-left", true, swerve::getMegaTag2Yaw);
+        right = new WsLL("limelight-right", true, swerve::getMegaTag2Yaw);
     }
 
     @Override
@@ -74,8 +75,8 @@ public class WsPose implements Subsystem {
 
     @Override
     public void update() {
-        Optional<PoseEstimate> leftEstimate = left.update(swerve.getMegaTag2Yaw());
-        Optional<PoseEstimate> rightEstimate = right.update(swerve.getMegaTag2Yaw());
+        Optional<PoseEstimate> leftEstimate = left.update();
+        Optional<PoseEstimate> rightEstimate = right.update();
 
         // Same standard deviation calculation as 6328 but only used for calculating validity of vision estimate
         double leftStdDev = Double.MAX_VALUE;
@@ -111,12 +112,12 @@ public class WsPose implements Subsystem {
 
     @Override
     public void resetState() {
-        left.update(swerve.getMegaTag2Yaw());
-        right.update(swerve.getMegaTag2Yaw());
+        left.update();
+        right.update();
     }
 
     /**
-     * Reset estimated pose and odometry pose to pose <br>
+     * Reset estimated pose and odometry pose to pose
      * Clear pose buffer
     */
     public void resetPose(Pose2d initialPose) {
