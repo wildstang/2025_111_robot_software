@@ -1,6 +1,8 @@
 package org.wildstang.sample.robot;
 
 import org.wildstang.framework.core.AutoPrograms;
+import org.wildstang.sample.auto.Programs.BlueLeftThreeCoralV1;
+import org.wildstang.sample.auto.Programs.BlueRightThreeCoralV1;
 import org.wildstang.sample.auto.Programs.Jubilee;
 import org.wildstang.sample.auto.Programs.LeftFourCoral;
 import org.wildstang.sample.auto.Programs.Line;
@@ -11,8 +13,6 @@ import org.wildstang.sample.auto.Programs.RedRightThreeCoralV1;
 import org.wildstang.sample.auto.Programs.TestProgram;
 import org.wildstang.sample.auto.Programs.TheDrakeBlue;
 import org.wildstang.sample.auto.Programs.TheDrakeRed;
-import org.wildstang.sample.auto.Programs.BlueLeftThreeCoralV1;
-import org.wildstang.sample.auto.Programs.BlueRightThreeCoralV1;
 
 
 /**

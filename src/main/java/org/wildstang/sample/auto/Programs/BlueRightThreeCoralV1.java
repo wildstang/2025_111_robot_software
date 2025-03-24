@@ -11,8 +11,8 @@ import org.wildstang.sample.auto.Steps.IntakeCoralStep;
 import org.wildstang.sample.auto.Steps.ScoreCoralStep;
 import org.wildstang.sample.auto.Steps.SwerveAutoStep;
 import org.wildstang.sample.robot.WsSubsystems;
-import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructurePosition;
+import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;

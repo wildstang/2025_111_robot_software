@@ -14,8 +14,6 @@ import org.wildstang.sample.robot.CANConstants;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
-import org.wildstang.sample.robot.CANConstants;
-//import au.grapplerobotics.LaserCan;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 

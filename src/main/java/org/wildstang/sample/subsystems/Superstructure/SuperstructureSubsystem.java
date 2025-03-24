@@ -12,13 +12,12 @@ import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.CoralPath;
+import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.sample.subsystems.swerve.WsSwerveHelper;
 import org.wildstang.sample.subsystems.targeting.WsPose;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.wildstang.sample.subsystems.CoralPath;
-import org.wildstang.sample.subsystems.swerve.SwerveDrive; 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; 
 
 
 public class SuperstructureSubsystem implements Subsystem {

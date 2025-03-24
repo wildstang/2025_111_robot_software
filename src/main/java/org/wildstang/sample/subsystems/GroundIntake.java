@@ -13,7 +13,6 @@ import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
-//import au.grapplerobotics.LaserCan;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 
 import edu.wpi.first.wpilibj.Timer;
