@@ -40,6 +40,7 @@ public class WsLL implements LoggableInputs {
      */
     public WsLL(String CameraID, boolean isAprilTag, DoubleSupplier yaw){
         posePublisher = NetworkTableInstance.getDefault().getStructTopic(CameraID + "/metatag2 alliance pose", Pose2d.struct).publish();
+        this.yaw = yaw;
         this.CameraID = CameraID;
         this.isAprilTag = isAprilTag;
     }
@@ -61,7 +62,9 @@ public class WsLL implements LoggableInputs {
      * Updates all values to the latest value
      */
     public Optional<PoseEstimate> update(){
-        LimelightHelpers.SetRobotOrientation(CameraID, yaw.getAsDouble(), 0, 0, 0, 0, 0); 
+        if (isAprilTag) {
+            LimelightHelpers.SetRobotOrientation(CameraID, yaw.getAsDouble(), 0, 0, 0, 0, 0); 
+        }
         
         tid = (int) LimelightHelpers.getFiducialID(CameraID); // ID of the primary in view april tag
         tv = LimelightHelpers.getTV(CameraID); // 1 if valid target exists. 0 if no valid targets exist
@@ -115,7 +118,7 @@ public class WsLL implements LoggableInputs {
 
     @Override
     public void toLog(LogTable table) {
-        table.put("alliance3D", alliance3D);
+        //table.put("alliance3D", alliance3D);
         table.put("tid", tid);
         table.put("tv", tv);
         table.put("tx", tx);
@@ -125,7 +128,7 @@ public class WsLL implements LoggableInputs {
 
     @Override
     public void fromLog(LogTable table) {
-        alliance3D = table.get("alliance3D", alliance3D);
+        //alliance3D = table.get("alliance3D", alliance3D);
         tid = table.get("tid", tid);
         tv = table.get("tv", tv);
         tx = table.get("tx", tx);

@@ -207,7 +207,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         initInputs();
         initOutputs();
         resetState();
-        gyro.setYaw(0.0);        
+        gyro.setYaw(0.0);
     }
 
     public void initSubsystems() {
@@ -295,7 +295,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     public void update() {
         gyroReading = gyro.getYaw().getValueAsDouble();
 
-        Logger.processInputs("Swerve", this);
+        Logger.processInputs("Swerve/", this);
 
         pose.addOdometryObservation(modulePositions(), odoAngle(), driveState == driveType.AUTO);
 
@@ -434,6 +434,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     
     @Override
     public void resetState() {
+        gyroReading = 0;
         isReef = false;
         xPower = 0;
         yPower = 0;
@@ -566,7 +567,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         return frontCloser(0);
     }
     public boolean isAtPosition() {
-        return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation()) < DriveConstants.POSITION_TOLERANCE;
+        return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation()) < DriveConstants.POSITION_TOLERANCE && WsSwerveHelper.angleDist(pose.estimatedPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()) < 2.5;
     }
     public boolean isNearReef(){
         return pose.nearReef();
@@ -588,11 +589,11 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
     @Override
     public void toLog(LogTable table) {
-        gyroReading = table.get("gyroReading", gyroReading);
+        table.put("gyroReading", gyroReading);
     }
 
     @Override
     public void fromLog(LogTable table) {
-        table.put("gyroReading", gyroReading);
+        gyroReading = table.get("gyroReading", gyroReading);
     }
 }

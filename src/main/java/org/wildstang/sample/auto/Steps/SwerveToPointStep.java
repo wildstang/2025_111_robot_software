@@ -20,12 +20,14 @@ public class SwerveToPointStep extends AutoStep {
     private Timer timer;
 
     public SwerveToPointStep(SwerveDrive drive, Pose2d pose, double turnStart) {
+        this.turnStartTime = turnStart;
         swerve = drive;
         timer = new Timer();
         fieldAutoPose = pose;
     }
 
     public SwerveToPointStep(SwerveDrive drive, Pose2d pose) {
+        turnStartTime = 0;
         swerve = drive;
         timer = new Timer();
         fieldAutoPose = pose;
@@ -40,9 +42,9 @@ public class SwerveToPointStep extends AutoStep {
     @Override
     public void update() {
         if (timer.hasElapsed(turnStartTime)) {
-            swerve.setAutoValues(0,0,new Pose2d(fieldAutoPose.getTranslation(), swerve.odoAngle()));
-        } else {
             swerve.setAutoValues(0.0,0.0, fieldAutoPose);
+        } else {
+            swerve.setAutoValues(0,0,new Pose2d(fieldAutoPose.getTranslation(), swerve.odoAngle()));
         }
         swerve.setAutoScalar(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed));
         if (swerve.isAtPosition()) {

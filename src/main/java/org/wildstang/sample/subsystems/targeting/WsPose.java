@@ -67,12 +67,12 @@ public class WsPose implements Subsystem {
     @Override
     public void initSubsystems() {
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
+        left = new WsLL("limelight-left", true, swerve::getMegaTag2Yaw);
+        right = new WsLL("limelight-right", true, swerve::getMegaTag2Yaw);
     }
 
     @Override
     public void init() {
-        left = new WsLL("limelight-left", true, swerve::getMegaTag2Yaw);
-        right = new WsLL("limelight-right", true, swerve::getMegaTag2Yaw);
     }
 
     @Override

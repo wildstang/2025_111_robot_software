@@ -34,7 +34,8 @@ public class GroundIntake implements Subsystem {
     private SuperstructureSubsystem superstructure;
 
     private final double STARTING = -23.1;
-    private final double L1 = -16;
+    private final double L1 = -19;
+    private final double L1Score = -16;
     private final double DEPLOYED = 0;
     private double ground1Speed;
     private double ground2Speed;
@@ -72,8 +73,12 @@ public class GroundIntake implements Subsystem {
             ground2Speed = 0;
         }
        if (Math.abs(leftTrigger.getValue()) > 0.5 && superstructure.isScoreL1()){
-        if (deploy != L1) L1timer.reset(); 
-          deploy = L1;
+            if (Math.abs(rightTrigger.getValue()) > 0.5) {
+                deploy = L1Score;
+            } else {
+                if (deploy != L1) L1timer.reset(); 
+                deploy = L1;
+            }
        } else if (leftShoulder.getValue()){
         deploy = STARTING;
        } else deploy = DEPLOYED;

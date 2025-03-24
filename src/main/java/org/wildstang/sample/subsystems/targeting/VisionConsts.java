@@ -62,6 +62,10 @@ public class VisionConsts {
     public static final Pose2d rightBranchFrontLeft = new Pose2d(3.66, 5.0, new Rotation2d(Math.toRadians(240)));
     public static final Pose2d rightBranchBack = new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(0)));
 
+    public static Pose2d flipRot(Pose2d stuPose) {
+        return new Pose2d(stuPose.getTranslation(), stuPose.getRotation().times(-1));
+    }
+
     public static final List<Pose2d> leftBranches = List.of(leftBranchBack, leftBranchFront, leftBranchBackLeft, leftBranchBackRight, leftBranchFrontRight, leftBranchFrontLeft);
     public static final List<Pose2d> rightBranches = List.of(rightBranchBack, rightBranchFront, rightBranchBackLeft, rightBranchBackRight, rightBranchFrontRight, rightBranchFrontLeft);
     

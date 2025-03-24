@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
  * Intended to be used after calling setSuperstructurePositionStep
  */
 public class ScoreCoralStep extends AutoStep {
-    public static final double SCORE_DURATION = 0.4;
+    public static final double SCORE_DURATION = 0.5;
     CoralPath coralPath;
     SuperstructureSubsystem superstructure;
     SwerveDrive swerveDrive;

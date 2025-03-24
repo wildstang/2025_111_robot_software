@@ -71,8 +71,6 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putData("Log Level", logChooser);
 
         DataLogManager.start();
-        // Record both DS control and joystick data
-        DriverStation.startDataLog(DataLogManager.getLog());
         Logger.start();
     }
 
@@ -129,7 +127,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void robotPeriodic() {
-        core.executeUpdate();
+        update();
     }
 
     /**
@@ -145,7 +143,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void autonomousPeriodic() {
-        update();
+        //update();
     }
 
     /**
@@ -154,7 +152,7 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void teleopPeriodic() {
-        update();
+        //update();
         
     }
 
