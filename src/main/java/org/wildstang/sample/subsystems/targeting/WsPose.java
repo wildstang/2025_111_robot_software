@@ -15,6 +15,7 @@ import org.littletonrobotics.junction.Logger;
 import org.wildstang.framework.core.Core;
 
 import org.wildstang.framework.io.inputs.Input;
+import org.wildstang.framework.pid.controller.PidController;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -34,6 +35,9 @@ public class WsPose implements Subsystem {
     public WsLL left;
     public WsLL right;
 
+    // Object detection camera
+    public WsLL front = new WsLL("limelight-object", false, null);
+
     private final double poseBufferSizeSec = 2;
     public final double visionSpeedThreshold = 3.0;
     
@@ -42,12 +46,14 @@ public class WsPose implements Subsystem {
 
     private boolean isInAuto = false;
 
-    // Always field relative (m and CCW rad)
+    // WPI blue relative (m and CCW rad)
     public Pose2d odometryPose = new Pose2d();
     public Pose2d estimatedPose = new Pose2d();
 
     StructPublisher<Pose2d> odometryPosePublisher = NetworkTableInstance.getDefault().getStructTopic("odometryPose", Pose2d.struct).publish();
     StructPublisher<Pose2d> estimatedPosePublisher = NetworkTableInstance.getDefault().getStructTopic("estimatedPose", Pose2d.struct).publish();
+    StructPublisher<Pose2d> coralPosePublisher = NetworkTableInstance.getDefault().getStructTopic("coralPose", Pose2d.struct).publish();
+
 
     private final TimeInterpolatableBuffer<Pose2d> poseBuffer = TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
 
@@ -104,6 +110,9 @@ public class WsPose implements Subsystem {
                 addVisionObservation(rightEstimate.get());
                 currentID = right.tid;
             }
+        }
+        if (getCoralPose().isPresent()) {
+            coralPosePublisher.set(new Pose2d(getCoralPose().get(), new Rotation2d()));
         }
 
         odometryPosePublisher.set(odometryPose);
@@ -168,34 +177,42 @@ public class WsPose implements Subsystem {
 
     @Override
     public String getName() {
-        return "Ws Vision";
+        return "Ws Pose";
     }
 
     // YEAR SUBSYSTEM ACCESS METHODS
 
     /**
+     * Coral pose
+     * 
+     * @return field relative pose of the coral if the coral is present
+     */
+    public Optional<Translation2d> getCoralPose() {
+        if (!front.targetInView()) return Optional.empty();
+
+        // Assumes the angle of depression is gonna be negative
+        double camToCoralDist = VisionConsts.camTransform.getZ() / -Math.tan(VisionConsts.camTransform.getRotation().getY() + front.ty);
+
+        Transform2d camToCoralTransform = new Transform2d(Math.cos(Math.toRadians(front.tx)) * camToCoralDist, Math.sin(Math.toRadians(front.tx)) * camToCoralDist, Rotation2d.fromDegrees(front.tx));
+
+        // Transform from camera to coral
+        Transform2d camTransform2d = new Transform2d(VisionConsts.camTransform.getX(), VisionConsts.camTransform.getX(), new Rotation2d(VisionConsts.camTransform.getRotation().getZ()));
+
+        // Combines transformations to get coral pose in field coordinates
+        return Optional.of(estimatedPose.plus(camTransform2d).plus(camToCoralTransform).getTranslation());
+    }
+
+
+    /**
      * Based on whether we are scoring left branch or right branch gets the closest scoring pose
-     * @param right // true if we are scoring on the right branch
-     * @return pose to align the robot to to score
+     * @param right True if we are scoring on the right branch
+     * @return Pose to align the robot to to score
      */
     public Pose2d getClosestBranch(boolean right) {
         if (right) {
             return estimatedPose.nearest(VisionConsts.rightBranches);
         } else {
             return estimatedPose.nearest(VisionConsts.leftBranches);
-        }
-    }
-
-    /**
-     * Based on whether we are scoring left branch or right branch gets the closest scoring pose
-     * @param right // true if we are scoring on the right branch
-     * @return pose to align the robot to to score
-     */
-    public Pose2d getClosestL1Branch(boolean right) {
-        if (right) {
-            return estimatedPose.nearest(VisionConsts.rightBranchL1);
-        } else {
-            return estimatedPose.nearest(VisionConsts.leftBranchL1);
         }
     }
 
@@ -212,7 +229,6 @@ public class WsPose implements Subsystem {
     }
 
     /**
-     * 
      * @return true if we are on the net side of the field and should be scoring in the net if we have algae
      */
     public boolean isAlgaeScoreNet() {
@@ -228,29 +244,23 @@ public class WsPose implements Subsystem {
     }
 
     /**
-     * Driver Station relative
-     * @param target // Target coordinate (m) to align with proportional control loop
-     * @return // Control value for X power for aligning robot to certain target
+     * @param target WPI blue target coordinate (m) to align with proportional control loop
+     * @return Control value for Driver Station relative X power for aligning robot to certain target
      */
     public double getAlignX(Translation2d target) {
         return DriveConstants.ALIGN_P * -(target.getY() - estimatedPose.getY());
     }
 
     /**
-     * Driver Station relative
-     * @param target // Target coordinate (m) to align with proportional control loop
-     * @return // Control value for X power for aligning robot to certain target
+     * @param target WPI blue target coordinate (m) to align with proportional control loop
+     * @return Control value for Driver Station relative Y power for aligning robot to certain target
      */
     public double getAlignY(Translation2d target) {
         return DriveConstants.ALIGN_P * (target.getX() - estimatedPose.getX());
     }
-
-    public double distanceToTarget(Translation2d target) {
-        return Math.hypot(estimatedPose.getX() - target.getX(), estimatedPose.getY() - target.getY());
-    }
     
     /**
-     * @param target Target coordinate (m)
+     * @param target WPI blue Target coordinate (m)
      * @return Controller bearing degrees (aka what to plug into rotTarget)
      */
     public double turnToTarget(Translation2d target) {

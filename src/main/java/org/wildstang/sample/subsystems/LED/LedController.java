@@ -24,7 +24,9 @@ public class LedController implements Subsystem {
 
     @Override
     public void update(){
-        if (isScoring && superstructure.isAtPosition()){
+        if (superstructure.isOverride()){
+            color = BlinkinValues.STROBE_RED;
+        } else if (isScoring && superstructure.isAtPosition()){
             color = BlinkinValues.GREEN;
         } else if (isScoring && !superstructure.isAtPosition()){
             color = BlinkinValues.DARK_RED;

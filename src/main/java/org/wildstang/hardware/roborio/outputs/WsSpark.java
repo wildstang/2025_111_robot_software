@@ -36,6 +36,7 @@ public class WsSpark extends WsMotorController {
     boolean isUsingController;
     boolean isChanged;
     com.revrobotics.spark.SparkBase.ControlType controlType;
+    private double tempLimit;
     
     /**
      * Constructs the motor controller from config.
@@ -152,6 +153,7 @@ public class WsSpark extends WsMotorController {
      * @param limitRPM Sets the line between stallLimitAmps and freeLimitAmps.
      */
     public void setCurrentLimit(int stallLimitAmps, int freeLimitAmps, int limitRPM) {
+        tempLimit = stallLimitAmps;
         config.smartCurrentLimit(stallLimitAmps, freeLimitAmps, limitRPM);
         if (follower != null){
             followerConfig.smartCurrentLimit(stallLimitAmps, freeLimitAmps, limitRPM);
@@ -164,9 +166,9 @@ public class WsSpark extends WsMotorController {
      * Burn to flash the current config files
      */
     public void configure(){
-        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        motor.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         if (follower != null){
-            follower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            follower.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         }
     }
 
@@ -175,11 +177,14 @@ public class WsSpark extends WsMotorController {
      * @param limit the amount of amps drawn before limiting
      */
     public void tempCurrentLimit(int limit){
-        config.smartCurrentLimit(limit,limit,0);
-        if (follower != null){
-            followerConfig.smartCurrentLimit(limit, limit, 0);
+        if (limit != tempLimit){
+            tempLimit = limit;
+            config.smartCurrentLimit(limit,limit,0);
+            if (follower != null){
+                followerConfig.smartCurrentLimit(limit, limit, 0);
+            }
+            motor.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         }
-        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     /**

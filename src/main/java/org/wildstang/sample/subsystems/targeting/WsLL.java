@@ -86,7 +86,7 @@ public class WsLL implements LoggableInputs {
     /*
      * returns true if a target is seen, false otherwise
      */
-    public boolean TargetInView(){
+    public boolean targetInView(){
         return tv;
     }
     /*
