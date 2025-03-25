@@ -10,6 +10,9 @@ public final class DriveConstants {
     public static final double POSITION_TOLERANCE = 0.1;
     /**P Loop for Translating to a point */
     public static final double ALIGN_P = 0.39*2.0;
+    /** D term for Translating to a point */
+    public static final double ALIGN_D = 0;
+
     // P value for if Rossen is tipping
     public static final double TIPPING_P = 0.0;
     /** robot length from swerve pod to swerve pod, in inches */

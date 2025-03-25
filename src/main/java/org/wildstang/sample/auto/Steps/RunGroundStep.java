@@ -20,6 +20,7 @@ public class RunGroundStep extends AutoStep {
     public void update() {
         groundIntake.deploy();
         groundIntake.groundOn();
+        this.setFinished();
     }
 
     @Override

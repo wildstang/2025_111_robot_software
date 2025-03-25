@@ -14,11 +14,13 @@ import edu.wpi.first.wpilibj.Timer;
  * Intended to be used after calling setSuperstructurePositionStep
  */
 public class ScoreCoralStep extends AutoStep {
-    public static final double SCORE_DURATION = 0.5;
+    public final double SCORE_DURATION = 0.4;
+    public final double AT_POS_DURATION = 0.25;
     CoralPath coralPath;
     SuperstructureSubsystem superstructure;
     SwerveDrive swerveDrive;
-    Timer timer = new Timer();
+    Timer scoreTimer = new Timer();
+    Timer atPosTimer = new Timer();
 
     @Override
     public void initialize() {
@@ -31,11 +33,15 @@ public class ScoreCoralStep extends AutoStep {
     public void update() {
 
         // Execute once
-        if (superstructure.isAtPosition() && swerveDrive.isAtPosition() && timer.isRunning() == false) {
-            coralPath.setIntake(CoralPath.IntakeState.SCORING);
-            timer.start();
+        if (superstructure.isAtPosition() && swerveDrive.isAtPosition() && atPosTimer.isRunning() == false) {
+            atPosTimer.start();
         }
-        if (timer.hasElapsed(SCORE_DURATION)) {
+        // Execute once
+        if (atPosTimer.hasElapsed(AT_POS_DURATION) && scoreTimer.isRunning() == false) {
+            coralPath.setIntake(CoralPath.IntakeState.SCORING);
+            scoreTimer.start();
+        }
+        if (scoreTimer.hasElapsed(SCORE_DURATION)) {
             coralPath.setIntake(CoralPath.IntakeState.NEUTRAL);
             setFinished();
         }

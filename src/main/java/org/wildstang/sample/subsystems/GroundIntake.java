@@ -145,6 +145,9 @@ public class GroundIntake implements Subsystem {
     public void deploy() {
         deploy = DEPLOYED;
     }
+    public void stow() {
+        deploy = STARTING;
+    }
 
     public void groundOn() {
         ground1Speed = 1;

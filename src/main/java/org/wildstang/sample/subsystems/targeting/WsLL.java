@@ -79,7 +79,7 @@ public class WsLL implements LoggableInputs {
         
 
         Logger.processInputs("Vision/Camera/" + CameraID, this);
-        if (newEstimate) {
+        if (newEstimate & tv) {
             posePublisher.set(alliance3D.pose);
             return Optional.of(alliance3D);
         } else {
