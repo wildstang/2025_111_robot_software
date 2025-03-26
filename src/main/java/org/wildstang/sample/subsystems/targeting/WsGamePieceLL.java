@@ -1,90 +1,59 @@
 package org.wildstang.sample.subsystems.targeting;
 
-import java.util.Optional;
-import java.util.function.DoubleSupplier;
-
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
-import org.wildstang.framework.core.Core;
 import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.FloatEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.TimestampedFloat;
 
-public class WsLL implements LoggableInputs {
+public class WsGamePieceLL implements LoggableInputs {
 
-    private final double mToIn = 39.3701;
 
     public PoseEstimate alliance3D;
     public int tid;
+    private double cl;
+    private double tl;
     public boolean tv;
     public double tx;
     public double ty;
     public double ta;
-    StructPublisher<Pose2d> posePublisher;
 
-    // Method to get swerve drive gyro yaw
-    DoubleSupplier yaw;
+    // RoboRio relative timestmap of when the frame was taken
+    public double timeestamp;
 
     // Name of Limelight
     public String CameraID;
-    public boolean isAprilTag;
 
     /*
      * Argument is String ID of the limelight networktable entry, aka what it's called
      */
-    public WsLL(String CameraID, boolean isAprilTag, DoubleSupplier yaw){
-        posePublisher = NetworkTableInstance.getDefault().getStructTopic(CameraID + "/metatag2 alliance pose", Pose2d.struct).publish();
-        this.yaw = yaw;
+    public WsGamePieceLL(String CameraID){
         this.CameraID = CameraID;
-        this.isAprilTag = isAprilTag;
     }
-
-    // Limelight NT botpose array values
-    // 0 translation X
-    // 1 translation Y
-    // 2 translation Z
-    // 3 rotation roll (degrees)
-    // 4 rotation pitch
-    // 5 rotation  yaw
-    // 6 total latency (ms)
-    // 7 tag count
-    // 8 tag span
-    // 9 average tag distance from camera
-    // 10 average tag area (percentage of image)
 
     /**
      * Updates all values to the latest value
      */
-    public Optional<PoseEstimate> update(){
-        if (isAprilTag) {
-            LimelightHelpers.SetRobotOrientation(CameraID, yaw.getAsDouble(), 0, 0, 0, 0, 0); 
-        }
-        
+    public void update(){  
         tid = (int) LimelightHelpers.getFiducialID(CameraID); // ID of the primary in view april tag
+        cl = LimelightHelpers.getLatency_Capture(CameraID);
+        tl = LimelightHelpers.getLatency_Pipeline(CameraID);
         tv = LimelightHelpers.getTV(CameraID); // 1 if valid target exists. 0 if no valid targets exist
-        tx = LimelightHelpers.getTX(CameraID); // Horrizontal offset from crosshair to target
         ty = LimelightHelpers.getTY(CameraID); // Vertical offset from crosshair to target
         ta = LimelightHelpers.getTA(CameraID); // Target area
-        double oldTimestamp = alliance3D != null ? alliance3D.timestampSeconds : Double.NaN;
-        PoseEstimate blue3D = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(CameraID);
-        PoseEstimate red3D = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(CameraID);
-        alliance3D = Core.isBlue() ? blue3D : red3D;
-        boolean newEstimate = alliance3D != null ? (alliance3D.timestampSeconds != oldTimestamp) : false;
-        
+
+        FloatEntry entry = NetworkTableInstance.getDefault().getFloatTopic(CameraID + "/tx").getEntry(0);
+        // Get timestamp based off of tx 
+        TimestampedFloat tsValue = entry.getAtomic();
+        ty = tsValue.value;
+
+        // Time it was sent from LL - latency
+        timeestamp = (tsValue.timestamp / 1000000.0) - (getTotalLatency() / 1000.0);
 
         Logger.processInputs("Vision/Camera/" + CameraID, this);
-        if (newEstimate & tv) {
-            posePublisher.set(alliance3D.pose);
-            return Optional.of(alliance3D);
-        } else {
-            return Optional.empty();
-        }
     }
     /*
      * returns true if a target is seen, false otherwise
@@ -92,6 +61,11 @@ public class WsLL implements LoggableInputs {
     public boolean targetInView(){
         return tv;
     }
+
+    private double getTotalLatency() {
+        return tl + cl;
+    }
+
     /*
      * Sets the pipeline (0-9) with argument
      */

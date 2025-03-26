@@ -5,11 +5,11 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 
 public class VisionConsts {
 
@@ -63,7 +63,7 @@ public class VisionConsts {
     public static final Pose2d rightBranchBack = new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(0)));
 
     public static Pose2d flipRot(Pose2d stuPose) {
-        return new Pose2d(stuPose.getTranslation(), stuPose.getRotation().times(-1));
+        return new Pose2d(stuPose.getTranslation(), stuPose.getRotation().unaryMinus());
     }
 
     public static final List<Pose2d> leftBranches = List.of(leftBranchBack, leftBranchFront, leftBranchBackLeft, leftBranchBackRight, leftBranchFrontRight, leftBranchFrontLeft);
@@ -80,6 +80,8 @@ public class VisionConsts {
 
     // Transform from center of robot to camera pose
     public static final Transform3d camTransform = new Transform3d(new Translation3d(0.199778, -0.193031, 1.020310), new Rotation3d(0, -32 * Math.PI / 180, 10 * Math.PI / 180));
+
+    public static final Transform2d intakeOffset = new Transform2d(0.5, .1, Rotation2d.fromRadians(0));
     /*.
      * April Tag IDs:
      *  -Red Coral stations: left 1, right 2

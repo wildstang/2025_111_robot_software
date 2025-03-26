@@ -25,6 +25,14 @@ public class SwerveMultiPointStep extends AutoStep {
 
     private Timer timer = new Timer();
 
+    /**
+     * Drives through multiple points at full speed for intermediate points or limit given by speeds array
+     * Uses P loop for final point
+     * Threshold for atPosition for intermediate poses is lower
+     * @param poses list of poses to drive through
+     * @param speeds speeds limts to get to each pose
+     * @param turnstart time to delay turning to the pose
+     */
     public SwerveMultiPointStep(Pose2d[] poses, double[] speeds, double turnstart) {
         this.turnStartTime = turnstart;
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
@@ -53,6 +61,7 @@ public class SwerveMultiPointStep extends AutoStep {
                 index++;
             }
         } else {
+            swerve.usePID(true);
             if (swerve.isAtPosition()) {
                 setFinished();
                 return;
@@ -64,19 +73,9 @@ public class SwerveMultiPointStep extends AutoStep {
         } else {
             swerve.setAutoValues(0,0,new Pose2d(poses[index].getTranslation(), swerve.odoAngle()));
         }
-        swerve.setAutoScalar(Math.min(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed), speeds[index]));
 
-
-        // if (timer.hasElapsed(turnStartTime)) {
-        //     swerve.setAutoValues(0.0,0.0, fieldAutoPose);
-        // } else {
-        //     swerve.setAutoValues(0,0,new Pose2d(fieldAutoPose.getTranslation(), swerve.odoAngle()));
-        // }
-        // swerve.setAutoScalar(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed));
-        // if (swerve.isAtPosition()) {
-        //     swerve.setAutoScalar(2.0);
-        //     setFinished();
-        // } 
+        // Limit power by acceleration limiter or speeds value for that part of the path, if no speed in array then don't limit
+        swerve.setAutoScalar(Math.min(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed), index < speeds.length ? speeds[index] : 1));
     }
 
     @Override

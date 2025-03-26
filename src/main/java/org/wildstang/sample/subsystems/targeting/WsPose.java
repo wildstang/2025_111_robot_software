@@ -3,25 +3,20 @@ package org.wildstang.sample.subsystems.targeting;
 // ton of imports
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.sample.robot.WsSubsystems;
-import org.wildstang.sample.subsystems.drive.Drive;
 import org.wildstang.sample.subsystems.swerve.DriveConstants;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
-import org.wildstang.sample.subsystems.targeting.LimelightHelpers.RawFiducial;
 
 import java.util.Optional;
 
-import org.littletonrobotics.junction.Logger;
 import org.wildstang.framework.core.Core;
 
 import org.wildstang.framework.io.inputs.Input;
-import org.wildstang.framework.pid.controller.PidController;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import java.util.Arrays;
-import java.util.stream.DoubleStream;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
@@ -33,11 +28,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class WsPose implements Subsystem {
 
-    public WsLL left;
-    public WsLL right;
+    public WsAprilTagLL left;
+    public WsAprilTagLL right;
 
     // Object detection camera
-    public WsLL front = new WsLL("limelight-object", false, null);
+    public WsGamePieceLL front = new WsGamePieceLL("limelight-object");
 
     private final double poseBufferSizeSec = 2;
     public final double visionSpeedThreshold = 3.0;
@@ -68,8 +63,8 @@ public class WsPose implements Subsystem {
     @Override
     public void initSubsystems() {
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
-        left = new WsLL("limelight-left", true, swerve::getMegaTag2Yaw);
-        right = new WsLL("limelight-right", true, swerve::getMegaTag2Yaw);
+        left = new WsAprilTagLL("limelight-left", swerve::getMegaTag2Yaw);
+        right = new WsAprilTagLL("limelight-right", swerve::getMegaTag2Yaw);
     }
 
     @Override
@@ -151,7 +146,7 @@ public class WsPose implements Subsystem {
         isInAuto = isAuto;
     }
 
-    public void addVisionObservation(PoseEstimate observation, double weight) {
+    private void addVisionObservation(PoseEstimate observation, double weight) {
 
         SmartDashboard.putNumber("auto weight", weight);
         Optional<Pose2d> sample = poseBuffer.getSample(observation.timestampSeconds);
@@ -176,11 +171,6 @@ public class WsPose implements Subsystem {
         estimatedPose = estimateAtTime.plus(transform).plus(sampleToOdometryTransform);
     }
 
-    @Override
-    public String getName() {
-        return "Ws Pose";
-    }
-
     // YEAR SUBSYSTEM ACCESS METHODS
 
     /**
@@ -191,15 +181,27 @@ public class WsPose implements Subsystem {
     public Optional<Translation2d> getCoralPose() {
         if (!front.targetInView()) return Optional.empty();
 
+        Optional<Pose2d> sample = poseBuffer.getSample(front.timeestamp);
+        if (sample.isEmpty()) {
+            // exit if not there
+            return Optional.empty();
+        }
+
+        // current odometryPose --> sample transformation
+        var odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
+
+        // get old estimate at timestamp by applying odometryToSample Transform
+        Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
+
         // Assumes the angle of depression is gonna be negative
         double camToCoralDist = VisionConsts.camTransform.getZ() / -Math.tan(VisionConsts.camTransform.getRotation().getY() + Math.toRadians(front.ty));
 
+        // Transform from camera to coral
         Transform2d camToCoralTransform = new Transform2d(Math.cos(Math.toRadians(-front.tx)) * camToCoralDist, Math.sin(Math.toRadians(-front.tx)) * camToCoralDist, Rotation2d.fromDegrees(-front.tx));
 
-        // Transform from camera to coral
         Transform2d camTransform2d = new Transform2d(VisionConsts.camTransform.getX(), VisionConsts.camTransform.getY(), new Rotation2d(VisionConsts.camTransform.getRotation().getZ()));
         // Combines transformations to get coral pose in field coordinates
-        return Optional.of(estimatedPose.plus(camTransform2d).plus(camToCoralTransform).getTranslation());
+        return Optional.of(estimateAtTime.plus(camTransform2d).plus(camToCoralTransform).getTranslation());
     }
 
 
@@ -267,5 +269,10 @@ public class WsPose implements Subsystem {
         double offsetX = target.getX() - estimatedPose.getX();
         double offsetY = target.getY() - estimatedPose.getY();
         return (360 -Math.toDegrees(Math.atan2(offsetY, offsetX)) % 360);
+    }
+
+    @Override
+    public String getName() {
+        return "Ws Pose";
     }
 }

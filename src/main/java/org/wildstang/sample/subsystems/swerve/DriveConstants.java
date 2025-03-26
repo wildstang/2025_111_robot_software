@@ -7,7 +7,7 @@ public final class DriveConstants {
     public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(new Translation2d(0.33, 0.33), new Translation2d(0.33, -0.33),
             new Translation2d(-0.33, 0.33), new Translation2d(-0.33, -0.33));
     /** How far is close enough to our target position (m)  */
-    public static final double POSITION_TOLERANCE = 0.05;
+    public static final double POSITION_TOLERANCE = 0.075;
     /**P Loop for Translating to a point */
     public static final double ALIGN_P = 0.32*2.0;
     /** D term for Translating to a point */

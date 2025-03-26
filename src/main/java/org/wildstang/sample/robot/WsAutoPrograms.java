@@ -5,6 +5,7 @@ import org.wildstang.sample.auto.Programs.BlueLeftThreeCoralV2;
 import org.wildstang.sample.auto.Programs.BlueRightThreeCoralV1;
 import org.wildstang.sample.auto.Programs.Jubilee;
 import org.wildstang.sample.auto.Programs.LeftFourCoral;
+import org.wildstang.sample.auto.Programs.BlueLeftFiveCoral;
 import org.wildstang.sample.auto.Programs.Line;
 import org.wildstang.sample.auto.Programs.LineMix;
 import org.wildstang.sample.auto.Programs.LinePose;
@@ -32,6 +33,7 @@ public enum WsAutoPrograms implements AutoPrograms {
     BLUE_RIGHT_THREE_CORAL("Blue Right Three Coral V1", BlueRightThreeCoralV1.class),
     RED_LEFT_THREE_CORAL("Red Left Three Coral V1", RedLeftThreeCoralV1.class),
     RED_RIGHT_THREE_CORAL("Red Right Three Coral V1", RedRightThreeCoralV1.class),
+    BLUE_LEFT_FIVE_CORAL("Blue Left Five Coral", BlueLeftFiveCoral.class),
     BLUE_LEFT_FOUR_CORAL("Blue Left Four Coral V1", LeftFourCoral.class),
     CENTER_BLUE("Center Blue", TheDrakeBlue.class),
     CENTER_RED("Center Red", TheDrakeRed.class),

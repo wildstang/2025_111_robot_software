@@ -40,8 +40,7 @@ public class Robot extends LoggedRobot {
         // Set up data receivers & replay source
         switch (Constants.currentMode) {
             case REAL:
-            // Running on a real robot, log to a USB stick ("/U/logs")
-            Logger.addDataReceiver(new WPILOGWriter());
+            // Running on a real robot, log to NT, which will be logged to robot by DataLogManager
             Logger.addDataReceiver(new NT4Publisher());
             break;
     
@@ -186,7 +185,6 @@ public class Robot extends LoggedRobot {
             SmartDashboard.putString("Exception thrown", e.toString());
             throw e;
         } finally {
-            SmartDashboard.putBoolean("ExceptionThrown",true);
         }
     }
 
