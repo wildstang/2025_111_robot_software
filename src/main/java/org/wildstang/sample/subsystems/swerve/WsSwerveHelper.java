@@ -147,7 +147,7 @@ public class WsSwerveHelper {
     public double getRotControl(double i_target, double i_gyro){
         return getRotControl(i_target, i_gyro, 1);
     }
-    /*
+    /**
      * getRotControl, but capped to -0.2 to 0.2
      * 
      * @param i_target target direction for the robot to face, field centric, bearing degrees

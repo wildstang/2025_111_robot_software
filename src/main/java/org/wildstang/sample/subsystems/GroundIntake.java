@@ -28,7 +28,9 @@ public class GroundIntake implements Subsystem {
     private WsJoystickAxis rightTrigger;
     private WsJoystickButton leftShoulder;
     private WsJoystickButton rightShoulder;
+    private WsJoystickButton start, select;
     private WsDPadButton DpadUp;
+    private WsDPadButton dpadDown;
     private WsDPadButton driverDPadLeft;
 
     private SuperstructureSubsystem superstructure;
@@ -37,14 +39,27 @@ public class GroundIntake implements Subsystem {
     private final double L1 = -19;
     private final double L1Score = -16;
     private final double DEPLOYED = 0;
+    private final double CLIMB = -12;
     private double ground1Speed;
     private double ground2Speed;
     private double deploy = STARTING; 
     private Timer L1timer = new Timer();
 
+    // After 1 second of clicking start and select, bring up intake slightly
+    private Timer climbTimer = new Timer();
+
 
     @Override
     public void inputUpdate(Input source){
+
+        // After 1 second of clicking start and select, bring up intake slightly
+        if (start.getValue() && select.getValue() && (source == start || source == select)){
+            climbTimer.start();
+        }
+        if (source == dpadDown && dpadDown.getValue()) {
+            if (deploy == DEPLOYED) deploy = STARTING;
+            if (deploy == STARTING) deploy = DEPLOYED;
+        }
         if (Math.abs(rightTrigger.getValue()) > 0.5){
             if (superstructure.isScoreL1() && Math.abs(leftTrigger.getValue()) > 0.5){
                 //score L1
@@ -107,8 +122,14 @@ public class GroundIntake implements Subsystem {
         rightShoulder.addInputListener(this);
         DpadUp = (WsDPadButton) WsInputs.OPERATOR_DPAD_UP.get();
         DpadUp.addInputListener(this);
+        dpadDown = (WsDPadButton) WsInputs.OPERATOR_DPAD_DOWN.get();
+        dpadDown.addInputListener(this);
         driverDPadLeft = (WsDPadButton) WsInputs.DRIVER_DPAD_LEFT.get();
         driverDPadLeft.addInputListener(this);
+        start = (WsJoystickButton) WsInputs.OPERATOR_START.get();
+        start.addInputListener(this);
+        select = (WsJoystickButton) WsInputs.OPERATOR_SELECT.get();
+        select.addInputListener(this);
         
         L1timer.start();
     }
@@ -124,14 +145,18 @@ public class GroundIntake implements Subsystem {
 
     @Override
     public void update() {
-        if (!L1timer.hasElapsed(0.1)){
-            ground1.setSpeed(0.15);
+        if (climbTimer.hasElapsed(1)) {
+            pivot.setPosition(CLIMB);
         } else {
-            ground1.setSpeed(ground1Speed);
+            if (!L1timer.hasElapsed(0.1)){
+                ground1.setSpeed(0.15);
+            } else {
+                ground1.setSpeed(ground1Speed);
+            }
+            ground2.setSpeed(ground2Speed);
+    
+            pivot.setPosition(deploy);
         }
-        ground2.setSpeed(ground2Speed);
-
-        pivot.setPosition(deploy);
         SmartDashboard.putNumber("@ Intake position", pivot.getPosition());
         SmartDashboard.putNumber("@ Intake target", deploy);
     }

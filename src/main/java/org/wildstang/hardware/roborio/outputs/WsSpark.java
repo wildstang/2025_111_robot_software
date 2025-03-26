@@ -14,6 +14,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.wpilibj.RobotBase;
+
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -166,6 +169,8 @@ public class WsSpark extends WsMotorController {
      * Burn to flash the current config files
      */
     public void configure(){
+        if (!RobotBase.isReal()) return;
+        System.out.println("error");
         motor.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         if (follower != null){
             follower.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -177,6 +182,8 @@ public class WsSpark extends WsMotorController {
      * @param limit the amount of amps drawn before limiting
      */
     public void tempCurrentLimit(int limit){
+        if (!RobotBase.isReal()) return;
+        System.out.println("error 2");
         if (limit != tempLimit){
             tempLimit = limit;
             config.smartCurrentLimit(limit,limit,0);

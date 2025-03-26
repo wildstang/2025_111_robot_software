@@ -29,6 +29,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class WsPose implements Subsystem {
 
@@ -83,34 +84,31 @@ public class WsPose implements Subsystem {
     public void update() {
         Optional<PoseEstimate> leftEstimate = left.update();
         Optional<PoseEstimate> rightEstimate = right.update();
+        front.update();
 
-        // Same standard deviation calculation as 6328 but only used for calculating validity of vision estimate
+        // Validity of estiamte
         double leftStdDev = Double.MAX_VALUE;
         double rightStdDev = Double.MAX_VALUE;
-        if (swerve.speedMagnitude() < visionSpeedThreshold && 
-            (!isInAuto || (estimatedPose.getTranslation().getDistance(VisionConsts.reefCenter) < 3))) {
-            if (leftEstimate.isPresent() && leftEstimate.get().rawFiducials.length > 0) {
+        if (leftEstimate.isPresent() && leftEstimate.get().rawFiducials.length > 0) {
 
-                // Get distance to the closest tag from the array of raw fiducials
-                double closestTagDist = Arrays.stream(leftEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
-                leftStdDev = Math.pow(closestTagDist, 2) / leftEstimate.get().tagCount;
-                if (leftEstimate.get().avgTagDist > 3.5) leftStdDev = Double.MAX_VALUE;
-            }
-            if (rightEstimate.isPresent() && rightEstimate.get().rawFiducials.length > 0) {
-
-                // Get distance to the closest tag from the array of raw fiducials
-                double closestTagDist = Arrays.stream(rightEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
-                rightStdDev = Math.pow(closestTagDist, 2) / rightEstimate.get().tagCount;
-                if (rightEstimate.get().avgTagDist > 3.5) rightStdDev = Double.MAX_VALUE;
-            }
-            if (leftStdDev < rightStdDev) {
-                addVisionObservation(leftEstimate.get());
-                currentID = left.tid;
-            } else if (rightStdDev < leftStdDev) {
-                addVisionObservation(rightEstimate.get());
-                currentID = right.tid;
-            }
+            // Get distance to the closest tag from the array of raw fiducials
+            double closestTagDist = Arrays.stream(leftEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
+            leftStdDev = Math.pow(closestTagDist,2) / leftEstimate.get().tagCount;
         }
+        if (rightEstimate.isPresent() && rightEstimate.get().rawFiducials.length > 0) {
+
+            // Get distance to the closest tag from the array of raw fiducials
+            double closestTagDist = Arrays.stream(rightEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
+            rightStdDev = Math.pow(closestTagDist,2) / rightEstimate.get().tagCount;
+        }
+        if (leftStdDev < rightStdDev) {
+            addVisionObservation(leftEstimate.get(), Math.min(1,  1 / leftStdDev));
+            currentID = left.tid;
+        } else if (rightStdDev < leftStdDev) {
+            addVisionObservation(rightEstimate.get(), Math.min(1,  1 / rightStdDev));
+            currentID = right.tid;
+        }
+
         if (getCoralPose().isPresent()) {
             coralPosePublisher.set(new Pose2d(getCoralPose().get(), new Rotation2d()));
         }
@@ -153,7 +151,9 @@ public class WsPose implements Subsystem {
         isInAuto = isAuto;
     }
 
-    public void addVisionObservation(PoseEstimate observation) {
+    public void addVisionObservation(PoseEstimate observation, double weight) {
+
+        SmartDashboard.putNumber("auto weight", weight);
         Optional<Pose2d> sample = poseBuffer.getSample(observation.timestampSeconds);
         if (sample.isEmpty()) {
             // exit if not there
@@ -169,6 +169,7 @@ public class WsPose implements Subsystem {
 
         // difference between estimate and vision pose
         Transform2d transform = new Transform2d(estimateAtTime, observation.pose);
+        transform = transform.times(weight);
 
         // Recalculate current estimate by applying scaled transform to old estimate
         // then replaying odometry data
@@ -191,13 +192,12 @@ public class WsPose implements Subsystem {
         if (!front.targetInView()) return Optional.empty();
 
         // Assumes the angle of depression is gonna be negative
-        double camToCoralDist = VisionConsts.camTransform.getZ() / -Math.tan(VisionConsts.camTransform.getRotation().getY() + front.ty);
+        double camToCoralDist = VisionConsts.camTransform.getZ() / -Math.tan(VisionConsts.camTransform.getRotation().getY() + Math.toRadians(front.ty));
 
-        Transform2d camToCoralTransform = new Transform2d(Math.cos(Math.toRadians(front.tx)) * camToCoralDist, Math.sin(Math.toRadians(front.tx)) * camToCoralDist, Rotation2d.fromDegrees(front.tx));
+        Transform2d camToCoralTransform = new Transform2d(Math.cos(Math.toRadians(-front.tx)) * camToCoralDist, Math.sin(Math.toRadians(-front.tx)) * camToCoralDist, Rotation2d.fromDegrees(-front.tx));
 
         // Transform from camera to coral
-        Transform2d camTransform2d = new Transform2d(VisionConsts.camTransform.getX(), VisionConsts.camTransform.getX(), new Rotation2d(VisionConsts.camTransform.getRotation().getZ()));
-
+        Transform2d camTransform2d = new Transform2d(VisionConsts.camTransform.getX(), VisionConsts.camTransform.getY(), new Rotation2d(VisionConsts.camTransform.getRotation().getZ()));
         // Combines transformations to get coral pose in field coordinates
         return Optional.of(estimatedPose.plus(camTransform2d).plus(camToCoralTransform).getTranslation());
     }

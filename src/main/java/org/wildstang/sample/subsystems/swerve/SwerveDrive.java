@@ -72,7 +72,8 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     private double rotSpeed;
     private boolean rotLocked;
 
-    public double autonomousScalar = 2.0;
+    public double autoMaxPowerScalar = 2.0;
+    public boolean autoUsePID = true;
 
     /**Direction to face */
     private double rotTarget;
@@ -295,7 +296,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     public void update() {
         gyroReading = gyro.getYaw().getValueAsDouble();
 
-        Logger.processInputs("Swerve/", this);
+        Logger.processInputs("Swerve", this);
 
         pose.addOdometryObservation(modulePositions(), odoAngle(), driveState == driveType.AUTO);
 
@@ -322,10 +323,11 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
             if (pose.getCoralPose().isPresent() && !coralPath.hasCoral()) {
                 Translation2d coral = pose.getCoralPose().get();
                 rotTarget = pose.turnToTarget(coral);
-                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 20.0) {
-                    xPower = pose.getAlignX(coral);
-                    yPower = pose.getAlignY(coral);
+                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 1.5;
+                // Only drive towards if we're within 10 degrees
+                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 10.0) {
+                    xPower = pose.getAlignX(coral) * 0.5;
+                    yPower = pose.getAlignY(coral) * 0.5;
                 }
                 this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             } else {
@@ -376,14 +378,18 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
         // Autonomous period
         } else if (driveState == driveType.AUTO) {
-            rotSpeed = swerveHelper.getAutoRotation((360-targetPose.getRotation().getDegrees())%360, getGyroAngle());
+            rotTarget = (360-targetPose.getRotation().getDegrees())%360;
+            rotSpeed = swerveHelper.getAutoRotation(rotTarget, getGyroAngle());
 
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());
-            if (Math.hypot(xPower,yPower) > autonomousScalar){
-                double temphypot = Math.hypot(xPower, yPower);
-                xPower *= (autonomousScalar / temphypot);
-                yPower *= (autonomousScalar / temphypot);
+
+            double temphypot = Math.hypot(xPower, yPower);
+
+            // Scale power by 
+            if (temphypot > autoMaxPowerScalar || !autoUsePID){
+                xPower *= (autoMaxPowerScalar / temphypot);
+                yPower *= (autoMaxPowerScalar / temphypot);
             }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             
@@ -496,6 +502,10 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         targetPose = target;
     }
 
+    public void usePID(boolean use) {
+        autoUsePID = use;
+    }   
+
     /**sets the autonomous heading controller to a new target */
     public void setAutoHeading(double headingTarget) {
         rotTarget = headingTarget;
@@ -567,7 +577,10 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         return frontCloser(0);
     }
     public boolean isAtPosition() {
-        return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation()) < DriveConstants.POSITION_TOLERANCE && WsSwerveHelper.angleDist(pose.estimatedPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()) < 2.5;
+        return isAtPosition(DriveConstants.POSITION_TOLERANCE);
+    }
+    public boolean isAtPosition(double tolerance) {
+        return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation()) < tolerance && WsSwerveHelper.angleDist(pose.estimatedPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()) < 2.5;
     }
     public boolean isNearReef(){
         return pose.nearReef();
@@ -584,7 +597,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         return driveState == driveType.REEFSCORE;
     }
     public void setAutoScalar(double scalar){
-        this.autonomousScalar = scalar;
+        this.autoMaxPowerScalar = scalar;
     }
 
     @Override
