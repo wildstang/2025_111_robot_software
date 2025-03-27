@@ -22,12 +22,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-public class BlueLeftThreeCoralV2 extends AutoProgram {
+public class RedLeftThreeCoralV2 extends AutoProgram {
 
     @Override
     protected void defineSteps() {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
-        addStep(new AutoSetupStep(7.15, 5.48, 0, Alliance.Blue));
+        addStep(new AutoSetupStep(7.15, 5.48, 0, Alliance.Red));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 1st Coral
@@ -82,6 +82,6 @@ public class BlueLeftThreeCoralV2 extends AutoProgram {
 
     @Override
     public String toString() {
-        return "Blue Left Three V2";
+        return "Red Left Three V2";
     }
 }

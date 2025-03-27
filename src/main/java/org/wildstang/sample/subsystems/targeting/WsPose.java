@@ -164,7 +164,7 @@ public class WsPose implements Subsystem {
 
         // difference between estimate and vision pose
         Transform2d transform = new Transform2d(estimateAtTime, observation.pose);
-        transform = transform.times(weight);
+        //transform = transform.times(weight);
 
         // Recalculate current estimate by applying scaled transform to old estimate
         // then replaying odometry data

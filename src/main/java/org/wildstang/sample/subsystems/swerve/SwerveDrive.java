@@ -607,6 +607,9 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     public boolean isAtPosition(double tolerance) {
         return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation()) < tolerance && WsSwerveHelper.angleDist(pose.estimatedPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()) < 2.5;
     }
+    public double distanceToTarget(){
+        return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation());
+    }
     public boolean isNearReef(){
         return pose.nearReef();
     }

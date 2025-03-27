@@ -175,6 +175,14 @@ public class GroundIntake implements Subsystem {
         ground1Speed = 1;
         ground2Speed = -1;
     }
+    public void groundOff(){
+        ground1Speed = 0;
+        ground2Speed = 0;
+    }
+    public void groundL1(){
+        ground1Speed = -1;
+        ground2Speed = 0.25;
+    }
 
     @Override
     public String getName() {
