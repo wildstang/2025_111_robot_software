@@ -2,18 +2,18 @@ package org.wildstang.sample.robot;
 
 import org.wildstang.framework.core.AutoPrograms;
 import org.wildstang.sample.auto.Programs.BlueLeftThreeCoralV2;
-import org.wildstang.sample.auto.Programs.BlueRightThreeCoralV1;
-import org.wildstang.sample.auto.Programs.Jubilee;
 import org.wildstang.sample.auto.Programs.LeftFourCoral;
 import org.wildstang.sample.auto.Programs.BlueLeftFiveCoral;
-import org.wildstang.sample.auto.Programs.Line;
-import org.wildstang.sample.auto.Programs.LineMix;
-import org.wildstang.sample.auto.Programs.LinePose;
-import org.wildstang.sample.auto.Programs.RedLeftThreeCoralV1;
-import org.wildstang.sample.auto.Programs.RedRightThreeCoralV1;
-import org.wildstang.sample.auto.Programs.TestProgram;
 import org.wildstang.sample.auto.Programs.TheDrakeBlue;
 import org.wildstang.sample.auto.Programs.TheDrakeRed;
+import org.wildstang.sample.auto.Programs.OldAutos.BlueRightThreeCoralV1;
+import org.wildstang.sample.auto.Programs.OldAutos.Jubilee;
+import org.wildstang.sample.auto.Programs.OldAutos.Line;
+import org.wildstang.sample.auto.Programs.OldAutos.LineMix;
+import org.wildstang.sample.auto.Programs.OldAutos.LinePose;
+import org.wildstang.sample.auto.Programs.OldAutos.RedLeftThreeCoralV1;
+import org.wildstang.sample.auto.Programs.OldAutos.RedRightThreeCoralV1;
+import org.wildstang.sample.auto.Programs.OldAutos.TestProgram;
 
 
 /**
