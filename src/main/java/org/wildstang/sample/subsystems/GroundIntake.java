@@ -54,8 +54,9 @@ public class GroundIntake implements Subsystem {
             climbTimer.start();
         }
         if (source == dpadDown && dpadDown.getValue()) {
-            if (deploy == DEPLOYED) deploy = STARTING;
-            if (deploy == STARTING) deploy = DEPLOYED;
+            if (deploy == DEPLOYED) {
+                deploy = STARTING;
+            } else if (deploy == STARTING) deploy = DEPLOYED;
         }
         if (Math.abs(rightTrigger.getValue()) > 0.5){
             if (superstructure.isScoreL1() && Math.abs(leftTrigger.getValue()) > 0.5){

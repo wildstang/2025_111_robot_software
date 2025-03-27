@@ -21,7 +21,6 @@ public class WsLaserCAN {
     public void updateMeasurements() {
         LaserCan.Measurement measurement = lc.getMeasurement();
         if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-            //System.out.println(measurement.distance_mm);
             double tempvalue = savedLcDistance[0];
             double changeValue = measurement.distance_mm;
             for(int n = 0; n < 9; n++) {

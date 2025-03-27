@@ -181,7 +181,7 @@ public class WsPose implements Subsystem {
     public Optional<Translation2d> getCoralPose() {
         if (!front.targetInView()) return Optional.empty();
 
-        Optional<Pose2d> sample = poseBuffer.getSample(front.timeestamp);
+        Optional<Pose2d> sample = poseBuffer.getSample(front.timestamp);
         if (sample.isEmpty()) {
             // exit if not there
             return Optional.empty();

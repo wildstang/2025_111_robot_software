@@ -49,18 +49,34 @@ public class VisionConsts {
     // HOME CALIBRATION
     // // All Variables in Blue coordinate system
 
-    public static final Pose2d leftBranchFront = new Pose2d(3.18, 4.125, new Rotation2d(Math.toRadians(180)));
-    public static final Pose2d leftBranchBackLeft = new Pose2d(5.218, 5.10, new Rotation2d(Math.toRadians(300)));
+    // public static final Pose2d leftBranchFront = new Pose2d(3.18, 4.125, new Rotation2d(Math.toRadians(180)));
+    // public static final Pose2d leftBranchBackLeft = new Pose2d(5.218, 5.10, new Rotation2d(Math.toRadians(300)));
+    // public static final Pose2d leftBranchBackRight = new Pose2d(5.05, 2.84, new Rotation2d(Math.toRadians(60)));
+    // public static final Pose2d leftBranchFrontRight = new Pose2d(3.75, 2.95, new Rotation2d(Math.toRadians(120)));
+    // public static final Pose2d leftBranchFrontLeft = new Pose2d(3.9, 5.2, new Rotation2d(Math.toRadians(240)));
+    // public static final Pose2d leftBranchBack = new Pose2d(5.80, 3.925, new Rotation2d(Math.toRadians(0)));
+    // public static final Pose2d rightBranchFront = new Pose2d(3.218, 3.78, new Rotation2d(Math.toRadians(180)));
+    // public static final Pose2d rightBranchBackLeft = new Pose2d(4.911, 5.27, new Rotation2d(Math.toRadians(300)));
+    // public static final Pose2d rightBranchBackRight = new Pose2d(5.335, 3.026, new Rotation2d(Math.toRadians(60)));
+    // public static final Pose2d rightBranchFrontRight = new Pose2d(4.06, 2.78, new Rotation2d(Math.toRadians(120)));
+    // public static final Pose2d rightBranchFrontLeft = new Pose2d(3.66, 5.0, new Rotation2d(Math.toRadians(240)));
+    // public static final Pose2d rightBranchBack = new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(0)));
+    
+    // COMPETITION CALIBRATION
+    // // All Variables in Blue coordinate system
+
+    public static final Pose2d leftBranchFront = new Pose2d(3.19, 4.14, new Rotation2d(Math.toRadians(180)));
+    public static final Pose2d leftBranchBackLeft = new Pose2d(5.25, 5.08, new Rotation2d(Math.toRadians(300)));
     public static final Pose2d leftBranchBackRight = new Pose2d(5.05, 2.84, new Rotation2d(Math.toRadians(60)));
-    public static final Pose2d leftBranchFrontRight = new Pose2d(3.75, 2.95, new Rotation2d(Math.toRadians(120)));
-    public static final Pose2d leftBranchFrontLeft = new Pose2d(3.9, 5.2, new Rotation2d(Math.toRadians(240)));
-    public static final Pose2d leftBranchBack = new Pose2d(5.80, 3.925, new Rotation2d(Math.toRadians(0)));
-    public static final Pose2d rightBranchFront = new Pose2d(3.218, 3.78, new Rotation2d(Math.toRadians(180)));
-    public static final Pose2d rightBranchBackLeft = new Pose2d(4.911, 5.27, new Rotation2d(Math.toRadians(300)));
-    public static final Pose2d rightBranchBackRight = new Pose2d(5.335, 3.026, new Rotation2d(Math.toRadians(60)));
-    public static final Pose2d rightBranchFrontRight = new Pose2d(4.06, 2.78, new Rotation2d(Math.toRadians(120)));
-    public static final Pose2d rightBranchFrontLeft = new Pose2d(3.66, 5.0, new Rotation2d(Math.toRadians(240)));
-    public static final Pose2d rightBranchBack = new Pose2d(5.785, 4.28, new Rotation2d(Math.toRadians(0)));
+    public static final Pose2d leftBranchFrontRight = new Pose2d(3.75, 2.96, new Rotation2d(Math.toRadians(120)));
+    public static final Pose2d leftBranchFrontLeft = new Pose2d(3.95, 5.21, new Rotation2d(Math.toRadians(240)));
+    public static final Pose2d leftBranchBack = new Pose2d(5.79, 3.91, new Rotation2d(Math.toRadians(0)));
+    public static final Pose2d rightBranchFront = new Pose2d(3.19, 3.80, new Rotation2d(Math.toRadians(180)));
+    public static final Pose2d rightBranchBackLeft = new Pose2d(4.95, 5.26, new Rotation2d(Math.toRadians(300)));
+    public static final Pose2d rightBranchBackRight = new Pose2d(5.33, 3.02, new Rotation2d(Math.toRadians(60)));
+    public static final Pose2d rightBranchFrontRight = new Pose2d(4.05, 2.79, new Rotation2d(Math.toRadians(120)));
+    public static final Pose2d rightBranchFrontLeft = new Pose2d(3.64, 5.03, new Rotation2d(Math.toRadians(240)));
+    public static final Pose2d rightBranchBack = new Pose2d(5.78, 4.25, new Rotation2d(Math.toRadians(0)));
 
     public static Pose2d flipRot(Pose2d stuPose) {
         return new Pose2d(stuPose.getTranslation(), stuPose.getRotation().unaryMinus());

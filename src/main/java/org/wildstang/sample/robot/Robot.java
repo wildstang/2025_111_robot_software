@@ -41,7 +41,7 @@ public class Robot extends LoggedRobot {
         switch (Constants.currentMode) {
             case REAL:
             // Running on a real robot, log to NT, which will be logged to robot by DataLogManager
-            Logger.addDataReceiver(new NT4Publisher());
+            //Logger.addDataReceiver(new NT4Publisher());
             break;
     
             case SIM:

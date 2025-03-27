@@ -170,7 +170,6 @@ public class WsSpark extends WsMotorController {
      */
     public void configure(){
         if (!RobotBase.isReal()) return;
-        System.out.println("error");
         motor.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         if (follower != null){
             follower.configureAsync(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -183,7 +182,6 @@ public class WsSpark extends WsMotorController {
      */
     public void tempCurrentLimit(int limit){
         if (!RobotBase.isReal()) return;
-        System.out.println("error 2");
         if (limit != tempLimit){
             tempLimit = limit;
             config.smartCurrentLimit(limit,limit,0);

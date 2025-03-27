@@ -329,7 +329,15 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
             // Update point
             if (pose.getCoralPose().isPresent()) {
-                coralPoint = pose.getCoralPose().get();
+                Translation2d newCoralPoint = pose.getCoralPose().get();
+
+                // Avoid updating to a new coral after intaking
+                // Only update coralpoint if newCoralPoint is less than .5 meters further away from our robot
+                if (coralPoint == null) {
+                    coralPoint = newCoralPoint;
+                } else if (pose.estimatedPose.getTranslation().getDistance(newCoralPoint) - pose.estimatedPose.getTranslation().getDistance(coralPoint) < 0.5) {
+                    coralPoint = newCoralPoint;
+                }
             }
 
             if (coralPoint != null && !coralPath.hasCoral()) {

@@ -52,7 +52,7 @@ public class GroundIntakeCoralStep extends AutoStep {
                 ground.groundOn();
                  timer.reset();
             }
-        } 
+        }
      }
 
     @Override

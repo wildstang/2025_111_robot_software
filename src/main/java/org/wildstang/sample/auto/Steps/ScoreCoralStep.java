@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class ScoreCoralStep extends AutoStep {
     public final double SCORE_DURATION = 0.4;
     public final double AT_POS_DURATION = 0.25;
+    private boolean hasStarted = false;
     CoralPath coralPath;
     SuperstructureSubsystem superstructure;
     SwerveDrive swerveDrive;
@@ -31,6 +32,10 @@ public class ScoreCoralStep extends AutoStep {
 
     @Override
     public void update() {
+        if (!hasStarted){
+            hasStarted = true;
+            if (!coralPath.hasCoral()) setFinished();
+        }
 
         // Execute once
         if (superstructure.isAtPosition() && swerveDrive.isAtPosition() && atPosTimer.isRunning() == false) {

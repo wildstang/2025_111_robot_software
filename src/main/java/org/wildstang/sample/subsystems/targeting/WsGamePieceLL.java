@@ -5,9 +5,10 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
 
-import edu.wpi.first.networktables.FloatEntry;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.TimestampedFloat;
+import edu.wpi.first.networktables.TimestampedDouble;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class WsGamePieceLL implements LoggableInputs {
 
@@ -20,9 +21,10 @@ public class WsGamePieceLL implements LoggableInputs {
     public double tx;
     public double ty;
     public double ta;
+    DoubleEntry txEntry;
 
     // RoboRio relative timestmap of when the frame was taken
-    public double timeestamp;
+    public double timestamp;
 
     // Name of Limelight
     public String CameraID;
@@ -32,6 +34,7 @@ public class WsGamePieceLL implements LoggableInputs {
      */
     public WsGamePieceLL(String CameraID){
         this.CameraID = CameraID;
+        txEntry = NetworkTableInstance.getDefault().getDoubleTopic("/" + CameraID + "/tx").getEntry(0);
     }
 
     /**
@@ -45,14 +48,12 @@ public class WsGamePieceLL implements LoggableInputs {
         ty = LimelightHelpers.getTY(CameraID); // Vertical offset from crosshair to target
         ta = LimelightHelpers.getTA(CameraID); // Target area
 
-        FloatEntry entry = NetworkTableInstance.getDefault().getFloatTopic(CameraID + "/tx").getEntry(0);
         // Get timestamp based off of tx 
-        TimestampedFloat tsValue = entry.getAtomic();
-        ty = tsValue.value;
+        TimestampedDouble tsValue = txEntry.getAtomic();
+        tx = tsValue.value;
 
         // Time it was sent from LL - latency
-        timeestamp = (tsValue.timestamp / 1000000.0) - (getTotalLatency() / 1000.0);
-
+        timestamp = (tsValue.timestamp / 1000000.0) - (getTotalLatency() / 1000.0);
         Logger.processInputs("Vision/Camera/" + CameraID, this);
     }
     /*
