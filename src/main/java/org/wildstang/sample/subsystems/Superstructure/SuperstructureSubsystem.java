@@ -14,7 +14,6 @@ import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
-import org.wildstang.sample.subsystems.swerve.WsSwerveHelper;
 import org.wildstang.sample.subsystems.targeting.WsPose;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; 
@@ -31,8 +30,8 @@ public class SuperstructureSubsystem implements Subsystem {
 
 private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select;
 private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger;
-private WsDPadButton DPad_UP, DPad_LEFT, DPad_DOWN, operatorDleft;
-private boolean LShoulderHeld,RshoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld;
+private WsDPadButton DPad_UP, DPad_DOWN, operatorDleft;
+private boolean LShoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld;
 private boolean PickupSequence;
 public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
 private SuperstructurePosition prevPosition = SuperstructurePosition.CORAL_STATION_FRONT;
@@ -45,7 +44,6 @@ private CoralPath coralPath;
 private WsPose pose;
 private final double LIFT_FF = 0;
 private final double BACK_CLEAR = 72;
-private final double FRONT_CLEAR = 44;
 private final double LIFT_STAGE1 = 50 *5.0/9.0;
 
 
@@ -82,8 +80,6 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         X.addInputListener(this);
         DPad_UP = (WsDPadButton) Core.getInputManager().getInput(WsInputs.OPERATOR_DPAD_UP);
         DPad_UP.addInputListener(this);
-        DPad_LEFT = (WsDPadButton) Core.getInputManager().getInput(WsInputs.OPERATOR_DPAD_LEFT);
-        DPad_LEFT.addInputListener(this);
         DPad_DOWN = (WsDPadButton) Core.getInputManager().getInput(WsInputs.OPERATOR_DPAD_DOWN);
         DPad_DOWN.addInputListener(this);
         Start = (WsJoystickButton) Core.getInputManager().getInput(WsInputs.OPERATOR_START);
@@ -194,6 +190,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         if (override){
             setLift(SuperstructurePosition.OVERRIDE.getLift());
             setArm(SuperstructurePosition.OVERRIDE.getArm());
+        //going to the coral station preset
         } else if (desiredPosition == SuperstructurePosition.CORAL_STATION_FRONT){
 
             if (armSpark.getPosition() > 11){
@@ -203,6 +200,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                 setArm(56);
             } else setArm(desiredPosition.getArm());
 
+        //going away from the coral station preset
         } else if (prevPosition == SuperstructurePosition.CORAL_STATION_FRONT){
 
             if (armSpark.getPosition() < 56){
@@ -212,12 +210,25 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                 setArm(11);
             } else setArm(desiredPosition.getArm());
 
+        //arm wait if scoring on the reef
         } else if (!isAuto && isReefPosition(desiredPosition) && !isReefPosition(prevPosition)){
             setLift(desiredPosition.getLift());
-            setArm(liftAtPosition() ? desiredPosition.getArm() : BACK_CLEAR);
+            if (liftAtPosition() || LiftMax.getPosition() > LIFT_STAGE1){
+                setArm(desiredPosition.getArm());
+            } else {
+                setArm(BACK_CLEAR);
+            }
+        //lift wait if going from the reef
         } else if (!isAuto && !isReefPosition(desiredPosition) && isReefPosition(prevPosition)){
-            setLift(isArmClearReef(armSpark.getPosition()) || armAtPosition() ? desiredPosition.getLift() : prevPosition.getLift());
             setArm(desiredPosition.getArm());
+            if (isArmClearReef(armSpark.getPosition()) || armAtPosition()){
+                setLift(desiredPosition.getLift());
+            } else if (prevPosition == SuperstructurePosition.CORAL_REEF_L2 || prevPosition == SuperstructurePosition.CORAL_REEF_L3) {
+                setLift(prevPosition.getLift() + 10);
+            } else {
+                setLift(prevPosition.getLift());
+            }
+        //normal
         } else {
             setLift(desiredPosition.getLift());
             setArm(desiredPosition.getArm());
@@ -230,7 +241,6 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     public void inputUpdate(Input source) {
         if (isAuto) isAuto = false;
         LShoulderHeld = LShoulder.getValue();
-        RshoulderHeld = Rshoulder.getValue();
         LTHeld = Math.abs(LT.getValue()) > 0.5;
         RTHeld = Math.abs(rightTrigger.getValue()) > 0.5;
         if(A.getValue()){
@@ -366,9 +376,6 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     }
     private boolean isLiftHigh(double position){
         return position > LIFT_STAGE1;
-    }
-    private boolean isArmClearReef(SuperstructurePosition position){
-        return isArmClearReef(position.getArm());
     }
     private boolean isArmClearReef(double position){
         return position < BACK_CLEAR;

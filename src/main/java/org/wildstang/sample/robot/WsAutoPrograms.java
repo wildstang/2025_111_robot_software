@@ -24,9 +24,9 @@ public enum WsAutoPrograms implements AutoPrograms {
 
     // enumerate programs
     //SAMPLE_PROGRAM("Sample", SampleAutoProgram.class),
-    Line("Line", Line.class),
-    LineMix("LineMix", LineMix.class),
-    LinePose("LinePose", LinePose.class),
+    // Line("Line", Line.class),
+    // LineMix("LineMix", LineMix.class),
+    // LinePose("LinePose", LinePose.class),
     //TEST_PROGRAM("Test Program", TestProgram.class),
     //Jubilee("Jubilee", Jubilee.class),
     BLUE_LEFT_THREE_CORAL("Blue Left Three Coral V1", BlueLeftThreeCoralV2.class),

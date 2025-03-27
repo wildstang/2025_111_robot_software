@@ -1,12 +1,9 @@
 package org.wildstang.sample.subsystems;
 
 import org.wildstang.framework.core.Core;
-import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
-import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
 import org.wildstang.hardware.roborio.inputs.WsDPadButton;
-import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
@@ -17,7 +14,6 @@ import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralPath implements Subsystem{
@@ -137,9 +133,9 @@ public class CoralPath implements Subsystem{
             case NEUTRAL:
                 if (algaeLC.blocked(25)) {
                     // Stall current
-                    algaeSpeed = 0.4;
+                    algaeSpeed = 0.6;
                 } else if (algaeLC.blocked(35)){
-                    algaeSpeed = 0.7;
+                    algaeSpeed = 0.8;
                 } else if (algaeLC.blocked(50)){
                     algaeSpeed = 1.0;
                 } else {
