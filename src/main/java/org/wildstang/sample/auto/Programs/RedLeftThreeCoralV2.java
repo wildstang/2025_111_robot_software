@@ -22,6 +22,7 @@ import org.wildstang.sample.subsystems.targeting.VisionConsts;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class RedLeftThreeCoralV2 extends AutoProgram {
@@ -30,6 +31,8 @@ public class RedLeftThreeCoralV2 extends AutoProgram {
     protected void defineSteps() {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         addStep(new AutoSetupStep(7.15, 5.48, 0, Alliance.Red));
+        //tush push
+        //addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(7.45, 5.48), Rotation2d.fromDegrees(0))));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 1st Coral
