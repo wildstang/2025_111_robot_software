@@ -53,11 +53,6 @@ public class GroundIntake implements Subsystem {
         if (start.getValue() && select.getValue() && (source == start || source == select)){
             climbTimer.start();
         }
-        if (source == dpadDown && dpadDown.getValue()) {
-            if (deploy == DEPLOYED) {
-                deploy = STARTING;
-            } else if (deploy == STARTING) deploy = DEPLOYED;
-        }
         if (Math.abs(rightTrigger.getValue()) > 0.5){
             if (superstructure.isScoreL1() && Math.abs(leftTrigger.getValue()) > 0.5){
                 //score L1
@@ -92,7 +87,7 @@ public class GroundIntake implements Subsystem {
                 if (deploy != L1) L1timer.reset(); 
                 deploy = L1;
             }
-       } else if (leftShoulder.getValue()){
+       } else if (leftShoulder.getValue() || dpadDown.getValue()){
         deploy = STARTING;
        } else deploy = DEPLOYED;
     }  

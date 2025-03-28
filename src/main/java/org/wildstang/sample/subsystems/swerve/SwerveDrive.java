@@ -171,26 +171,26 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
         // Cardinal directions
         if (source == faceUp && faceUp.getValue()){
-            if (faceLeft.getValue()) rotTarget = 315.0;
-            else if (faceRight.getValue()) rotTarget = 45.0;
+            if (faceLeft.getValue()) rotTarget = 300.0;
+            else if (faceRight.getValue()) rotTarget = 60.0;
             else  rotTarget = 0.0;
             rotLocked = true;
         }
         if (source == faceLeft && faceLeft.getValue()){
-            if (faceUp.getValue()) rotTarget = 315.0;
-            else if (faceDown.getValue()) rotTarget = 225.0;
+            if (faceUp.getValue()) rotTarget = 300.0;
+            else if (faceDown.getValue()) rotTarget = 240.0;
             else rotTarget = 270.0;
             rotLocked = true;
         }
         if (source == faceDown && faceDown.getValue()){
-            if (faceLeft.getValue()) rotTarget = 225.0;
-            else if (faceRight.getValue()) rotTarget = 135.0;
+            if (faceLeft.getValue()) rotTarget = 240.0;
+            else if (faceRight.getValue()) rotTarget = 120.0;
             else rotTarget = 180.0;
             rotLocked = true;
         }
         if (source == faceRight && faceRight.getValue()){
-            if (faceUp.getValue()) rotTarget = 45.0;
-            else if (faceDown.getValue()) rotTarget = 135.0;
+            if (faceUp.getValue()) rotTarget = 60.0;
+            else if (faceDown.getValue()) rotTarget = 120.0;
             else rotTarget = 90.0;
             rotLocked = true;
         }
@@ -382,6 +382,8 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 xPower = xPower * 0.5 + pose.getAlignX(targetPose.getTranslation());
                 yPower = yPower * 0.5 + pose.getAlignY(targetPose.getTranslation());
                 rotTarget = targetPose.getRotation().getDegrees();
+                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
+            } else if (rotLocked){
                 rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());

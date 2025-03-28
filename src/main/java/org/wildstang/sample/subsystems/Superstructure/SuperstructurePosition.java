@@ -5,6 +5,8 @@ public enum SuperstructurePosition {
     CORAL_STATION_FRONT (9,0, "Coral Station Front"),
     CORAL_STATION_BACK(106,0, "Coral Station Back"),
     ALGAE_PRESTAGED(100,0, "Algae Prestaged"),
+    ALGAE_PREPICK_LOW(45, 7, "Algae Prepick Low"),
+    ALGAE_PREPICK_HIGH(45, 22, "Algae Prepick High"),
     ALGAE_REEF_LOW(33.7,14.9, "Algae Pickup Low"),//was 87 4
     ALGAE_REEF_HIGH(33.8,32.9, "Algae Pickup High"),// was 87 27
     CORAL_REEF_L1(90,0, "Reef L1"),//arms was 36, lifts all +2

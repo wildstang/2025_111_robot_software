@@ -159,8 +159,15 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                     else desiredPosition = SuperstructurePosition.STOWED_AFTER_PICKUP_HIGH;
                     if (armAtPosition()) PickupSequence = false;
                 } else {
-                    if (swerve.algaeLow()) desiredPosition = SuperstructurePosition.ALGAE_REEF_LOW;
-                    else desiredPosition = SuperstructurePosition.ALGAE_REEF_HIGH;
+                    if (swerve.algaeLow()) {
+                        if (swerve.isAtPosition() || desiredPosition == SuperstructurePosition.ALGAE_REEF_LOW){
+                            desiredPosition = SuperstructurePosition.ALGAE_REEF_LOW;
+                        } else desiredPosition = SuperstructurePosition.ALGAE_PREPICK_LOW;
+                    } else {
+                        if (swerve.isAtPosition() || desiredPosition == SuperstructurePosition.ALGAE_REEF_HIGH){
+                            desiredPosition = SuperstructurePosition.ALGAE_REEF_HIGH;
+                        } else desiredPosition = SuperstructurePosition.ALGAE_PREPICK_HIGH;
+                    }
                 }
             } 
             else {
@@ -349,7 +356,9 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             desiredPosition == SuperstructurePosition.STOWED_AFTER_PICKUP_HIGH ||
             desiredPosition == SuperstructurePosition.STOWED_AFTER_PICKUP_LOW ||
             desiredPosition == SuperstructurePosition.ALGAE_REEF_HIGH ||
-            desiredPosition == SuperstructurePosition.ALGAE_REEF_LOW;
+            desiredPosition == SuperstructurePosition.ALGAE_REEF_LOW ||
+            desiredPosition == SuperstructurePosition.ALGAE_PREPICK_LOW ||
+            desiredPosition == SuperstructurePosition.ALGAE_PREPICK_HIGH;
     }
     private void setArm(double armPos){
         if (isLiftHigh(LiftMax.getPosition()) || isLiftHigh(desiredPosition)){
