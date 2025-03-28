@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.wildstang.framework.auto.AutoStep;
 import org.wildstang.framework.core.Core;
 import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.sample.subsystems.swerve.WsSwerveHelper;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive.DriveType;
@@ -22,11 +23,13 @@ public class ObjectIntakeStep extends AutoStep {
     private final double startingPower = 0.5;//initial power limit at the start
     private final double timeToMaxSpeed = 0.25;//time until full speed
     private SwerveDrive swerve;
+    private CoralPath coralPath;
 
     private Timer timer;
 
     public ObjectIntakeStep() {
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
+        coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
         timer = new Timer();
     }
 
@@ -41,7 +44,7 @@ public class ObjectIntakeStep extends AutoStep {
 
         // Same logic to drive to coral as in teleop
         swerve.setDriveState(DriveType.CORALINTAKE);
-        if (swerve.isAtPosition()) {
+        if (swerve.isAtPosition() || coralPath.hasCoral()) {
             swerve.setDriveState(DriveType.AUTO);
             setFinished();
         }

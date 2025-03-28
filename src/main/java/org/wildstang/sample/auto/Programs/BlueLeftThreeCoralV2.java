@@ -12,6 +12,7 @@ import org.wildstang.sample.auto.Steps.ObjectIntakeStep;
 import org.wildstang.sample.auto.Steps.RunGroundStep;
 import org.wildstang.sample.auto.Steps.ScoreCoralStep;
 import org.wildstang.sample.auto.Steps.SwerveAutoStep;
+import org.wildstang.sample.auto.Steps.SwerveMultiPointStep;
 import org.wildstang.sample.auto.Steps.SwerveToPointStep;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructurePosition;
@@ -21,6 +22,7 @@ import org.wildstang.sample.subsystems.targeting.VisionConsts;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class BlueLeftThreeCoralV2 extends AutoProgram {
@@ -29,6 +31,8 @@ public class BlueLeftThreeCoralV2 extends AutoProgram {
     protected void defineSteps() {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         addStep(new AutoSetupStep(7.15, 5.48, 0, Alliance.Blue));
+        //tush push
+        //addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(7.45, 5.48), Rotation2d.fromDegrees(0))));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 1st Coral
@@ -78,7 +82,8 @@ public class BlueLeftThreeCoralV2 extends AutoProgram {
         addStep(group3);
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)));
+        addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(4.5, 5.75, Rotation2d.fromDegrees(-300)), 
+            VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)}, new double[] {}, 0));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
     }

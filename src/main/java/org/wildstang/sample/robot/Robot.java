@@ -83,6 +83,7 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putData("Log Level", logChooser);
 
         DataLogManager.start();
+        DriverStation.startDataLog(DataLogManager.getLog());
         Logger.start();
     }
 

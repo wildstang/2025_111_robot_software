@@ -356,7 +356,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
 
                 // Only drive towards if we're within 10 degrees
-                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 10.0) {
+                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 100.0) {
                     xPower = pose.getAlignX(intakeAdjustedPoint) * 0.75;
                     yPower = pose.getAlignY(intakeAdjustedPoint) * 0.75;
                 } else {

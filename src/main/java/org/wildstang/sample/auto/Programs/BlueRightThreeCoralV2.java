@@ -12,6 +12,7 @@ import org.wildstang.sample.auto.Steps.ObjectIntakeStep;
 import org.wildstang.sample.auto.Steps.RunGroundStep;
 import org.wildstang.sample.auto.Steps.ScoreCoralStep;
 import org.wildstang.sample.auto.Steps.SwerveAutoStep;
+import org.wildstang.sample.auto.Steps.SwerveMultiPointStep;
 import org.wildstang.sample.auto.Steps.SwerveToPointStep;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructurePosition;
@@ -78,7 +79,8 @@ public class BlueRightThreeCoralV2 extends AutoProgram {
         addStep(group3);
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchBackRight)));
+        addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(5.27, 2.3, Rotation2d.fromDegrees(-60)), 
+            VisionConsts.flipRot(VisionConsts.rightBranchBackRight)}, new double[] {}, 0));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
     }

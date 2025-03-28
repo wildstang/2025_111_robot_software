@@ -30,8 +30,8 @@ public class SuperstructureSubsystem implements Subsystem {
 
 private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select;
 private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger;
-private WsDPadButton DPad_UP, DPad_DOWN, operatorDleft;
-private boolean LShoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld;
+private WsDPadButton DPad_UP, DPad_DOWN, operatorDleft,operatorDright;
+private boolean LShoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld, dRightHeld;
 private boolean PickupSequence;
 public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
 private SuperstructurePosition prevPosition = SuperstructurePosition.CORAL_STATION_FRONT;
@@ -94,6 +94,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         rightTrigger.addInputListener(this);
         operatorDleft = (WsDPadButton) WsInputs.OPERATOR_DPAD_LEFT.get();
         operatorDleft.addInputListener(this);
+        operatorDright = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
+        operatorDright.addInputListener(this);
        
         armSpark = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ARM);
         armSpark.initClosedLoop(0.4, 0, 0, 0);
@@ -160,11 +162,11 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                     if (armAtPosition()) PickupSequence = false;
                 } else {
                     if (swerve.algaeLow()) {
-                        if (swerve.isAtPosition() || desiredPosition == SuperstructurePosition.ALGAE_REEF_LOW){
+                        if (swerve.isAtPosition() || dRightHeld || desiredPosition == SuperstructurePosition.ALGAE_REEF_LOW){
                             desiredPosition = SuperstructurePosition.ALGAE_REEF_LOW;
                         } else desiredPosition = SuperstructurePosition.ALGAE_PREPICK_LOW;
                     } else {
-                        if (swerve.isAtPosition() || desiredPosition == SuperstructurePosition.ALGAE_REEF_HIGH){
+                        if (swerve.isAtPosition() || dRightHeld || desiredPosition == SuperstructurePosition.ALGAE_REEF_HIGH){
                             desiredPosition = SuperstructurePosition.ALGAE_REEF_HIGH;
                         } else desiredPosition = SuperstructurePosition.ALGAE_PREPICK_HIGH;
                     }
@@ -250,6 +252,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         LShoulderHeld = LShoulder.getValue();
         LTHeld = Math.abs(LT.getValue()) > 0.5;
         RTHeld = Math.abs(rightTrigger.getValue()) > 0.5;
+        dRightHeld = operatorDright.getValue();
         if(A.getValue()){
             level = LevelReef.Reef_L2;
         }
@@ -292,6 +295,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         desiredPosition = SuperstructurePosition.STOWED;
         level = LevelReef.Reef_L3;
         AlgaeState = Algae_NetOrProces.Processor;
+        dRightHeld = false;
         
     }
     @Override
