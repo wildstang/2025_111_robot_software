@@ -87,6 +87,8 @@ public class GroundIntake implements Subsystem {
                 if (deploy != L1) L1timer.reset(); 
                 deploy = L1;
             }
+        } else if (Math.abs(rightTrigger.getValue()) > 0.5 || rightShoulder.getValue()){
+            deploy = DEPLOYED;
        } else if (leftShoulder.getValue() || dpadDown.getValue()){
         deploy = STARTING;
        } else deploy = DEPLOYED;
