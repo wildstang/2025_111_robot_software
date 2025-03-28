@@ -9,10 +9,10 @@ public enum SuperstructurePosition {
     ALGAE_REEF_HIGH(33.8,32.9, "Algae Pickup High"),// was 87 27
     CORAL_REEF_L1(90,0, "Reef L1"),//arms was 36, lifts all +2
     CORAL_REEF_L2(85.2,17.3, "Reef L2"),//80.3, 24.5
-    CORAL_REEF_L3(85.9,37.8, "Reef L3"),//80.5, 45.5
-    CORAL_REEF_L4 (80.5, 82.1, "Reef L4"),
-    ALGAE_NET_FRONT(81,80, "Algae Net Front"),
-    ALGAE_NET_BACK(50,70,"Algae Net Back"),
+    CORAL_REEF_L3(85.9,37.3, "Reef L3"),//80.5, 45.5
+    CORAL_REEF_L4 (79.5, 82.1, "Reef L4"),
+    ALGAE_NET_FRONT(78,80, "Algae Net Front"),
+    ALGAE_NET_BACK(50,78,"Algae Net Back"),
     ALGAE_PROCESSOR_BACK(22,0, "Algae Proc Back"),
     ALGAE_PROCESSOR_FRONT(104,0, "Algae Proc Front"),
     STOWED_AFTER_PICKUP_HIGH(58,20, "Post Pickup High"),

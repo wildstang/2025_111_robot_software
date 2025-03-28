@@ -9,6 +9,7 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.sample.auto.Steps.AutoSetupStep;
 import org.wildstang.sample.auto.Steps.IntakeCoralStep;
 import org.wildstang.sample.auto.Steps.ObjectIntakeStep;
+import org.wildstang.sample.auto.Steps.RunGroundStep;
 import org.wildstang.sample.auto.Steps.ScoreCoralStep;
 import org.wildstang.sample.auto.Steps.SwerveAutoStep;
 import org.wildstang.sample.auto.Steps.SwerveToPointStep;
@@ -65,11 +66,13 @@ public class RedLeftThreeCoralV2 extends AutoProgram {
         // Score 3rd Coral
         addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
+        addStep(new RunGroundStep());
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 
         //grab 4th coral
         AutoParallelStepGroup group3 = new AutoParallelStepGroup();
+        group3.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
         group3.addStep(new ObjectIntakeStep());
         group3.addStep(new IntakeCoralStep());
         addStep(group3);

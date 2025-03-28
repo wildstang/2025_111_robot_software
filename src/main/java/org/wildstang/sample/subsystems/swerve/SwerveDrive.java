@@ -79,7 +79,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     private double rotTarget;
 
     private boolean isReef;
-    private boolean scoringAlgae = false;
+    private boolean scoringAlgae = true;
     
     private final double mToIn = 39.37;
 
@@ -109,6 +109,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     public void inputUpdate(Input source) {
         if (Math.abs(operatorLeftTrigger.getValue()) > 0.5) scoringAlgae = true;
         if (Math.abs(operatorRightTrigger.getValue()) > 0.5 || operatorX.getValue()) scoringAlgae = false;
+        if (rightBumper.getValue()) scoringAlgae = false;
         
         // Operator controls set intent state variables
         if (operatorLeftBumper.getValue()) {
@@ -338,6 +339,9 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 } else if (pose.estimatedPose.getTranslation().getDistance(newCoralPoint) - pose.estimatedPose.getTranslation().getDistance(coralPoint) < 0.5) {
                     coralPoint = newCoralPoint;
                 }
+                if (coralPoint != null) {
+                    SmartDashboard.putString("coral point", coralPoint.toString());
+                }
             }
 
             if (coralPoint != null && !coralPath.hasCoral()) {
@@ -345,6 +349,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 // Account for intake position so when our robot is at intakeAdjustedPoint the ground intake is centered on the coral
                 Translation2d intakeAdjustedPoint = new  Pose2d(coralPoint, odoAngle()).plus(VisionConsts.intakeOffset.inverse()).getTranslation();
 
+                SmartDashboard.putString("adjusted point", intakeAdjustedPoint.toString());
                 // Only turn if we can see the coral 
                 rotTarget = pose.turnToTarget(intakeAdjustedPoint);
                 rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 1.5 : 0;
@@ -354,6 +359,9 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 10.0) {
                     xPower = pose.getAlignX(intakeAdjustedPoint) * 0.75;
                     yPower = pose.getAlignY(intakeAdjustedPoint) * 0.75;
+                } else {
+                    xPower = 0;
+                    yPower = 0;
                 }
                 this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             } else {
@@ -419,16 +427,14 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
             }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             
-            SmartDashboard.putNumber("X Power", xPower);
-            SmartDashboard.putNumber("Y Power", yPower);
+            SmartDashboard.putNumber("Auto Power", xPower);
+            SmartDashboard.putNumber("Auto Power", yPower);
             xPower = 0;
             yPower = 0;
             // Pre generated power values in set auto
-        } else {
-            
-        SmartDashboard.putNumber("X Power", xPower);
-        SmartDashboard.putNumber("Y Power", yPower);
         }
+            
+        
 
         // Rossen tipping???
         // if (isRossenTipping()) {
@@ -437,6 +443,8 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         //     this.swerveSignal = swerveHelper.setDrive(xPower, yPower, 0, 0);
         // }
         drive();
+        SmartDashboard.putNumber("X Power", xPower);
+        SmartDashboard.putNumber("Y Power", yPower);
         SmartDashboard.putNumber("# Robot X", pose.estimatedPose.getX());
         SmartDashboard.putNumber("# Robot Y", pose.estimatedPose.getY());
         SmartDashboard.putNumber("Gyro Reading", getGyroAngle());

@@ -33,10 +33,10 @@ public class GroundIntake implements Subsystem {
     private SuperstructureSubsystem superstructure;
 
     private final double STARTING = -23.1;
-    private final double L1 = -19;
-    private final double L1Score = -16;
+    private final double L1 = -20;
+    private final double L1Score = -15;
     private final double DEPLOYED = 0;
-    private final double CLIMB = -12;
+    private final double CLIMB = -8;
     private double ground1Speed;
     private double ground2Speed;
     private double deploy = STARTING; 
@@ -146,7 +146,7 @@ public class GroundIntake implements Subsystem {
         if (climbTimer.hasElapsed(1)) {
             pivot.setPosition(CLIMB);
         } else {
-            if (!L1timer.hasElapsed(0.1)){
+            if (!L1timer.hasElapsed(0.5)){
                 ground1.setSpeed(0.15);
             } else {
                 ground1.setSpeed(ground1Speed);

@@ -45,10 +45,10 @@ public enum WsAutoPrograms implements AutoPrograms {
     RED_LEFT_THREE_CORAL("Red Left Three V2", RedLeftThreeCoralV2.class),
     RED_RIGHT_THREE_CORAL("Red Right Three V2", RedRightThreeCoralV2.class),
 
-    BLUE_LEFT_FOUR_FAST("Blue Left Four Fast", BlueLeftFourFast.class),
-    BLUE_RIGHT_FOUR_FAST("Blue Right Four Fast", BlueRightFourFast.class),
-    RED_LEFT_FOUR_FAST("Red Left Four Fast", RedLeftFourFast.class),
-    RED_RIGHT_FOUR_FAST("Red Right Four Fast", RedRightFourFast.class),
+    // BLUE_LEFT_FOUR_FAST("Blue Left Four Fast", BlueLeftFourFast.class),
+    // BLUE_RIGHT_FOUR_FAST("Blue Right Four Fast", BlueRightFourFast.class),
+    // RED_LEFT_FOUR_FAST("Red Left Four Fast", RedLeftFourFast.class),
+    // RED_RIGHT_FOUR_FAST("Red Right Four Fast", RedRightFourFast.class),
 
     BLUE_LEFT_FOUR_OBJECT("Blue Left Four Object", BlueLeftFourObject.class),
     BLUE_RIGHT_FOUR_OBJECT("Blue Right Four Object", BlueRightFourObject.class),
