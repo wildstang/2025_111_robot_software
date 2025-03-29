@@ -33,10 +33,9 @@ public class WsPose implements Subsystem {
     private WsAprilTagLL right;
     private WsAprilTagLL front;
 
-    private WsAprilTagLL[] cameras = new WsAprilTagLL[] {left, right, front};
-
+    private WsAprilTagLL[] cameras;
     // Object detection camera
-    public WsGamePieceLL object = new WsGamePieceLL("limelight-object");
+    public WsGamePieceLL object = new WsGamePieceLL("limelight-front");
 
     private final double poseBufferSizeSec = 2;
     public final double visionSpeedThreshold = 3.0;
@@ -67,7 +66,8 @@ public class WsPose implements Subsystem {
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         left = new WsAprilTagLL("limelight-left", swerve::getMegaTag2Yaw);
         right = new WsAprilTagLL("limelight-right", swerve::getMegaTag2Yaw);
-        front = new WsAprilTagLL("limeliglht-", swerve::getMegaTag2Yaw);
+        front = new WsAprilTagLL("limelight-front", swerve::getMegaTag2Yaw);
+        cameras = new WsAprilTagLL[] {left, right, front};
     }
 
     @Override
@@ -109,8 +109,7 @@ public class WsPose implements Subsystem {
     }
 
     public double getStdDev(Optional<PoseEstimate> estimate) {
-        double closestTagDist = Arrays.stream(estimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
-        return estimate.isPresent() ? Math.pow(closestTagDist,2) / estimate.get().tagCount : Double.MAX_VALUE;
+        return estimate.isPresent() ? Math.pow(Arrays.stream(estimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble(),2) / estimate.get().tagCount : Double.MAX_VALUE;
     }
 
     @Override

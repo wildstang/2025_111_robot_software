@@ -698,7 +698,7 @@ public class LimelightHelpers {
         int expectedTotalVals = 11 + valsPerFiducial * tagCount;
     
         if (poseArray.length != expectedTotalVals) {
-            // Don't populate fiducials
+            return null;
         } else {
             for(int i = 0; i < tagCount; i++) {
                 int baseIndex = 11 + (i * valsPerFiducial);
