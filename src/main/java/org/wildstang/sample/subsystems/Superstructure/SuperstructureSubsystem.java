@@ -45,7 +45,7 @@ private SwerveDrive swerve;
 private CoralPath coralPath;
 private WsPose pose;
 private final double LIFT_FF = 0;
-private final double BACK_CLEAR = 72;
+private final double BACK_CLEAR = 68;
 private final double LIFT_STAGE1 = 50 *5.0/9.0;
 
 
@@ -168,11 +168,11 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                     if (armAtPosition()) PickupSequence = false;
                 } else {
                     if (swerve.algaeLow()) {
-                        if (swerve.isAtPosition() || dRightHeld || desiredPosition == SuperstructurePosition.ALGAE_REEF_LOW){
+                        if (dRightHeld || desiredPosition == SuperstructurePosition.ALGAE_REEF_LOW){
                             desiredPosition = SuperstructurePosition.ALGAE_REEF_LOW;
                         } else desiredPosition = SuperstructurePosition.ALGAE_PREPICK_LOW;
                     } else {
-                        if (swerve.isAtPosition() || dRightHeld || desiredPosition == SuperstructurePosition.ALGAE_REEF_HIGH){
+                        if (dRightHeld || desiredPosition == SuperstructurePosition.ALGAE_REEF_HIGH){
                             desiredPosition = SuperstructurePosition.ALGAE_REEF_HIGH;
                         } else desiredPosition = SuperstructurePosition.ALGAE_PREPICK_HIGH;
                     }
@@ -261,7 +261,9 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         if (reset.getValue()){
             resetStatus = true;
         } else if (resetStatus){
-            armSpark.getController().getEncoder().setPosition(0);
+            if (desiredPosition == SuperstructurePosition.CLIMB){
+                armSpark.getController().getEncoder().setPosition(22.0);
+            } else armSpark.getController().getEncoder().setPosition(0);
             resetStatus = false;
         }
         if (isAuto) isAuto = false;
