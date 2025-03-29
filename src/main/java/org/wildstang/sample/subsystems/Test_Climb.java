@@ -20,7 +20,7 @@ public class Test_Climb implements Subsystem{
     private WsJoystickButton start, select;
 
     private double climbSpeed;
-    private double pwmValue = 0.7;
+    private double pwmValue = 0.65;
     private boolean hasStarted = false;
     private PWM servo;
     private final double startPos = -94;//230 for ~215 deg rotation, now 90 deg rotation
@@ -29,7 +29,7 @@ public class Test_Climb implements Subsystem{
 
     @Override
     public void inputUpdate(Input source) {
-        if (operatorJoystickY.getValue() > 0.5 && hasStarted && pwmValue == 0.7) {
+        if (operatorJoystickY.getValue() > 0.5 && hasStarted && pwmValue == 0.65) {
             climbSpeed = -1;
             manual = true;
         } else if (operatorJoystickY.getValue() < -0.5 && hasStarted) {
@@ -44,8 +44,8 @@ public class Test_Climb implements Subsystem{
                 manual = false;
                 position = startPos;
             }
-            else if (pwmValue == 0.7) pwmValue = 0;
-            else pwmValue = 0.7;
+            else if (pwmValue == 0.65) pwmValue = 0;
+            else pwmValue = 0.65;
         }
     }
 
@@ -54,7 +54,7 @@ public class Test_Climb implements Subsystem{
         servo = new PWM(6);
 
         // Servo Disengaged before enabled
-        servo.setPosition(0.7);
+        servo.setPosition(0.65);
         operatorJoystickY = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_JOYSTICK_Y.get();
         operatorJoystickY.addInputListener(this);
         start = (WsJoystickButton) WsInputs.OPERATOR_START.get();
@@ -82,7 +82,7 @@ public class Test_Climb implements Subsystem{
         climb1.setSpeed(climbSpeed);
         servo.setPosition(pwmValue);
 
-        // Enaged pwmValue == 0, Off pwmValue == 0.7
+        // Enaged pwmValue == 0, Off pwmValue == 0.65
         SmartDashboard.putBoolean("# climb ratchet on", pwmValue == 0);
         SmartDashboard.putNumber("@ pwm value", pwmValue);
         SmartDashboard.putNumber("@ servo position", servo.getPosition());
@@ -94,7 +94,7 @@ public class Test_Climb implements Subsystem{
     @Override
     public void resetState() {
         climbSpeed = 0;
-        pwmValue = 0.7;
+        pwmValue = 0.65;
         manual = false;
 
         // Starting position to move to at start of match
