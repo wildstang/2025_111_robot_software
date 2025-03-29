@@ -33,7 +33,8 @@ public class WsPose implements Subsystem {
     private WsAprilTagLL right;
     private WsAprilTagLL front;
 
-    private WsAprilTagLL[] cameras;
+    private WsAprilTagLL[] cameras; 
+
     // Object detection camera
     public WsGamePieceLL object = new WsGamePieceLL("limelight-front");
 
@@ -66,7 +67,7 @@ public class WsPose implements Subsystem {
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         left = new WsAprilTagLL("limelight-left", swerve::getMegaTag2Yaw);
         right = new WsAprilTagLL("limelight-right", swerve::getMegaTag2Yaw);
-        front = new WsAprilTagLL("limelight-front", swerve::getMegaTag2Yaw);
+        front = new WsAprilTagLL("limelight-object", swerve::getMegaTag2Yaw);
         cameras = new WsAprilTagLL[] {left, right, front};
     }
 
@@ -87,7 +88,7 @@ public class WsPose implements Subsystem {
         PoseEstimate bestEstimate = null;
         for (int i = 0; i < cameras.length; i++) {
             Optional<PoseEstimate> estimate = cameras[i].update();
-            if (getStdDev(estimate) < bestStdDev) {
+            if (estimate.isPresent() && getStdDev(estimate) < bestStdDev) {
                 bestIndex = i;
                 bestEstimate = estimate.get();
                 bestStdDev = getStdDev(estimate);
@@ -206,9 +207,9 @@ public class WsPose implements Subsystem {
     // Set the front limlelight (same camera referenced by both front and object) to object or april tag pipeline
     public void setPipelineObject(boolean isObject) {
         if (isObject) {
-            object.setPipeline(1);
+            object.setPipeline(0);
         } else {
-            front.setPipeline(0);
+            front.setPipeline(1);
         }
     }
 
