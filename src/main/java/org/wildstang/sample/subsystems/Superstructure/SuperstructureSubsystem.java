@@ -28,11 +28,13 @@ public class SuperstructureSubsystem implements Subsystem {
         }, "Set Superstructure Position Step");
     };
 
-private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select;
-private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger;
+private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select, reset;
+private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger, resetAxis;
 private WsDPadButton DPad_UP, DPad_DOWN, operatorDleft,operatorDright;
 private boolean LShoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld, dRightHeld;
 private boolean PickupSequence;
+private boolean resetStatus = false;
+private double resetSpeed = 0.0;
 public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
 private SuperstructurePosition prevPosition = SuperstructurePosition.CORAL_STATION_FRONT;
 private WsSpark LiftMax, lift2, armSpark ;
@@ -96,6 +98,10 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         operatorDleft.addInputListener(this);
         operatorDright = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
         operatorDright.addInputListener(this);
+        reset = (WsJoystickButton) WsInputs.OPERATOR_LEFT_JOYSTICK_BUTTON.get();
+        reset.addInputListener(this);
+        resetAxis = (WsJoystickAxis) WsInputs.OPERATOR_RIGHT_JOYSTICK_Y.get();
+        resetAxis.addInputListener(this);
        
         armSpark = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ARM);
         armSpark.initClosedLoop(0.4, 0, 0, 0);
@@ -196,7 +202,10 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             prevPosition = desiredPosition;
         }
 
-        if (override){
+        if (resetStatus){
+            armSpark.setSpeed(resetSpeed);
+            setLift(0.0);
+        } else if (override){
             setLift(SuperstructurePosition.OVERRIDE.getLift());
             setArm(SuperstructurePosition.OVERRIDE.getArm());
         //going to the coral station preset
@@ -248,6 +257,13 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
 
     @Override
     public void inputUpdate(Input source) {
+        resetSpeed = resetAxis.getValue();
+        if (reset.getValue()){
+            resetStatus = true;
+        } else if (resetStatus){
+            armSpark.getController().getEncoder().setPosition(0);
+            resetStatus = false;
+        }
         if (isAuto) isAuto = false;
         LShoulderHeld = LShoulder.getValue();
         LTHeld = Math.abs(LT.getValue()) > 0.5;
