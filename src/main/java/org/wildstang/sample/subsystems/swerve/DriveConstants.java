@@ -7,9 +7,12 @@ public final class DriveConstants {
     public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(new Translation2d(0.33, 0.33), new Translation2d(0.33, -0.33),
             new Translation2d(-0.33, 0.33), new Translation2d(-0.33, -0.33));
     /** How far is close enough to our target position (m)  */
-    public static final double POSITION_TOLERANCE = 0.1;
+    public static final double POSITION_TOLERANCE = 0.075;
     /**P Loop for Translating to a point */
-    public static final double ALIGN_P = 0.39*2.0;
+    public static final double ALIGN_P = 0.32*2.0;
+    /** D term for Translating to a point */
+    public static final double ALIGN_D = 0;
+
     // P value for if Rossen is tipping
     public static final double TIPPING_P = 0.0;
     /** robot length from swerve pod to swerve pod, in inches */
@@ -25,7 +28,7 @@ public final class DriveConstants {
     /**angle motor gear ratio */
     //public static final double ANGLE_RATIO = 12.8;
     /**diameter of drive wheel, in inches */
-    public static final double WHEEL_DIAMETER = 2.81875;
+    public static final double WHEEL_DIAMETER = 2.81875 * (198 / 192);
     /**offset of module 1, the front left module, in degrees */
     public static final double FRONT_LEFT_OFFSET = -90;
     /**offset of module 2, the front right module, in degrees */

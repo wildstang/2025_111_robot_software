@@ -7,8 +7,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
-import org.wildstang.sample.subsystems.targeting.LimelightHelpers.LimelightResults;
-import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
+import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,6 +30,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.wildstang.sample.subsystems.targeting.LimelightHelpers.LimelightResults;
+import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
 
 /**
  * LimelightHelpers provides static methods and classes for interfacing with Limelight vision cameras in FRC.
@@ -530,7 +532,7 @@ public class LimelightHelpers {
     /**
      * Represents a 3D Pose Estimate.
      */
-    public static class PoseEstimate {
+    public static class PoseEstimate implements StructSerializable {
         public Pose2d pose;
         public double timestampSeconds;
         public double latency;

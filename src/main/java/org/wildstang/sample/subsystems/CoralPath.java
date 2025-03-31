@@ -1,35 +1,26 @@
 package org.wildstang.sample.subsystems;
 
 import org.wildstang.framework.core.Core;
-import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
-import org.wildstang.hardware.roborio.inputs.WsAnalogInput;
 import org.wildstang.hardware.roborio.inputs.WsDPadButton;
-import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
+import org.wildstang.sample.robot.CANConstants;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
-//import au.grapplerobotics.LaserCan;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
+import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CoralPath implements Subsystem{
 
-    private static final double CORAL_CURRENT_LIMIT = 20;
-    private static final double ALGAE_CURRENT_LIMIT = 40;
-    private final double ALGAE_STALL_POWER = 0.95;
-
-    private Timer delayTimer = new Timer();
-    private Timer currentTimer = new Timer();
-    private Timer holdTimer = new Timer();
 
     private SuperstructureSubsystem superstructure;
+    private SwerveDrive swerve;
 
     private WsSpark algae;
     private WsSpark coral;
@@ -39,54 +30,43 @@ public class CoralPath implements Subsystem{
     private WsDPadButton dpadRight;
     private WsJoystickAxis leftTrigger;
     private WsJoystickAxis rightTrigger;
+    private WsJoystickAxis operatorLeftTrigger;
+    private WsJoystickAxis operatorRightTrigger;
+    public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN, 36);
+    public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN, 20);
 
     private double algaeSpeed;
     private double coralSpeed;
-    private boolean hasCoral = false;
-    private boolean intakeOverride = false;
+    public enum IntakeState { NEUTRAL, INTAKING, SCORING }
+    private IntakeState coralState = IntakeState.NEUTRAL;
+    private IntakeState algaeState = IntakeState.NEUTRAL;
 
 
     @Override
     public void inputUpdate(Input source) {
-        intakeOverride = leftShoulder.getValue();
-        if (source == leftShoulder) {
-            coralSpeed = leftShoulder.getValue() ? 1.0 : 0.0;
 
-            // Delay before measuring current
-            if (coralSpeed == 1.0) delayTimer.restart();
-            if (!leftShoulder.getValue()) hasCoral = true;
-        } else if (source == rightShoulder) {
-            if (algaeSpeed != ALGAE_STALL_POWER) algaeSpeed = rightShoulder.getValue() ? 1 : 0;
-
-            // Delay before measuring current
-            if (algaeSpeed == 1.0) delayTimer.restart();
-        } else if (source == rightTrigger && !superstructure.isAlgaeRemoval()) {
-            if (Math.abs(leftTrigger.getValue()) > 0.5 && Math.abs(rightTrigger.getValue()) > 0.5) {
-                if (!hasAlgae() || hasCoral()) {
-                    if (superstructure.isScoreL1()) coralSpeed = -0.4;
-                    else if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
-                    else coralSpeed = -1.0;
+        
+        if (Math.abs(rightTrigger.getValue()) > 0.5) {
+            if (Math.abs(leftTrigger.getValue()) > 0.5) {
+                if (swerve.isScoringCoral()) {
+                    if (!superstructure.isAlgaeRemoval()){
+                        coralState = IntakeState.SCORING;
+                    }
                 } else {
-                    algaeSpeed = -1;
+                    algaeState = IntakeState.SCORING;
                 }
-
-            // Finish spitting out game piece
-            } else if (rightTrigger.getValue() < 0.5 && !superstructure.isAlgaeRemoval()) {
-                if (algaeSpeed == -1) algaeSpeed = 0;
-                if (coralSpeed == -0.4 || coralSpeed == -1.0 || coralSpeed == -0.7){//-0.6 for med wheels
-                    coralSpeed = 0;
-                    hasCoral = false;
-                }
-            }
-
+            } else {
+                coralState = IntakeState.INTAKING;
+            } 
         } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
-            algaeSpeed = 1;
-            delayTimer.restart();
-        } else if (Math.abs(leftTrigger.getValue()) < 0.5 && !hasAlgae()){
-            algaeSpeed = 0;
+            algaeState = IntakeState.INTAKING;
+        } else {
+            coralState = IntakeState.NEUTRAL;
+            algaeState = IntakeState.NEUTRAL;
         }
-        if (source == dpadRight && dpadRight.getValue()){
-            algaeSpeed = 0;
+        
+        if (source == leftShoulder) {
+            coralState = leftShoulder.getValue() ? IntakeState.INTAKING : IntakeState.NEUTRAL;
         }
     }
 
@@ -110,9 +90,10 @@ public class CoralPath implements Subsystem{
         leftTrigger.addInputListener(this);
         dpadRight = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
         dpadRight.addInputListener(this);
-        // currentTimer.start();
-        // delayTimer.start();
-        holdTimer.start();
+        operatorLeftTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.OPERATOR_LEFT_TRIGGER);
+        operatorLeftTrigger.addInputListener(this);
+        operatorRightTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.OPERATOR_RIGHT_TRIGGER);
+        operatorRightTrigger.addInputListener(this);
     }
 
     @Override
@@ -121,52 +102,50 @@ public class CoralPath implements Subsystem{
 
     @Override
     public void update() {
-        if (coralSpeed == 1) {
-
-            // Wait to scan current until after 0.25s to clear ramp up current spike
-            if (delayTimer.hasElapsed(0.75)) {
-                if (coral.getController().getOutputCurrent() < CORAL_CURRENT_LIMIT) {
-                    currentTimer.reset();
-                    currentTimer.stop();
+        algaeLC.updateMeasurements();
+        coralLC.updateMeasurements();
+        
+        switch (coralState) {
+            case INTAKING:
+                coralSpeed = 1.0;
+                if (hasCoral()) coralSpeed = 0.05;
+                break;
+            case SCORING:
+                if (superstructure.isScoreL23()) coralSpeed = -0.7;//-0.6 for med wheels
+                else coralSpeed = -1.0;
+                break;
+            case NEUTRAL:
+                if (hasCoral()){
+                    coralSpeed = 0.1;
                 } else {
-                    currentTimer.start();
+                    coralSpeed = 0.0;
                 }
-
-                // Current spike of .25s reasonable to assume picked up game piece
-                if (currentTimer.hasElapsed(0.25)) {
-                    coralSpeed = 0;
-                    hasCoral = true;
-                }
-            }
-        } else if (algaeSpeed == 1.0) {
-
-            // Wait to scan current until after 0.25s to clear ramp up current spike
-            if (delayTimer.hasElapsed(1.0)) {
-                if (algae.getController().getOutputCurrent() < ALGAE_CURRENT_LIMIT) {
-                    currentTimer.reset();
-                    currentTimer.stop();
+                break;
+        }
+        switch (algaeState) {
+            case INTAKING:
+                algaeSpeed = 1.0;
+                if (hasAlgae()) algaeState = IntakeState.NEUTRAL;
+                break;
+            case SCORING:
+                algaeSpeed = -1.0;
+                break;
+            case NEUTRAL:
+                if (algaeLC.blocked(25)) {
+                    // Stall current
+                    algaeSpeed = 0.6;
+                } else if (algaeLC.blocked(35)){
+                    algaeSpeed = 0.8;
+                } else if (algaeLC.blocked(50)){
+                    algaeSpeed = 1.0;
                 } else {
-                    currentTimer.start();
+                    algaeSpeed = 0.0;
                 }
-
-                // Current spike of .25s reasonable to assume picked up game piece
-                if (currentTimer.hasElapsed(0.25)) {
-                    algaeSpeed = ALGAE_STALL_POWER;
-                    holdTimer.restart();
-                }
-            }
+                break;
         }
-        // if (algae.getController().getOutputCurrent() > ALGAE_CURRENT_LIMIT && algaeSpeed == 0 && delayTimer.hasElapsed(0.25)){
-        //     algaeSpeed = ALGAE_STALL_POWER;
-        // }
-        if (intakeOverride) coral.setSpeed(1.0);
-        else coral.setSpeed(coralSpeed);
-        if (algaeSpeed == ALGAE_STALL_POWER && !holdTimer.hasElapsed(2.0)){
-            algae.setSpeed(1);
-        } else {
-            algae.setSpeed(algaeSpeed);
-        }
-
+        
+        coral.setSpeed(coralSpeed);
+        algae.setSpeed(algaeSpeed);
         displayNumbers();
     }
 
@@ -177,44 +156,36 @@ public class CoralPath implements Subsystem{
     @Override
     public void initSubsystems() {
         superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
+        swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
     }
 
     private void displayNumbers(){
         SmartDashboard.putBoolean("# Has Coral", hasCoral());
         SmartDashboard.putBoolean("# Has Algae", hasAlgae());
         SmartDashboard.putNumber("@ Coral Speed", coralSpeed);
-        SmartDashboard.putNumber("@ Alage Speed", algaeSpeed);
+        SmartDashboard.putNumber("@ Algae Speed", algaeSpeed);
         SmartDashboard.putNumber("@ Coral Current", coral.getController().getOutputCurrent());
         SmartDashboard.putNumber("@ Algae Current", algae.getController().getOutputCurrent());
-        SmartDashboard.putNumber("@ delay timer", delayTimer.get());
-        SmartDashboard.putNumber("@ current timer", currentTimer.get());
+        SmartDashboard.putString("@ Algae State", algaeState.toString());
+        SmartDashboard.putString("@ Coral State", coralState.toString());
+        algaeLC.putData();
+        coralLC.putData();
     }
+
+    public boolean hasCoral() {
+        return coralLC.blocked() || superstructure.isScoringCoral();
+    }
+
+    public boolean hasAlgae() {
+        return algaeLC.blocked() || superstructure.isScoringAlgae();
+    }
+
+    public void setIntake(IntakeState state) {
+        coralState = state;
+    }
+
     @Override
     public String getName() {
         return "CoralPath";
     }
-    public boolean hasAlgae(){
-        return algaeSpeed == ALGAE_STALL_POWER || algaeSpeed == -1.0 || superstructure.isScoringAlgae()
-            || (algaeSpeed == 1.0 && !holdTimer.hasElapsed(2));
-    }
-    public boolean hasCoral(){
-        return hasCoral || superstructure.isScoringCoral();
-    }
-
-    // AUTO STEP METHODS
-
-    // Start or stop intaking coral
-    public void setIntake(boolean intake) {
-        coralSpeed = intake ? 1 : 0;
-        delayTimer.start();
-    }
-
-    // Start or stop scoring coral
-    public void setScore(boolean score) {
-        coralSpeed = score ? -1 : 0;
-    }
-    public void scored(){
-        hasCoral = false;
-    }
-    
 }

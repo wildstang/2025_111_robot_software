@@ -1,4 +1,4 @@
-package org.wildstang.sample.auto.Programs;
+package org.wildstang.sample.auto.Programs.OldAutos;
 
 import org.wildstang.framework.auto.AutoProgram;
 import org.wildstang.framework.auto.steps.AutoParallelStepGroup;
@@ -10,7 +10,6 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.sample.auto.Steps.AutoSetupStep;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
-
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 

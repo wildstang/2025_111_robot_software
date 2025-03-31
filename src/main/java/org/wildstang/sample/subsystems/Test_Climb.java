@@ -20,20 +20,20 @@ public class Test_Climb implements Subsystem{
     private WsJoystickButton start, select;
 
     private double climbSpeed;
-    private double pwmValue = 0;
+    private double pwmValue = 0.65;
     private boolean hasStarted = false;
     private PWM servo;
-    private double startPos = 95;//230 for ~215 deg rotation, now 90 deg rotation
+    private final double startPos = -94;//230 for ~215 deg rotation, now 90 deg rotation
     private double position;
     private boolean manual;
 
     @Override
     public void inputUpdate(Input source) {
-        if (operatorJoystickY.getValue() > 0.5 && hasStarted && pwmValue == 0) {
-            climbSpeed = 1;
+        if (operatorJoystickY.getValue() > 0.5 && hasStarted && pwmValue == 0.65) {
+            climbSpeed = -1;
             manual = true;
         } else if (operatorJoystickY.getValue() < -0.5 && hasStarted) {
-            climbSpeed = -1;
+            climbSpeed = 1;
             manual = true;
         } else {
             climbSpeed = 0;
@@ -44,15 +44,17 @@ public class Test_Climb implements Subsystem{
                 manual = false;
                 position = startPos;
             }
-            else if (pwmValue == 0) pwmValue = 0.55;
-            else pwmValue = 0;
+            else if (pwmValue == 0.65) pwmValue = 0;
+            else pwmValue = 0.65;
         }
-        
     }
 
     @Override
     public void init() {
         servo = new PWM(6);
+
+        // Servo Disengaged before enabled
+        servo.setPosition(0.65);
         operatorJoystickY = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_JOYSTICK_Y.get();
         operatorJoystickY.addInputListener(this);
         start = (WsJoystickButton) WsInputs.OPERATOR_START.get();
@@ -73,14 +75,17 @@ public class Test_Climb implements Subsystem{
     @Override
     public void update() {
         if (!manual) {
-            if (climb1.getPosition() < position) climbSpeed = 1;
+            if (climb1.getPosition() > position) climbSpeed = -1;
             else climbSpeed = 0;
-            if (climb1.getPosition() > startPos) pwmValue = 0.55;
+            if (climb1.getPosition() < startPos) pwmValue = 0.0;
         }
         climb1.setSpeed(climbSpeed);
         servo.setPosition(pwmValue);
-        SmartDashboard.putBoolean("# climb ratchet on", pwmValue == 0.55);
+
+        // Enaged pwmValue == 0, Off pwmValue == 0.65
+        SmartDashboard.putBoolean("# climb ratchet on", pwmValue == 0);
         SmartDashboard.putNumber("@ pwm value", pwmValue);
+        SmartDashboard.putNumber("@ servo position", servo.getPosition());
         SmartDashboard.putNumber("@ climbSpeed", climbSpeed);
         SmartDashboard.putBoolean("@ climb started", hasStarted);
         SmartDashboard.putNumber("@ climb position", climb1.getPosition());
@@ -89,9 +94,11 @@ public class Test_Climb implements Subsystem{
     @Override
     public void resetState() {
         climbSpeed = 0;
-        pwmValue = 0;
+        pwmValue = 0.65;
         manual = false;
-        position = 15;
+
+        // Starting position to move to at start of match
+        position = -15;
     }
 
     @Override
