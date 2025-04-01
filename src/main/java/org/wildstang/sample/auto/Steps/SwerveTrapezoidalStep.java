@@ -10,6 +10,7 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.framework.subsystems.swerve.SwerveDriveTemplate;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
@@ -21,7 +22,7 @@ import choreo.trajectory.Trajectory;
 
 import com.google.gson.Gson;
 
-public class SwerveAutoStep extends AutoStep {
+public class SwerveTrapezoidalStep extends AutoStep {
 
     private static final double mToIn = 39.3701;
     private SwerveDriveTemplate m_drive;
@@ -32,38 +33,6 @@ public class SwerveAutoStep extends AutoStep {
     private Pose2d fieldAutoPose;
 
     private Timer timer;
-
-    /** Sets the robot to track a new path
-     * finishes after all values have been read to robot
-     * @param pathData double[][] that contains path, should be from \frc\paths
-     * @param drive the swerveDrive subsystem
-     * @param isBlue whether the robot is on the blue alliance
-     */
-    public SwerveAutoStep(String pathData, SwerveDriveTemplate drive) {
-        // this.pathtraj = getTraj(pathData);
-        // m_drive = drive;
-        // timer = new Timer();
-        var traj = Choreo.loadTrajectory(pathData).get();
-        this.pathtraj = (Trajectory<SwerveSample>)traj;
-        //this.pathtraj = getTraj(pathData).getSplit(split).get();
-        m_drive = drive;
-        timer = new Timer();
-    }
-
-    /** Sets the robot to track a new path
-     * finishes after all values have been read to robot
-     * @param pathData double[][] that contains path, should be from \frc\paths
-     * @param drive the swerveDrive subsystem
-     * @param isBlue whether the robot is on the blue alliance
-     * @param split the index of the path split
-     */
-    public SwerveAutoStep(String pathData, SwerveDriveTemplate drive, int split) {
-        var traj = Choreo.loadTrajectory(pathData).get().getSplit(split).get();
-        this.pathtraj = (Trajectory<SwerveSample>)traj;
-        //this.pathtraj = getTraj(pathData).getSplit(split).get();
-        m_drive = drive;
-        timer = new Timer();
-    }
 
     @Override
     public void initialize() {

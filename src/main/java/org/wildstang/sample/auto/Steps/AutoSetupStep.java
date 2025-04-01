@@ -51,7 +51,7 @@ public class AutoSetupStep extends AutoStep{
         superstructure.setToAuto();
         GroundIntake groundIntake = (GroundIntake) Core.getSubsystemManager().getSubsystem(WsSubsystems.GROUND_INTAKE);
         groundIntake.stow();
-        swerve.setAutoValues(0, 0, odoPose);
+        swerve.setAutoValues(0,0,0, 0, odoPose);
         swerve.setAutoHeading(heading);
         swerve.setGyro(heading);
     }

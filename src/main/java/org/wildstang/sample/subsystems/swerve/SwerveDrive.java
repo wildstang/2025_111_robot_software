@@ -527,20 +527,26 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
 
 
-    /**sets autonomous values from the path data file in field relative */
-    public void setAutoValues(double xVelocity, double yVelocity, Pose2d target) {
+    // Sets autonomous values from the motion profile in Driver Station relative 
+    public void setAutoValues(double xVelocity, double yVelocity, double xAccel, double yAccel, Pose2d target) {
         SmartDashboard.putNumber("Path Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
         // accel of 0 because currently not using acceleration for power since
-        xPower = swerveHelper.getAutoPower(xVelocity, 0);
-        yPower = swerveHelper.getAutoPower(yVelocity, 0);
+        xPower = swerveHelper.getAutoPower(xVelocity, xAccel);
+        yPower = swerveHelper.getAutoPower(yVelocity, yAccel);
         targetPose = target;
+    }
+
+    // Sets autonomous values when driving to a pose and not using a motion profile
+    public void setAutoValues(Pose2d target) {
+        setAutoValues(0, 0, 0, 0, target);
     }
 
     public void usePID(boolean use) {
         autoUsePID = use;
-    }   
+    }
 
-    /**sets the autonomous heading controller to a new target */
+    /** sets the autonomous heading controller to a new target */
+    @Deprecated
     public void setAutoHeading(double headingTarget) {
         rotTarget = headingTarget;
     }
@@ -570,7 +576,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         return (gyro.getYaw().getValueAsDouble() + (Core.isBlue() ? 0 : 180));
     }
     /** 
-     * @return Returns alliance relative CCW degrees gyro angle for use with always alliance relative pose
+     * @return Returns alliance relative CCW Rotation2d gyro angle for use with always alliance relative pose
      */
     public Rotation2d odoAngle(){
         return Rotation2d.fromDegrees(gyroReading);
