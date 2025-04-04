@@ -529,11 +529,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
     // Sets autonomous values from the motion profile in Driver Station relative 
     public void setAutoValues(double xVelocity, double yVelocity, double xAccel, double yAccel, Pose2d target) {
-        SmartDashboard.putNumber("x Velocity", xVelocity);
-        SmartDashboard.putNumber("y Velocity", xVelocity);
-        SmartDashboard.putNumber("x Acceleration", xAccel);
-        SmartDashboard.putNumber("y Acceleration", yAccel);
-
         SmartDashboard.putNumber("Path Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
         // accel of 0 because currently not using acceleration for power since
         xPower = swerveHelper.getAutoPower(xVelocity, xAccel);

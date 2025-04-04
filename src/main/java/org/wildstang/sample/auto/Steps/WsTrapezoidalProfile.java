@@ -16,7 +16,14 @@ public class WsTrapezoidalProfile {
     private double end;
     private double accelerationDist;
 
-
+    /**
+     * Creates a trapezoidal motion profile to travel a certain positive distance
+     * Will use triangle profile if the distance is too short to reach max velocity
+     * @param distance Positive value
+     * @param maxAcceleration
+     * @param maxDeceleration Negative value
+     * @param maxVelocity
+     */
     public WsTrapezoidalProfile(double distance, double maxAcceleration, double maxDeceleration, double maxVelocity) {
         MAX_ACCEL = maxAcceleration;
         MAX_DECEL = maxDeceleration;
@@ -24,6 +31,11 @@ public class WsTrapezoidalProfile {
         this.distance = distance;
         init();
     }
+
+    /**
+     * Uses defualt values for acceleration, deceleration, and max velocity
+     * @param distance
+     */
     public WsTrapezoidalProfile(double distance) {
         this.distance = distance;
         init();
