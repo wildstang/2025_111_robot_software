@@ -24,7 +24,6 @@ public class LineTrapezoid extends AutoProgram {
 
     @Override
     public String toString() {
-        return "Line";
+        return "Line Trapezoid";
     }
-    
 }
