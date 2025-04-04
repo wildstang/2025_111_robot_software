@@ -41,7 +41,7 @@ public class BlueLeftFourObject extends AutoProgram {
 
         // Pickup 2nd Coral
         // Moves away from the reef and then drives to a point to see ground coral
-        addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(4.2, 6.0), Rotation2d.fromDegrees(-200))));
+        addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(4.2, 6.0), Rotation2d.fromDegrees(-220))));
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         AutoSerialStepGroup group1a = new AutoSerialStepGroup();
         AutoSerialStepGroup group1b = new AutoSerialStepGroup();

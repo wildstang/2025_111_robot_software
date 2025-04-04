@@ -55,7 +55,7 @@ public enum WsAutoPrograms implements AutoPrograms {
     // RED_LEFT_FOUR_FAST("Red Left Four Fast", RedLeftFourFast.class),
     // RED_RIGHT_FOUR_FAST("Red Right Four Fast", RedRightFourFast.class),
 
-    // BLUE_LEFT_FOUR_OBJECT("Blue Left Four Object", BlueLeftFourObject.class),
+    BLUE_LEFT_FOUR_OBJECT("Blue Left Four Object", BlueLeftFourObject.class),
     // BLUE_RIGHT_FOUR_OBJECT("Blue Right Four Object", BlueRightFourObject.class),
     // RED_LEFT_FOUR_OBJECT("Red Left Four Object", RedLeftFourObject.class),
     // RED_RIGHT_FOUR_OBJECT("Red Right Four Object", RedRightFourObject.class),

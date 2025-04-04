@@ -97,7 +97,7 @@ public class VisionConsts {
     // Transform from center of robot to camera pose
     public static final Transform3d camTransform = new Transform3d(new Translation3d(0.199778, -0.193031, 1.020310), new Rotation3d(0, -32 * Math.PI / 180, 10 * Math.PI / 180));
 
-    public static final Transform2d intakeOffset = new Transform2d(0.5, .1, Rotation2d.fromRadians(0));
+    public static final Transform2d intakeOffset = new Transform2d(0.35, .05, Rotation2d.fromRadians(0));
     /*.
      * April Tag IDs:
      *  -Red Coral stations: left 1, right 2
