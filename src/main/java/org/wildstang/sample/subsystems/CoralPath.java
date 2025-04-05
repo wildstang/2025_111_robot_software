@@ -125,7 +125,7 @@ public class CoralPath implements Subsystem{
                 if (hasAlgae()) algaeState = IntakeState.NEUTRAL;
                 break;
             case SCORING:
-                algaeSpeed = swerve.isNetFront() ? -1.0 : -1.0;
+                algaeSpeed = swerve.isNetFront() ? -0.5 : -1.0;
                 break;
             case NEUTRAL:
                 if (algaeLC.blocked(25)) {

@@ -384,7 +384,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         } else if (driveState == DriveType.NETSCORE) {
             rotTarget = frontCloser(0) ? 0 : 180;
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            //yPower = pose.getAlignY(VisionConsts.netScore);
+            yPower = pose.getAlignY(VisionConsts.netScore);
             this.swerveSignal = swerveHelper.setDrive(xPower*0.6, 0.5*yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 90

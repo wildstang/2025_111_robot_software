@@ -194,7 +194,10 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                 desiredPosition = SuperstructurePosition.GROUND_INTAKE;
             } else desiredPosition = SuperstructurePosition.STOWED;
         } else {
-            desiredPosition = coralPath.hasCoral() ? SuperstructurePosition.STOWED_UP_TELEOP: SuperstructurePosition.STOWED;
+            if (coralPath.hasCoral()){
+                if (LevelReef.Reef_L2 == level) desiredPosition = SuperstructurePosition.STOWED_UP_L2;
+                else desiredPosition = SuperstructurePosition.STOWED_UP_L3;
+            } else desiredPosition = SuperstructurePosition.STOWED;
         }
 
         if (prevPosition != desiredPosition && armAtPosition() && liftAtPosition()){

@@ -33,7 +33,7 @@ public class GroundIntake implements Subsystem {
     private SuperstructureSubsystem superstructure;
     private CoralPath coralPath;
 
-    private final double STARTING = -23.1;
+    private final double STARTING = -21.1;
     private final double L1 = -20;
     private final double L1Score = -15;
     private final double DEPLOYED = 0;
@@ -150,11 +150,11 @@ public class GroundIntake implements Subsystem {
             ground2Speed = 0.25;
         } else if (state == IntakeState.SCORE_L1){
             deploy = L1Score;
-            ground1Speed = -1;
-            ground2Speed = 0.25;
+            ground1Speed = -0.5;
+            ground2Speed = 0.15;
         } else if (state == IntakeState.PRE_L1){
             deploy = L1;
-            ground1Speed = L1timer.hasElapsed(0.2) ? 0.15 : 0;
+            ground1Speed = L1timer.hasElapsed(0.2) ? 0.0 : 0.15;
             ground2Speed = 0;
         } else if (state == IntakeState.STATION){
             deploy = superstructure.isAtPosition() ? STARTING : DEPLOYED;
