@@ -13,7 +13,8 @@ public enum SuperstructurePosition {
     CORAL_REEF_L2(85.2,17.3, "Reef L2"),//80.3, 24.5
     CORAL_REEF_L3(85.9,37.3, "Reef L3"),//80.5, 45.5
     CORAL_REEF_L4 (79.5, 82.1, "Reef L4"),
-    ALGAE_NET_FRONT(78,80, "Algae Net Front"),
+    ALGAE_NET_FRONT(82,81, "Algae Net Front"),
+    ALGAE_NET_THROW_FRONT(70, 81, "Algae Net Front Throw"),
     ALGAE_NET_BACK(50,75,"Algae Net Back"),
     ALGAE_PROCESSOR_BACK(22,0, "Algae Proc Back"),
     ALGAE_PROCESSOR_FRONT(104,0, "Algae Proc Front"),
@@ -22,7 +23,7 @@ public enum SuperstructurePosition {
     CLIMB(22,0, "Climb Stow"),
     STOWED(58,0, "Stowed"),
     STOWED_UP(58, 40, "Stowed up"),
-    STOWED_UP_TELEOP(58, 0, "Stowed up Tele"),
+    STOWED_UP_TELEOP(58, 17.3, "Stowed up Tele"),
     OVERRIDE(85, 15, "Override"),
     GROUND_INTAKE(38.9, 0, "Ground Intake");
     

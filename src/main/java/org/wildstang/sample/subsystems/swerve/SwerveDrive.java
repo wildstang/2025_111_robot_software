@@ -51,13 +51,9 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     private DigitalInput faceRight;//rotation lock 90 degrees
     private DigitalInput faceLeft;//rotation lock 270 degrees
     private DigitalInput faceDown;//rotation lock 180 degrees
-    private DigitalInput dpadLeft;
-    private DigitalInput dpadRight;
     private DigitalInput driverStart; // Auto rotate to reef
     private DigitalInput operatorLeftBumper; // Select left branch auto align
     private DigitalInput operatorRightBumper; // Select right branch auto align
-    private DigitalInput operatorDpadUp;
-    private DigitalInput operatorDpadLeft;
     private DigitalInput operatorFaceLeft;
     private DigitalInput operatorStart;
     private DigitalInput operatorSelect;
@@ -245,20 +241,12 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         faceRight.addInputListener(this);
         faceDown = (DigitalInput) WsInputs.DRIVER_FACE_DOWN.get();
         faceDown.addInputListener(this);
-        dpadLeft = (DigitalInput) WsInputs.DRIVER_DPAD_LEFT.get();
-        dpadLeft.addInputListener(this);
-        dpadRight = (DigitalInput) WsInputs.DRIVER_DPAD_RIGHT.get();
-        dpadRight.addInputListener(this);
         driverStart = (DigitalInput) WsInputs.DRIVER_START.get();
         driverStart.addInputListener(this);
         operatorLeftBumper = (DigitalInput) WsInputs.OPERATOR_LEFT_SHOULDER.get();
         operatorLeftBumper.addInputListener(this);
         operatorRightBumper = (DigitalInput) WsInputs.OPERATOR_RIGHT_SHOULDER.get();
         operatorRightBumper.addInputListener(this);
-        operatorDpadUp = (DigitalInput) WsInputs.OPERATOR_DPAD_UP.get();
-        operatorDpadUp.addInputListener(this);
-        operatorDpadLeft = (DigitalInput) WsInputs.OPERATOR_DPAD_LEFT.get();
-        operatorDpadLeft.addInputListener(this);
         operatorFaceLeft = (DigitalInput) WsInputs.OPERATOR_FACE_LEFT.get();
         operatorFaceLeft.addInputListener(this);
         operatorSelect = (DigitalInput) WsInputs.OPERATOR_SELECT.get();

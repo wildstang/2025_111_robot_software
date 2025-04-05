@@ -27,7 +27,6 @@ public class CoralPath implements Subsystem{
 
     private WsJoystickButton leftShoulder;
     private WsJoystickButton rightShoulder;
-    private WsDPadButton dpadRight;
     private WsJoystickAxis leftTrigger;
     private WsJoystickAxis rightTrigger;
     private WsJoystickAxis operatorLeftTrigger;
@@ -88,8 +87,6 @@ public class CoralPath implements Subsystem{
         rightTrigger.addInputListener(this);
         leftTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_TRIGGER);
         leftTrigger.addInputListener(this);
-        dpadRight = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
-        dpadRight.addInputListener(this);
         operatorLeftTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.OPERATOR_LEFT_TRIGGER);
         operatorLeftTrigger.addInputListener(this);
         operatorRightTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.OPERATOR_RIGHT_TRIGGER);
@@ -128,7 +125,7 @@ public class CoralPath implements Subsystem{
                 if (hasAlgae()) algaeState = IntakeState.NEUTRAL;
                 break;
             case SCORING:
-                algaeSpeed = -1.0;
+                algaeSpeed = swerve.isNetFront() ? -1.0 : -1.0;
                 break;
             case NEUTRAL:
                 if (algaeLC.blocked(25)) {
