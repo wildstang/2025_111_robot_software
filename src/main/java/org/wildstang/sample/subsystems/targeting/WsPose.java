@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import java.util.Arrays;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
@@ -28,19 +29,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class WsPose implements Subsystem {
 
-    public WsAprilTagLL left;
-    public WsAprilTagLL right;
+    private WsAprilTagLL left;
+    private WsAprilTagLL right;
+    private WsAprilTagLL front;
+
+    private WsAprilTagLL[] cameras; 
 
     // Object detection camera
-    public WsGamePieceLL front = new WsGamePieceLL("limelight-object");
+    public WsGamePieceLL object = new WsGamePieceLL("limelight-object");
 
     private final double poseBufferSizeSec = 2;
     public final double visionSpeedThreshold = 3.0;
     
     public int currentID = 0;
     public SwerveDrive swerve;
-
-    private boolean isInAuto = false;
 
     // WPI blue relative (m and CCW rad)
     public Pose2d odometryPose = new Pose2d();
@@ -65,6 +67,8 @@ public class WsPose implements Subsystem {
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         left = new WsAprilTagLL("limelight-left", swerve::getMegaTag2Yaw);
         right = new WsAprilTagLL("limelight-right", swerve::getMegaTag2Yaw);
+        front = new WsAprilTagLL("limelight-object", swerve::getMegaTag2Yaw);
+        cameras = new WsAprilTagLL[] {left, right, front};
     }
 
     @Override
@@ -77,31 +81,24 @@ public class WsPose implements Subsystem {
 
     @Override
     public void update() {
-        Optional<PoseEstimate> leftEstimate = left.update();
-        Optional<PoseEstimate> rightEstimate = right.update();
-        front.update();
+        object.update();
 
-        // Validity of estiamte
-        double leftStdDev = Double.MAX_VALUE;
-        double rightStdDev = Double.MAX_VALUE;
-        if (leftEstimate.isPresent() && leftEstimate.get().rawFiducials.length > 0) {
-
-            // Get distance to the closest tag from the array of raw fiducials
-            double closestTagDist = Arrays.stream(leftEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
-            leftStdDev = Math.pow(closestTagDist,2) / leftEstimate.get().tagCount;
+        int bestIndex = -1;
+        double bestStdDev = Double.MAX_VALUE;
+        PoseEstimate bestEstimate = null;
+        for (int i = 0; i < cameras.length; i++) {
+            Optional<PoseEstimate> estimate = cameras[i].update();
+            if (estimate.isPresent() && getStdDev(estimate) < bestStdDev) {
+                bestIndex = i;
+                bestEstimate = estimate.get();
+                bestStdDev = getStdDev(estimate);
+            }   
         }
-        if (rightEstimate.isPresent() && rightEstimate.get().rawFiducials.length > 0) {
 
-            // Get distance to the closest tag from the array of raw fiducials
-            double closestTagDist = Arrays.stream(rightEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble();
-            rightStdDev = Math.pow(closestTagDist,2) / rightEstimate.get().tagCount;
-        }
-        if (leftStdDev < rightStdDev) {
-            addVisionObservation(leftEstimate.get(), Math.min(1,  1 / leftStdDev));
-            currentID = left.tid;
-        } else if (rightStdDev < leftStdDev) {
-            addVisionObservation(rightEstimate.get(), Math.min(1,  1 / rightStdDev));
-            currentID = right.tid;
+        // If we found a valid estimate
+        if (bestEstimate != null) {
+            currentID = cameras[bestIndex].tid;
+            addVisionObservation(bestEstimate, 1/bestStdDev);
         }
 
         if (getCoralPose().isPresent()) {
@@ -110,6 +107,10 @@ public class WsPose implements Subsystem {
 
         odometryPosePublisher.set(odometryPose);
         estimatedPosePublisher.set(estimatedPose);
+    }
+
+    public double getStdDev(Optional<PoseEstimate> estimate) {
+        return estimate.isPresent() ? Math.pow(Arrays.stream(estimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble(),2) / estimate.get().tagCount : Double.MAX_VALUE;
     }
 
     @Override
@@ -128,7 +129,7 @@ public class WsPose implements Subsystem {
         poseBuffer.clear();
     }
 
-    public void addOdometryObservation(SwerveModulePosition[] modulePositions, Rotation2d gyroAngle, boolean isAuto) {
+    public void addOdometryObservation(SwerveModulePosition[] modulePositions, Rotation2d gyroAngle) {
         if (lastWheelPositions.length == 0) { 
             lastWheelPositions = modulePositions;
             return; 
@@ -143,7 +144,6 @@ public class WsPose implements Subsystem {
         poseBuffer.addSample(Timer.getTimestamp(), odometryPose);
 
         estimatedPose = estimatedPose.exp(twist);
-        isInAuto = isAuto;
     }
 
     private void addVisionObservation(PoseEstimate observation, double weight) {
@@ -179,9 +179,9 @@ public class WsPose implements Subsystem {
      * @return field relative pose of the coral if the coral is present
      */
     public Optional<Translation2d> getCoralPose() {
-        if (!front.targetInView()) return Optional.empty();
+        if (!object.targetInView()) return Optional.empty();
 
-        Optional<Pose2d> sample = poseBuffer.getSample(front.timestamp);
+        Optional<Pose2d> sample = poseBuffer.getSample(object.timestamp);
         if (sample.isEmpty()) {
             // exit if not there
             return Optional.empty();
@@ -194,16 +194,24 @@ public class WsPose implements Subsystem {
         Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
 
         // Assumes the angle of depression is gonna be negative
-        double camToCoralDist = VisionConsts.camTransform.getZ() / -Math.tan(VisionConsts.camTransform.getRotation().getY() + Math.toRadians(front.ty));
+        double camToCoralDist = VisionConsts.camTransform.getZ() / -Math.tan(VisionConsts.camTransform.getRotation().getY() + Math.toRadians(object.ty));
 
         // Transform from camera to coral
-        Transform2d camToCoralTransform = new Transform2d(Math.cos(Math.toRadians(-front.tx)) * camToCoralDist, Math.sin(Math.toRadians(-front.tx)) * camToCoralDist, Rotation2d.fromDegrees(-front.tx));
+        Transform2d camToCoralTransform = new Transform2d(Math.cos(Math.toRadians(-object.tx)) * camToCoralDist, Math.sin(Math.toRadians(-object.tx)) * camToCoralDist, Rotation2d.fromDegrees(-object.tx));
 
         Transform2d camTransform2d = new Transform2d(VisionConsts.camTransform.getX(), VisionConsts.camTransform.getY(), new Rotation2d(VisionConsts.camTransform.getRotation().getZ()));
         // Combines transformations to get coral pose in field coordinates
         return Optional.of(estimateAtTime.plus(camTransform2d).plus(camToCoralTransform).getTranslation());
     }
 
+    // Set the front limlelight (same camera referenced by both front and object) to object or april tag pipeline
+    public void setPipelineObject(boolean isObject) {
+        if (isObject) {
+            object.setPipeline(0);
+        } else {
+            front.setPipeline(1);
+        }
+    }
 
     /**
      * Based on whether we are scoring left branch or right branch gets the closest scoring pose

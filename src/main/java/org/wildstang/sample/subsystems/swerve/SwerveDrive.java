@@ -301,11 +301,12 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
         Logger.processInputs("Swerve", this);
 
-        pose.addOdometryObservation(modulePositions(), odoAngle(), driveState == DriveType.AUTO);
+        pose.addOdometryObservation(modulePositions(), odoAngle());
 
         // Reset coral point
         if (driveState != DriveType.CORALINTAKE) {
             coralPoint = null;
+            pose.setPipelineObject(false);
         }
         if (driveState == DriveType.CROSS) {
             //set to cross - done in inputupdate
@@ -327,6 +328,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         // Aligns heading to face coral and then p-loop to intake it
         // Keeps driving to last seen point but doesn't turn if it can't see a coral
         } else if (driveState == DriveType.CORALINTAKE) {
+            pose.setPipelineObject(true);
 
             // Update point
             if (pose.getCoralPose().isPresent()) {
@@ -393,7 +395,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
             rotTarget = frontCloser(0) ? 0 : 180;
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
             //yPower = pose.getAlignY(VisionConsts.netScore);
-            this.swerveSignal = swerveHelper.setDrive(xPower*0.6, yPower*0.5, rotSpeed, getGyroAngle());
+            this.swerveSignal = swerveHelper.setDrive(xPower*0.6, 0.5*yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 90
         } else if (driveState == DriveType.PROCESSORSCORE) {
