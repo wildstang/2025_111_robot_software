@@ -42,9 +42,9 @@ public class SwerveToPointStep extends AutoStep {
     @Override
     public void update() {
         if (timer.hasElapsed(turnStartTime)) {
-            swerve.setAutoValues(0.0,0.0, fieldAutoPose);
+            swerve.setAutoValues(0,0,0.0,0.0, fieldAutoPose);
         } else {
-            swerve.setAutoValues(0,0,new Pose2d(fieldAutoPose.getTranslation(), swerve.odoAngle()));
+            swerve.setAutoValues(0,0,0,0,new Pose2d(fieldAutoPose.getTranslation(), swerve.odoAngle()));
         }
         swerve.setAutoScalar(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed));
         if (swerve.isAtPosition()) {

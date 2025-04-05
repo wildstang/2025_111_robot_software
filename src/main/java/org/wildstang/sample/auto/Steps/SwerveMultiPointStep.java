@@ -69,9 +69,9 @@ public class SwerveMultiPointStep extends AutoStep {
             swerve.usePID(true);
         }
         if (timer.hasElapsed(turnStartTime)) {
-            swerve.setAutoValues(0.0,0.0, poses[index]);
+            swerve.setAutoValues(0,0,0.0,0.0, poses[index]);
         } else {
-            swerve.setAutoValues(0,0,new Pose2d(poses[index].getTranslation(), swerve.odoAngle()));
+            swerve.setAutoValues(0,0,0,0,new Pose2d(poses[index].getTranslation(), swerve.odoAngle()));
         }
 
         // Limit power by acceleration limiter or speeds value for that part of the path, if no speed in array then don't limit

@@ -22,6 +22,7 @@ import org.wildstang.sample.auto.Programs.OldAutos.LeftFourCoral;
 import org.wildstang.sample.auto.Programs.OldAutos.Line;
 import org.wildstang.sample.auto.Programs.OldAutos.LineMix;
 import org.wildstang.sample.auto.Programs.OldAutos.LinePose;
+import org.wildstang.sample.auto.Programs.OldAutos.LineTrapezoid;
 import org.wildstang.sample.auto.Programs.OldAutos.RedLeftFourFast;
 import org.wildstang.sample.auto.Programs.OldAutos.RedLeftThreeCoralV1;
 import org.wildstang.sample.auto.Programs.OldAutos.RedRightFourFast;
@@ -65,7 +66,7 @@ public enum WsAutoPrograms implements AutoPrograms {
 
     CENTER_BLUE("Center Blue", TheDrakeBlue.class),
     CENTER_RED("Center Red", TheDrakeRed.class),
-
+    LINE_TRAPEZOID("Line Trapezoid", LineTrapezoid.class)
     ;
 
     /**

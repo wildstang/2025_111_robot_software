@@ -75,7 +75,7 @@ public class SwerveAutoStep extends AutoStep {
     @Override
     public void update() {
         if (timer.get() >= pathtraj.getFinalSample(false).get().t) {
-            m_drive.setAutoValues(0.0,0.0, pathtraj.getFinalPose(false).get());
+            m_drive.setAutoValues(0,0,0,0,pathtraj.getFinalPose(false).get());
             SmartDashboard.putNumber("auto final time", timer.get());
             setFinished();
         } else {
@@ -85,11 +85,11 @@ public class SwerveAutoStep extends AutoStep {
 
             if (fieldAutoPose.getTranslation().getDistance(pathtraj.getFinalPose(false)
                 .get().getTranslation()) < 1.5){
-                    m_drive.setAutoValues(0.0, 0.0, pathtraj.getFinalPose(false).get());
+                    m_drive.setAutoValues(0.0, 0.0,0,0, pathtraj.getFinalPose(false).get());
                     m_drive.setAutoHeading(getHeading());
             } else {
                 m_drive.setAutoHeading(getHeading());
-                m_drive.setAutoValues(-1 * sample.vy * mToIn, sample.vx * mToIn, fieldAutoPose);
+                m_drive.setAutoValues(-1 * sample.vy * mToIn, sample.vx * mToIn,0,0, fieldAutoPose);
             }
         }
     }

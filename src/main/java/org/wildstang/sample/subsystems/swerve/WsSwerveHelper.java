@@ -160,7 +160,8 @@ public class WsSwerveHelper {
 
     /**determines the translational magnitude of the robot in autonomous
      * 
-     * @param pathVel path data for velocity of the robot, inches
+     * @param pathVel path data for velocity of the robot (m/s)
+     * @param pathAccel path data for acceleration of the robot (m/s^2)
      * @return double for magnitude of translational vector
      */
     public double getAutoPower(double pathVel, double pathAccel) {
