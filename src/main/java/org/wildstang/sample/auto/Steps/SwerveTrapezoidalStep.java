@@ -42,7 +42,7 @@ public class SwerveTrapezoidalStep extends AutoStep {
         pathTimer.start();
         WsPose pose = (WsPose) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_POSE);
         startPose = pose.estimatedPose;
-        profile = new WsTrapezoidalProfile(startPose.getTranslation().getDistance(fieldAutoPose.getTranslation()), 5, -2, 3.5);
+        profile = new WsTrapezoidalProfile(startPose.getTranslation().getDistance(fieldAutoPose.getTranslation()), 7, -3, 3.5);
         angleToPoint = Math.atan2(fieldAutoPose.getY() - startPose.getY(), fieldAutoPose.getX() - startPose.getX());
     }
 

@@ -30,11 +30,12 @@ public class BlueLeftFourObject extends AutoProgram {
     protected void defineSteps() {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         addStep(new AutoSetupStep(7.15, 5.48, 0, Alliance.Blue));
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 1st Coral
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackLeft)));
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
+        AutoParallelStepGroup score1 = new AutoParallelStepGroup();
+        score1.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackLeft)));
+        score1.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
+        addStep(score1);
         addStep(new RunGroundStep());
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
@@ -48,13 +49,12 @@ public class BlueLeftFourObject extends AutoProgram {
         group1a.addStep(new ObjectIntakeStep());
         group1a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
         group1b.addStep(new GroundIntakeCoralStep());
-        group1b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
+        group1b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         group1.addStep(group1a);
         group1.addStep(group1b);
         addStep(group1);
         
         // Scores 2nd Coral
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
 
@@ -65,13 +65,12 @@ public class BlueLeftFourObject extends AutoProgram {
         group2a.addStep(new ObjectIntakeStep());
         group2a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFrontLeft)));
         group2b.addStep(new GroundIntakeCoralStep());
-        group2b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
+        group2b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         group2.addStep(group2a);
         group2.addStep(group2b);
         addStep(group2);
 
         // Score 3rd Coral
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
         
@@ -80,16 +79,15 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoSerialStepGroup group3a = new AutoSerialStepGroup();
         AutoSerialStepGroup group3b = new AutoSerialStepGroup();
         group3a.addStep(new ObjectIntakeStep());
-        group3a.addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(5.27, 5.75, Rotation2d.fromDegrees(-300)), 
+        group3a.addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(4.5, 5.75, Rotation2d.fromDegrees(-300)), 
             VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)}, new double[] {}, 0));
         group3b.addStep(new GroundIntakeCoralStep());
-        group3b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
+        group3b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         group3.addStep(group3a);
         group3.addStep(group3b);
         addStep(group3);
 
         // Score 4th Coral
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 

@@ -44,7 +44,7 @@ public class ObjectIntakeStep extends AutoStep {
 
         // Same logic to drive to coral as in teleop
         swerve.setDriveState(DriveType.CORALINTAKE);
-        if (swerve.isAtPosition() && coralPath.hasCoral()) {
+        if (swerve.isAtPosition() || coralPath.hasCoral()) {
             swerve.setDriveState(DriveType.AUTO);
             setFinished();
         }

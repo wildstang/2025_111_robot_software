@@ -110,7 +110,7 @@ public class WsPose implements Subsystem {
     }
 
     public double getStdDev(Optional<PoseEstimate> estimate) {
-        return estimate.isPresent() ? Math.pow(Arrays.stream(estimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble(),2) / estimate.get().tagCount : Double.MAX_VALUE;
+        return estimate.isPresent() && estimate.get().rawFiducials.length > 0 ? Math.pow(Arrays.stream(estimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble(),2) / estimate.get().tagCount : Double.MAX_VALUE;
     }
 
     @Override
@@ -164,7 +164,7 @@ public class WsPose implements Subsystem {
 
         // difference between estimate and vision pose
         Transform2d transform = new Transform2d(estimateAtTime, observation.pose);
-        //transform = transform.times(weight);
+        //transform = transform.times(Math.max(1, weight));
 
         // Recalculate current estimate by applying scaled transform to old estimate
         // then replaying odometry data

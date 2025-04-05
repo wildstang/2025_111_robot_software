@@ -306,7 +306,9 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         // Reset coral point
         if (driveState != DriveType.CORALINTAKE) {
             coralPoint = null;
-            pose.setPipelineObject(false);
+            if (driveState != DriveType.AUTO) {
+                pose.setPipelineObject(false);
+            }
         }
         if (driveState == DriveType.CROSS) {
             //set to cross - done in inputupdate
@@ -358,9 +360,9 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
 
                 // Only drive towards if we're within 10 degrees
-                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 100.0) {
-                    xPower = pose.getAlignX(intakeAdjustedPoint) * 0.75;
-                    yPower = pose.getAlignY(intakeAdjustedPoint) * 0.75;
+                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 80.0) {
+                    xPower = pose.getAlignX(intakeAdjustedPoint);
+                    yPower = pose.getAlignY(intakeAdjustedPoint);
                 } else {
                     xPower = 0;
                     yPower = 0;
