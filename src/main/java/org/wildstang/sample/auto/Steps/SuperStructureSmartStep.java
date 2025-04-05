@@ -28,7 +28,7 @@ public class SuperStructureSmartStep extends AutoStep{
         if (swerve.distanceToTarget() < 0.5){
             superstructure.setPosition(pos);
             setFinished();
-        }
+        } else superstructure.setPosition(SuperstructurePosition.STOWED_UP);
     }
 
     @Override
