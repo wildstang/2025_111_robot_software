@@ -17,7 +17,7 @@ public class SwerveMultiPointStep extends AutoStep {
 
     private SwerveDrive swerve;
 
-    private int index;
+    private int index = 0;
     private Pose2d[] poses;
     private double[] speeds;
     private double turnStartTime; // Time to start turning to the end heading
@@ -53,6 +53,7 @@ public class SwerveMultiPointStep extends AutoStep {
     @Override
     public void update() {
 
+        swerve.setAutoValues(0,0,0,0,new Pose2d(poses[index].getTranslation(), swerve.odoAngle()));
 
         // Drive to intermediate point
         if (index < poses.length - 1) {
@@ -80,6 +81,6 @@ public class SwerveMultiPointStep extends AutoStep {
 
     @Override
     public String toString() {
-        return "Swerve To Point Step";
+        return "Swerve Multi Point Step";
     }
 }
