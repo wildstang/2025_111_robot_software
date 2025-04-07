@@ -173,6 +173,14 @@ public class WsPose implements Subsystem {
 
     // YEAR SUBSYSTEM ACCESS METHODS
 
+
+    /**
+     * Can the object detection camera see a coral
+     * @return true if a coral is present
+     */
+    public boolean coralInView(){
+        return object.targetInView();
+    }
     /**
      * Coral pose
      * 

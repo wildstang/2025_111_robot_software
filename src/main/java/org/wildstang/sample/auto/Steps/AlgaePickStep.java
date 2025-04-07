@@ -3,37 +3,39 @@ package org.wildstang.sample.auto.Steps;
 import org.wildstang.framework.auto.AutoStep;
 import org.wildstang.framework.core.Core;
 import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructurePosition;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
-import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
-public class SuperStructureSmartStep extends AutoStep{
+public class AlgaePickStep extends AutoStep{
 
     private SuperstructureSubsystem superstructure;
-    private SwerveDrive swerve;
+    private CoralPath coralPath;
     private SuperstructurePosition pos;
 
-    public SuperStructureSmartStep(SuperstructurePosition newpos){
+    public AlgaePickStep(SuperstructurePosition newpos){
         pos = newpos;
     }
 
     @Override
     public void initialize() {
         superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
-        swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
+        coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
     }
 
     @Override
     public void update() {
-        if (swerve.distanceToTarget() < 0.75){
-            superstructure.setPosition(pos);
+        superstructure.setPosition(pos);
+        coralPath.getAlgae();
+        if (coralPath.hasAlgae()){
             setFinished();
-        } else superstructure.setPosition(SuperstructurePosition.STOWED_UP);
+        }
+        
     }
 
     @Override
     public String toString() {
-        return "Superstructure Smart Step";
+        return "Algae Pick Step";
     }
     
 }

@@ -180,6 +180,9 @@ public class CoralPath implements Subsystem{
     public void setIntake(IntakeState state) {
         coralState = state;
     }
+    public void getAlgae(){
+        algaeState = IntakeState.INTAKING;
+    }
 
     @Override
     public String getName() {

@@ -13,6 +13,7 @@ import org.wildstang.sample.auto.Steps.RunGroundStep;
 import org.wildstang.sample.auto.Steps.ScoreCoralStep;
 import org.wildstang.sample.auto.Steps.SuperStructureSmartStep;
 import org.wildstang.sample.auto.Steps.SwerveMultiPointStep;
+import org.wildstang.sample.auto.Steps.SwerveToObjectStep;
 import org.wildstang.sample.auto.Steps.SwerveToPointStep;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructurePosition;
@@ -44,11 +45,10 @@ public class BlueLeftFourObject extends AutoProgram {
 
         // Pickup 2nd Coral
         // Moves away from the reef and then drives to a point to see ground coral
-        addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(4.2, 6.0), Rotation2d.fromDegrees(-220))));
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         AutoSerialStepGroup group1a = new AutoSerialStepGroup();
         AutoSerialStepGroup group1b = new AutoSerialStepGroup();
-        group1a.addStep(new ObjectIntakeStep());
+        group1a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(4.2, 6.0), Rotation2d.fromDegrees(-220))));
         group1a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
         group1b.addStep(new GroundIntakeCoralStep());
         group1b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
@@ -64,7 +64,7 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoParallelStepGroup group2 = new AutoParallelStepGroup();
         AutoSerialStepGroup group2a = new AutoSerialStepGroup();
         AutoSerialStepGroup group2b = new AutoSerialStepGroup();
-        group2a.addStep(new ObjectIntakeStep());
+        group2a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135))));
         group2a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFrontLeft)));
         group2b.addStep(new GroundIntakeCoralStep());
         group2b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
@@ -80,7 +80,7 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoParallelStepGroup group3 = new AutoParallelStepGroup();
         AutoSerialStepGroup group3a = new AutoSerialStepGroup();
         AutoSerialStepGroup group3b = new AutoSerialStepGroup();
-        group3a.addStep(new ObjectIntakeStep());
+        group3a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135))));
         group3a.addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(4.5, 5.75, Rotation2d.fromDegrees(-300)), 
             VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)}, new double[] {}, 0));
         group3b.addStep(new GroundIntakeCoralStep());
