@@ -10,6 +10,12 @@ import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 public class RunGroundStep extends AutoStep {
 
     GroundIntake groundIntake;
+    private boolean runRollers = false;
+
+    public RunGroundStep(){}
+    public RunGroundStep(boolean enable){
+        runRollers = enable;
+    }
 
     @Override
     public void initialize() {
@@ -19,7 +25,7 @@ public class RunGroundStep extends AutoStep {
     @Override
     public void update() {
         groundIntake.deploy();
-        groundIntake.groundOn();
+        if (runRollers) groundIntake.groundOn();
         this.setFinished();
     }
 

@@ -296,7 +296,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
             coralPoint = null;
             if (driveState != DriveType.AUTO) {
                 pose.setPipelineObject(false);
-            }
+            } else pose.setPipelineObject(true);
         }
         if (driveState == DriveType.CROSS) {
             //set to cross - done in inputupdate
@@ -344,7 +344,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 SmartDashboard.putString("adjusted point", intakeAdjustedPoint.toString());
                 // Only turn if we can see the coral 
                 rotTarget = pose.turnToTarget(intakeAdjustedPoint);
-                rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 1.5 : 0;
+                rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5 : 0;
 
 
                 // Only drive towards if we're within 10 degrees

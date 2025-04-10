@@ -5,6 +5,7 @@ import org.wildstang.framework.auto.AutoProgram;
 import org.wildstang.framework.auto.steps.AutoParallelStepGroup;
 import org.wildstang.framework.auto.steps.AutoSerialStepGroup;
 import org.wildstang.framework.core.Core;
+import org.wildstang.sample.auto.Steps.AlgaePickStep;
 import org.wildstang.sample.auto.Steps.AutoSetupStep;
 import org.wildstang.sample.auto.Steps.GroundIntakeCoralStep;
 import org.wildstang.sample.auto.Steps.IntakeCoralStep;
@@ -48,7 +49,7 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         AutoSerialStepGroup group1a = new AutoSerialStepGroup();
         AutoSerialStepGroup group1b = new AutoSerialStepGroup();
-        group1a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(4.2, 6.0), Rotation2d.fromDegrees(-220))));
+        group1a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.2, 6.75), Rotation2d.fromDegrees(-220)), 1.0));
         group1a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
         group1b.addStep(new GroundIntakeCoralStep());
         group1b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
@@ -81,15 +82,18 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoSerialStepGroup group3a = new AutoSerialStepGroup();
         AutoSerialStepGroup group3b = new AutoSerialStepGroup();
         group3a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135))));
-        group3a.addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(4.5, 5.75, Rotation2d.fromDegrees(-300)), 
-            VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)}, new double[] {}, 0));
+        // group3a.addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(4.5, 5.75, Rotation2d.fromDegrees(-300)), 
+        group3a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
+        //     VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)}, new double[] {}, 0));
         group3b.addStep(new GroundIntakeCoralStep());
-        group3b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
+        group3b.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_LOW));
+        //group3b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
         group3.addStep(group3a);
         group3.addStep(group3b);
         addStep(group3);
 
         // Score 4th Coral
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L3));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 

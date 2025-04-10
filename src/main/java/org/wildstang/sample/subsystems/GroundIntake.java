@@ -41,7 +41,7 @@ public class GroundIntake implements Subsystem {
     private double ground1Speed = 0;
     private double ground2Speed = 0;
     private Timer L1timer = new Timer();
-    private double deploy = STARTING;
+    private double deploy = DEPLOYED;
     private enum IntakeState {NEUTRAL, INTAKING, INTAKING_L1, REVERSE, PRE_L1, SCORE_L1, CLIMB, UP, STATION, AUTO};
     private IntakeState state = IntakeState.AUTO;
 

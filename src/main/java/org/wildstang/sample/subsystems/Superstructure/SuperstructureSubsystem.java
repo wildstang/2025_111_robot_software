@@ -159,12 +159,12 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                     }
                 }
             } else if (PickupSequence) {
-                if (coralPath.hasAlgae() || desiredPosition == SuperstructurePosition.STOWED_AFTER_PICKUP_HIGH || 
-                        desiredPosition == SuperstructurePosition.STOWED_AFTER_PICKUP_LOW) {
-                    if (prevPosition == SuperstructurePosition.ALGAE_REEF_LOW) desiredPosition = SuperstructurePosition.STOWED_AFTER_PICKUP_LOW;
-                    else desiredPosition = SuperstructurePosition.STOWED_AFTER_PICKUP_HIGH;
-                    if (armAtPosition()) PickupSequence = false;
-                } else {
+                // if (coralPath.hasAlgae() || desiredPosition == SuperstructurePosition.STOWED_AFTER_PICKUP_HIGH || 
+                //         desiredPosition == SuperstructurePosition.STOWED_AFTER_PICKUP_LOW) {
+                //     if (prevPosition == SuperstructurePosition.ALGAE_REEF_LOW) desiredPosition = SuperstructurePosition.STOWED_AFTER_PICKUP_LOW;
+                //     else desiredPosition = SuperstructurePosition.STOWED_AFTER_PICKUP_HIGH;
+                //     if (armAtPosition()) PickupSequence = false;
+                // } else {
                     if (swerve.algaeLow()) {
                         if (dRightHeld || desiredPosition == SuperstructurePosition.ALGAE_REEF_LOW){
                             desiredPosition = SuperstructurePosition.ALGAE_REEF_LOW;
@@ -174,7 +174,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
                             desiredPosition = SuperstructurePosition.ALGAE_REEF_HIGH;
                         } else desiredPosition = SuperstructurePosition.ALGAE_PREPICK_HIGH;
                     }
-                }
+                    if (coralPath.hasAlgae()) PickupSequence = false;
+                // }
             } 
             else {
                 // if (LevelReef.Reef_L1 == level) {

@@ -42,13 +42,13 @@ public class BlueLeftJackInTheBot extends AutoProgram {
             new Pose2d(2.8, 5.5, Rotation2d.fromRadians(Math.PI)), 
             VisionConsts.flipRot(VisionConsts.leftBranchFront)}, new double[] {}));
         group1.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_HIGH));
+        group1.addStep(new RunGroundStep(false));
         //group1.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
         //group1.addStep(new SwerveTrapezoidalStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFront)));
         //group1.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFront)));
         addStep(group1);    
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L3));    
-        addStep(new ScoreCoralStep());
-        addStep(new RunGroundStep());        
+        addStep(new ScoreCoralStep());   
         
         // Pickup 2nd Coral
         AutoParallelStepGroup getCoral1 = new AutoParallelStepGroup();
