@@ -183,6 +183,12 @@ public class CoralPath implements Subsystem{
     public void getAlgae(){
         algaeState = IntakeState.INTAKING;
     }
+    public void scoreAlgae(){
+        algaeState = IntakeState.SCORING;
+    }
+    public void stopAlgae(){
+        algaeState = IntakeState.NEUTRAL;
+    }
 
     @Override
     public String getName() {

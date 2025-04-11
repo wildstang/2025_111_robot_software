@@ -187,10 +187,10 @@ public class GroundIntake implements Subsystem {
     }
 
     public void groundOn() {
-        ground1Speed = 1;
-        ground2Speed = -1;
+        state = IntakeState.INTAKING;
     }
     public void groundOff(){
+        state = IntakeState.AUTO;
         ground1Speed = 0;
         ground2Speed = 0;
     }
