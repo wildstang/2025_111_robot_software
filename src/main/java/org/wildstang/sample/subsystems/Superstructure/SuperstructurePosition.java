@@ -20,7 +20,7 @@ public enum SuperstructurePosition {
     ALGAE_PROCESSOR_FRONT(104,0, "Algae Proc Front"),
     STOWED_AFTER_PICKUP_HIGH(58,20, "Post Pickup High"),
     STOWED_AFTER_PICKUP_LOW(58, 4, "Post Pickup Low"),
-    CLIMB(22,0, "Climb Stow"),
+    CLIMB(13,0, "Climb Stow"),//was 22 for horizontal
     STOWED(58,0, "Stowed"),
     STOWED_UP(58, 40, "Stowed up"),
     STOWED_UP_L2(65, 17.3, "Stowed up L2"),
