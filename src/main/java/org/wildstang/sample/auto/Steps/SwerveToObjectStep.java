@@ -62,7 +62,7 @@ public class SwerveToObjectStep extends AutoStep {
             }
         }
 
-        swerve.setAutoScalar(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed));
+        swerve.setAutoScalar(Math.min(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed), 2.0));
     }
 
     @Override

@@ -4,6 +4,7 @@ package org.wildstang.sample.auto.Programs;
 import org.wildstang.framework.auto.AutoProgram;
 import org.wildstang.framework.auto.steps.AutoParallelStepGroup;
 import org.wildstang.framework.auto.steps.AutoSerialStepGroup;
+import org.wildstang.framework.auto.steps.control.AutoStepDelay;
 import org.wildstang.framework.core.Core;
 import org.wildstang.sample.auto.Steps.AlgaePickStep;
 import org.wildstang.sample.auto.Steps.AutoSetupStep;
@@ -95,6 +96,8 @@ public class BlueLeftFourObject extends AutoProgram {
         // Score 4th Coral
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L3));
         addStep(new ScoreCoralStep());
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.AUTO_AVOID));
+        addStep(new AutoStepDelay(500));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 
         //If we need to add more to this I'll be a very happy man

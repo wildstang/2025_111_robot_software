@@ -26,6 +26,7 @@ public enum SuperstructurePosition {
     STOWED_UP_L2(65, 17.3, "Stowed up L2"),
     STOWED_UP_L3(65, 28.3, "Stowed up L3"),
     OVERRIDE(85, 15, "Override"),
+    AUTO_AVOID(58, 50, "Auto avoid descoring"),
     GROUND_INTAKE(38.9, 0, "Ground Intake");
     
    public final double Arm;

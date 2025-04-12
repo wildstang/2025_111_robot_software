@@ -222,7 +222,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         //     } else setArm(desiredPosition.getArm());
 
         //going away from the coral station preset
-        } else if (prevPosition == SuperstructurePosition.CORAL_STATION_FRONT){
+        } else if (prevPosition == SuperstructurePosition.CORAL_STATION_FRONT && desiredPosition != SuperstructurePosition.CORAL_STATION_FRONT
+                && desiredPosition != SuperstructurePosition.ALGAE_PREPICK_LOW){
 
             if (armSpark.getPosition() < 56){
                 setLift(17.3);

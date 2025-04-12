@@ -26,8 +26,8 @@ public class Test_Climb implements Subsystem{
     private PWM servo;
     private final double startPos = -94;//230 for ~215 deg rotation, now 90 deg rotation
     private final double CLIMBED = 30;
-    private final double LOCKED = 0.0;
-    private final double OPEN = 0.65;
+    private final double LOCKED = 0.65;
+    private final double OPEN = 0.0;
     private double position;
     private boolean manual;
 
@@ -91,6 +91,7 @@ public class Test_Climb implements Subsystem{
         }
         climb1.setSpeed(climbSpeed);
         servo.setPosition(pwmValue);
+        //servo.setPosition(LOCKED);
 
         // Enaged pwmValue == 0, Off pwmValue == 0.65
         SmartDashboard.putBoolean("# climb ratchet on", pwmValue == LOCKED);

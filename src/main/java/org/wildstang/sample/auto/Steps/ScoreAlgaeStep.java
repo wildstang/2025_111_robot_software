@@ -24,7 +24,7 @@ public class ScoreAlgaeStep extends AutoStep{
     @Override
     public void update() {
         if (superstructure.isAtPosition()){
-            superstructure.setPosition(SuperstructurePosition.ALGAE_NET_THROW_FRONT);
+            superstructure.setPosition(SuperstructurePosition.ALGAE_NET_FRONT);
             coralPath.scoreAlgae();
             scoreTimer.start();
         }

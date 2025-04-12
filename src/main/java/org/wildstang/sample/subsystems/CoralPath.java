@@ -172,6 +172,9 @@ public class CoralPath implements Subsystem{
     public boolean hasCoral() {
         return coralLC.blocked() || superstructure.isScoringCoral();
     }
+    public boolean autoHasCoral(){
+        return coralLC.blocked();
+    }
 
     public boolean hasAlgae() {
         return algaeLC.blocked() || superstructure.isScoringAlgae();

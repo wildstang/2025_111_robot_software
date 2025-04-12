@@ -38,6 +38,7 @@ public class GroundIntake implements Subsystem {
     private final double L1Score = -15;
     private final double DEPLOYED = 0;
     private final double CLIMB = -17.5;
+    private final double STATION = -20.0;
     private double ground1Speed = 0;
     private double ground2Speed = 0;
     private Timer L1timer = new Timer();
@@ -81,7 +82,7 @@ public class GroundIntake implements Subsystem {
         ground1 = (WsSpark) WsOutputs.GROUND1.get();
         ground2 = (WsSpark) WsOutputs.GROUND2.get();
         pivot = (WsSpark) WsOutputs.PIVOT.get();
-        pivot.initClosedLoop(0.1,0,0,0);
+        pivot.initClosedLoop(0.05,0,0,0);
         ground1.setBrake();
         ground2.setBrake();
         pivot.setBrake();
@@ -150,14 +151,14 @@ public class GroundIntake implements Subsystem {
             ground2Speed = 0.25;
         } else if (state == IntakeState.SCORE_L1){
             deploy = L1Score;
-            ground1Speed = -0.5;
-            ground2Speed = 0.15;
+            ground1Speed = -0.75;
+            ground2Speed = 0.2;
         } else if (state == IntakeState.PRE_L1){
             deploy = L1Score;
             ground1Speed = 0;//L1timer.hasElapsed(0.2) ? 0.0 : 0.15;
             ground2Speed = 0;
         } else if (state == IntakeState.STATION){
-            deploy = superstructure.isAtPosition() ? STARTING : DEPLOYED;
+            deploy = superstructure.isAtPosition() ? STATION : DEPLOYED;
             ground1Speed = 0;
             ground2Speed = 0;
         } else if (state == IntakeState.UP){

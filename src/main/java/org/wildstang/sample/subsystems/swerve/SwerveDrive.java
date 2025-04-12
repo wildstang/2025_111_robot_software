@@ -104,7 +104,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     @Override
     public void inputUpdate(Input source) {
         if (Math.abs(operatorLeftTrigger.getValue()) > 0.5) scoringAlgae = true;
-        if (Math.abs(operatorRightTrigger.getValue()) > 0.5) scoringAlgae = false;
+        if (Math.abs(operatorRightTrigger.getValue()) > 0.5 || operatorX.getValue()) scoringAlgae = false;
         if (rightBumper.getValue()) scoringAlgae = false;
         
         // Operator controls set intent state variables
@@ -340,7 +340,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
                 // Account for intake position so when our robot is at intakeAdjustedPoint the ground intake is centered on the coral
                 Translation2d intakeAdjustedPoint = new  Pose2d(coralPoint, odoAngle()).plus(VisionConsts.intakeOffset.inverse()).getTranslation();
-
+                targetPosePublisher.set(new Pose2d(intakeAdjustedPoint, new Rotation2d()));
                 SmartDashboard.putString("adjusted point", intakeAdjustedPoint.toString());
                 // Only turn if we can see the coral 
                 rotTarget = pose.turnToTarget(intakeAdjustedPoint);

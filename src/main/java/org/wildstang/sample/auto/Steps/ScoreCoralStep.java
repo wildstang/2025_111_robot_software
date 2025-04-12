@@ -40,7 +40,7 @@ public class ScoreCoralStep extends AutoStep {
     public void update() {
         if (!hasStarted){
             hasStarted = true;
-            if (!coralPath.hasCoral()) setFinished();
+            if (!coralPath.autoHasCoral()) setFinished();
         }
 
         // Execute once
