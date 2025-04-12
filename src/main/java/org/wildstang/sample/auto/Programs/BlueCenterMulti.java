@@ -45,12 +45,13 @@ public class BlueCenterMulti extends AutoProgram{
         //superstructure to stow up, move t onet, smart step to net score
         AutoParallelStepGroup group2 = new AutoParallelStepGroup();
         group2.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
-        group2.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_FRONT));
+        //group2.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_FRONT));
         group2.addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(VisionConsts.netScore.getX(), 5.0), 
             Rotation2d.fromDegrees(0))));
         addStep(group2);
 
         //score algae
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.ALGAE_NET_FRONT));
         addStep(new ScoreAlgaeStep());
 
         //superstructure to algae high, move to back left reef, pick sequence
@@ -62,18 +63,24 @@ public class BlueCenterMulti extends AutoProgram{
         //superstructure to stow up, move to net, smart step to net score
         AutoParallelStepGroup group4 = new AutoParallelStepGroup();
         group4.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
-        group4.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_FRONT));
+        //group4.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_FRONT));
         group4.addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(VisionConsts.netScore.getX(), 6.0), 
             Rotation2d.fromDegrees(0))));
         addStep(group4);
 
         //score algae
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.ALGAE_NET_FRONT));
         addStep(new ScoreAlgaeStep());
 
         //2 serial group: object intake and move to front left, ground intake then algae low then pick
         AutoParallelStepGroup group5 = new AutoParallelStepGroup();
         AutoSerialStepGroup group5a = new AutoSerialStepGroup();
         AutoSerialStepGroup group5b = new AutoSerialStepGroup();
+        //group5a.addStep(new SwerveToPointStep(swerve, new Pose2d(1.54, 7.34, Rotation2d.fromDegrees(-235))));
+        //group5b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_STATION_FRONT));
+        //group5b.addStep(new GroundStationStep());
+        //group5b.addStep(new AutoStepDelay(500));
+        //group5b.addStep(new IntakeCoralStep());
         group5a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.2, 6.75), Rotation2d.fromDegrees(-220)), 1.0));
         group5a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
         group5b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));

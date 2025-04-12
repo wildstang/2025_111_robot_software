@@ -45,13 +45,13 @@ public enum WsAutoPrograms implements AutoPrograms {
     // LinePose("LinePose", LinePose.class),
     //TEST_PROGRAM("Test Program", TestProgram.class),
     //Jubilee("Jubilee", Jubilee.class),
-    BLUE_LEFT_THREE_CORAL("Blue Left Three V2", BlueLeftThreeCoralV2.class),
-    BLUE_RIGHT_THREE_CORAL("Blue Right Three V2", BlueRightThreeCoralV2.class),
-    RED_LEFT_THREE_CORAL("Red Left Three V2", RedLeftThreeCoralV2.class),
-    RED_RIGHT_THREE_CORAL("Red Right Three V2", RedRightThreeCoralV2.class),
+    // BLUE_LEFT_THREE_CORAL("Blue Left Three V2", BlueLeftThreeCoralV2.class),
+    // BLUE_RIGHT_THREE_CORAL("Blue Right Three V2", BlueRightThreeCoralV2.class),
+    // RED_LEFT_THREE_CORAL("Red Left Three V2", RedLeftThreeCoralV2.class),
+    // RED_RIGHT_THREE_CORAL("Red Right Three V2", RedRightThreeCoralV2.class),
 
-    BLUE_LEFT_PUSH("Blue Left Three Push", BlueLeftThreePUSH.class),
-    RED_LEFT_PUSH("Red Left Three Push", RedLeftThreePUSH.class),
+    // BLUE_LEFT_PUSH("Blue Left Three Push", BlueLeftThreePUSH.class),
+    // RED_LEFT_PUSH("Red Left Three Push", RedLeftThreePUSH.class),
 
     // BLUE_LEFT_FOUR_FAST("Blue Left Four Fast", BlueLeftFourFast.class),
     // BLUE_RIGHT_FOUR_FAST("Blue Right Four Fast", BlueRightFourFast.class),
@@ -68,8 +68,8 @@ public enum WsAutoPrograms implements AutoPrograms {
     // BLUE_LEFT_FIVE_CORAL("Blue Left Five Coral", BlueLeftFiveCoral.class),
     // BLUE_LEFT_FOUR_CORAL("Blue Left Four Coral V1", LeftFourCoral.class),
 
-    CENTER_BLUE("Center Blue", TheDrakeBlue.class),
-    CENTER_RED("Center Red", TheDrakeRed.class),
+    // CENTER_BLUE("Center Blue", TheDrakeBlue.class),
+    // CENTER_RED("Center Red", TheDrakeRed.class),
     // LINE_TRAPEZOID("Line Trapezoid", LineTrapezoid.class),
     BLUE_LEFT_JACK("Blue Left Jack In The Bot auto", BlueLeftJackInTheBot.class)
     ;
