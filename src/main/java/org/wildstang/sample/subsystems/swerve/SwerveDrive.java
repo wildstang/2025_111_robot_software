@@ -104,7 +104,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     @Override
     public void inputUpdate(Input source) {
         if (Math.abs(operatorLeftTrigger.getValue()) > 0.5) scoringAlgae = true;
-        if (Math.abs(operatorRightTrigger.getValue()) > 0.5 || operatorX.getValue()) scoringAlgae = false;
+        if (Math.abs(operatorRightTrigger.getValue()) > 0.5) scoringAlgae = false;
         if (rightBumper.getValue()) scoringAlgae = false;
         
         // Operator controls set intent state variables
@@ -407,7 +407,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         // Autonomous period
         } else if (driveState == DriveType.AUTO) {
             rotTarget = (360-targetPose.getRotation().getDegrees())%360;
-            rotSpeed = swerveHelper.getAutoRotation(rotTarget, getGyroAngle());
+            rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
 
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());

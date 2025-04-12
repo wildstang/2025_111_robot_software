@@ -381,7 +381,9 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             desiredPosition == SuperstructurePosition.ALGAE_PREPICK_HIGH;
     }
     private void setArm(double armPos){
-        if (isLiftHigh(LiftMax.getPosition()) || isLiftHigh(desiredPosition)){
+        if (dRightHeld && desiredPosition == SuperstructurePosition.CORAL_REEF_L4){
+            armSpark.setPosition(armPos+10, 1);
+        } else if (isLiftHigh(LiftMax.getPosition()) || isLiftHigh(desiredPosition)){
             armSpark.setPosition(armPos, 1);
         } else {
             armSpark.setPosition(armPos, 0);
@@ -392,7 +394,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             LiftMax.setPosition(-0.5, 1, LIFT_FF);
             lift2.setPosition(0.5, 1, LIFT_FF);
         }
-        if (desiredPosition.getLift() < LiftMax.getPosition()){
+        if (desiredPosition.getLift() < LiftMax.getPosition() && !isAuto){
             LiftMax.setPosition(liftPos, 1, LIFT_FF);
             lift2.setPosition(-liftPos, 1, -LIFT_FF);
         } else {

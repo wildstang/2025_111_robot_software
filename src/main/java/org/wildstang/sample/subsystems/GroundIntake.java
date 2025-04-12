@@ -37,7 +37,7 @@ public class GroundIntake implements Subsystem {
     private final double L1 = -20;
     private final double L1Score = -15;
     private final double DEPLOYED = 0;
-    private final double CLIMB = -8;
+    private final double CLIMB = -17.5;
     private double ground1Speed = 0;
     private double ground2Speed = 0;
     private Timer L1timer = new Timer();
@@ -153,8 +153,8 @@ public class GroundIntake implements Subsystem {
             ground1Speed = -0.5;
             ground2Speed = 0.15;
         } else if (state == IntakeState.PRE_L1){
-            deploy = L1;
-            ground1Speed = L1timer.hasElapsed(0.2) ? 0.0 : 0.15;
+            deploy = L1Score;
+            ground1Speed = 0;//L1timer.hasElapsed(0.2) ? 0.0 : 0.15;
             ground2Speed = 0;
         } else if (state == IntakeState.STATION){
             deploy = superstructure.isAtPosition() ? STARTING : DEPLOYED;
@@ -187,16 +187,19 @@ public class GroundIntake implements Subsystem {
     }
 
     public void groundOn() {
-        ground1Speed = 1;
-        ground2Speed = -1;
+        state = IntakeState.INTAKING;
     }
     public void groundOff(){
+        state = IntakeState.AUTO;
         ground1Speed = 0;
         ground2Speed = 0;
     }
     public void groundL1(){
         ground1Speed = -1;
         ground2Speed = 0.25;
+    }
+    public void stationPickup(){
+        state = IntakeState.STATION;
     }
 
     @Override

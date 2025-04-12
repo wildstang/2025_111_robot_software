@@ -155,7 +155,7 @@ public class WsSwerveHelper {
      * @return double that indicates what the rotational joystick value should be
      */
     public double getAutoRotation(double i_target, double i_gyro){
-        return Math.max(-0.5, Math.min(0.5, getRotControl(i_target, i_gyro)));
+        return Math.max(-0.8, Math.min(0.8, getRotControl(i_target, i_gyro)));
     }
 
     /**determines the translational magnitude of the robot in autonomous

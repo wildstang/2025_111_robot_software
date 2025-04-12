@@ -34,13 +34,13 @@ public class BlueLeftFourObject extends AutoProgram {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         addStep(new AutoSetupStep(7.15, 5.48, 0, Alliance.Blue));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
+        addStep(new RunGroundStep(false));
 
         // Score 1st Coral
         AutoParallelStepGroup score1 = new AutoParallelStepGroup();
         score1.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackLeft)));
         score1.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(score1);
-        addStep(new RunGroundStep());
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
 
@@ -65,7 +65,7 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoParallelStepGroup group2 = new AutoParallelStepGroup();
         AutoSerialStepGroup group2a = new AutoSerialStepGroup();
         AutoSerialStepGroup group2b = new AutoSerialStepGroup();
-        group2a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135))));
+        group2a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135)), 0));
         group2a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFrontLeft)));
         group2b.addStep(new GroundIntakeCoralStep());
         group2b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
@@ -81,7 +81,7 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoParallelStepGroup group3 = new AutoParallelStepGroup();
         AutoSerialStepGroup group3a = new AutoSerialStepGroup();
         AutoSerialStepGroup group3b = new AutoSerialStepGroup();
-        group3a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135))));
+        group3a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135)), 0));
         // group3a.addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(4.5, 5.75, Rotation2d.fromDegrees(-300)), 
         group3a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
         //     VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)}, new double[] {}, 0));
