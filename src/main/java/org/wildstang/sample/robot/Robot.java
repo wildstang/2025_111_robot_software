@@ -38,7 +38,7 @@ public class Robot extends LoggedRobot {
 
     public Robot(){
         // Set up data receivers & replay source
-        switch (Constants.currentMode) {
+        switch (Core.currentMode) {
             case REAL:
             // Running on a real robot, log to NT, which will be logged to robot by DataLogManager
             Logger.addDataReceiver(new NT4Publisher());
@@ -57,7 +57,7 @@ public class Robot extends LoggedRobot {
             Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
             break;
         }
-        Logger.registerURCL(URCL.startExternal());
+        Logger.registerURCL(URCL.startExternal(CANConstants.aliasMap));
 
         CanBridge.runTCP();
     }
