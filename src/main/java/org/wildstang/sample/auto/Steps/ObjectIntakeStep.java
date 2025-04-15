@@ -53,6 +53,6 @@ public class ObjectIntakeStep extends AutoStep {
 
     @Override
     public String toString() {
-        return "Swerve To Point Step";
+        return "Swerve Object Intake Step";
     }
 }

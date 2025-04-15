@@ -26,7 +26,7 @@ public class SetAlignStep extends AutoStep{
 
     @Override
     public void update() {
-        swerve.setAutoValues(0, 0, odoPose);
+        swerve.setAutoValues(0,0,0, 0, odoPose);
         swerve.setAutoHeading(heading);
         setFinished();
     }

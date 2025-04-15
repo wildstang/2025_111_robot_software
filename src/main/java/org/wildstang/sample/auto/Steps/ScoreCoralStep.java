@@ -15,8 +15,8 @@ import edu.wpi.first.wpilibj.Timer;
  */
 public class ScoreCoralStep extends AutoStep {
     public final double SCORE_DURATION = 0.4;
-    public final double AT_POS_DURATION = 0.25;
     private boolean hasStarted = false;
+    private double wait;
     CoralPath coralPath;
     SuperstructureSubsystem superstructure;
     SwerveDrive swerveDrive;
@@ -29,12 +29,18 @@ public class ScoreCoralStep extends AutoStep {
         superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
         swerveDrive = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
     }
+    public ScoreCoralStep(double newwait){
+        wait = newwait;
+    }
+    public ScoreCoralStep(){
+        this(0.25);
+    }
 
     @Override
     public void update() {
         if (!hasStarted){
             hasStarted = true;
-            if (!coralPath.hasCoral()) setFinished();
+            if (!coralPath.autoHasCoral()) setFinished();
         }
 
         // Execute once
@@ -42,7 +48,7 @@ public class ScoreCoralStep extends AutoStep {
             atPosTimer.start();
         }
         // Execute once
-        if (atPosTimer.hasElapsed(AT_POS_DURATION) && scoreTimer.isRunning() == false) {
+        if (atPosTimer.hasElapsed(wait) && scoreTimer.isRunning() == false) {
             coralPath.setIntake(CoralPath.IntakeState.SCORING);
             scoreTimer.start();
         }

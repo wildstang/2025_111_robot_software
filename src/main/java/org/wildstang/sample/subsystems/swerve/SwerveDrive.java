@@ -51,13 +51,9 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     private DigitalInput faceRight;//rotation lock 90 degrees
     private DigitalInput faceLeft;//rotation lock 270 degrees
     private DigitalInput faceDown;//rotation lock 180 degrees
-    private DigitalInput dpadLeft;
-    private DigitalInput dpadRight;
     private DigitalInput driverStart; // Auto rotate to reef
     private DigitalInput operatorLeftBumper; // Select left branch auto align
     private DigitalInput operatorRightBumper; // Select right branch auto align
-    private DigitalInput operatorDpadUp;
-    private DigitalInput operatorDpadLeft;
     private DigitalInput operatorFaceLeft;
     private DigitalInput operatorStart;
     private DigitalInput operatorSelect;
@@ -245,20 +241,12 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         faceRight.addInputListener(this);
         faceDown = (DigitalInput) WsInputs.DRIVER_FACE_DOWN.get();
         faceDown.addInputListener(this);
-        dpadLeft = (DigitalInput) WsInputs.DRIVER_DPAD_LEFT.get();
-        dpadLeft.addInputListener(this);
-        dpadRight = (DigitalInput) WsInputs.DRIVER_DPAD_RIGHT.get();
-        dpadRight.addInputListener(this);
         driverStart = (DigitalInput) WsInputs.DRIVER_START.get();
         driverStart.addInputListener(this);
         operatorLeftBumper = (DigitalInput) WsInputs.OPERATOR_LEFT_SHOULDER.get();
         operatorLeftBumper.addInputListener(this);
         operatorRightBumper = (DigitalInput) WsInputs.OPERATOR_RIGHT_SHOULDER.get();
         operatorRightBumper.addInputListener(this);
-        operatorDpadUp = (DigitalInput) WsInputs.OPERATOR_DPAD_UP.get();
-        operatorDpadUp.addInputListener(this);
-        operatorDpadLeft = (DigitalInput) WsInputs.OPERATOR_DPAD_LEFT.get();
-        operatorDpadLeft.addInputListener(this);
         operatorFaceLeft = (DigitalInput) WsInputs.OPERATOR_FACE_LEFT.get();
         operatorFaceLeft.addInputListener(this);
         operatorSelect = (DigitalInput) WsInputs.OPERATOR_SELECT.get();
@@ -301,11 +289,14 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
         Logger.processInputs("Swerve", this);
 
-        pose.addOdometryObservation(modulePositions(), odoAngle(), driveState == DriveType.AUTO);
+        pose.addOdometryObservation(modulePositions(), odoAngle());
 
         // Reset coral point
         if (driveState != DriveType.CORALINTAKE) {
             coralPoint = null;
+            if (driveState != DriveType.AUTO) {
+                pose.setPipelineObject(false);
+            } else pose.setPipelineObject(true);
         }
         if (driveState == DriveType.CROSS) {
             //set to cross - done in inputupdate
@@ -327,6 +318,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         // Aligns heading to face coral and then p-loop to intake it
         // Keeps driving to last seen point but doesn't turn if it can't see a coral
         } else if (driveState == DriveType.CORALINTAKE) {
+            pose.setPipelineObject(true);
 
             // Update point
             if (pose.getCoralPose().isPresent()) {
@@ -348,20 +340,26 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
                 // Account for intake position so when our robot is at intakeAdjustedPoint the ground intake is centered on the coral
                 Translation2d intakeAdjustedPoint = new  Pose2d(coralPoint, odoAngle()).plus(VisionConsts.intakeOffset.inverse()).getTranslation();
-
+                targetPosePublisher.set(new Pose2d(intakeAdjustedPoint, new Rotation2d()));
                 SmartDashboard.putString("adjusted point", intakeAdjustedPoint.toString());
                 // Only turn if we can see the coral 
                 rotTarget = pose.turnToTarget(intakeAdjustedPoint);
-                rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 1.5 : 0;
+                rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5 : 0;
 
 
                 // Only drive towards if we're within 10 degrees
-                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 100.0) {
-                    xPower = pose.getAlignX(intakeAdjustedPoint) * 0.75;
-                    yPower = pose.getAlignY(intakeAdjustedPoint) * 0.75;
+                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 80.0) {
+                    xPower = pose.getAlignX(intakeAdjustedPoint)*1.2;
+                    yPower = pose.getAlignY(intakeAdjustedPoint)*1.2;
                 } else {
                     xPower = 0;
                     yPower = 0;
+                }
+                double temphypot = Math.hypot(xPower, yPower);
+                // Scale power by 
+                if (temphypot > 2.0){
+                    xPower *= (autoMaxPowerScalar / temphypot);
+                    yPower *= (autoMaxPowerScalar / temphypot);
                 }
                 this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             } else {
@@ -392,8 +390,8 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         } else if (driveState == DriveType.NETSCORE) {
             rotTarget = frontCloser(0) ? 0 : 180;
             rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            //yPower = pose.getAlignY(VisionConsts.netScore);
-            this.swerveSignal = swerveHelper.setDrive(xPower*0.6, yPower*0.5, rotSpeed, getGyroAngle());
+            yPower = pose.getAlignY(VisionConsts.netScore);
+            this.swerveSignal = swerveHelper.setDrive(xPower*0.6, 0.5*yPower, rotSpeed, getGyroAngle());
 
         // Align closest scoring side to 90
         } else if (driveState == DriveType.PROCESSORSCORE) {
@@ -415,7 +413,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         // Autonomous period
         } else if (driveState == DriveType.AUTO) {
             rotTarget = (360-targetPose.getRotation().getDegrees())%360;
-            rotSpeed = swerveHelper.getAutoRotation(rotTarget, getGyroAngle());
+            rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
 
             xPower += pose.getAlignX(targetPose.getTranslation());
             yPower += pose.getAlignY(targetPose.getTranslation());
@@ -429,8 +427,8 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
             }
             this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             
-            SmartDashboard.putNumber("Auto Power", xPower);
-            SmartDashboard.putNumber("Auto Power", yPower);
+            SmartDashboard.putNumber("Auto Power X", xPower);
+            SmartDashboard.putNumber("Auto Power Y", yPower);
             xPower = 0;
             yPower = 0;
             // Pre generated power values in set auto
@@ -525,20 +523,26 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
 
 
-    /**sets autonomous values from the path data file in field relative */
-    public void setAutoValues(double xVelocity, double yVelocity, Pose2d target) {
+    // Sets autonomous values from the motion profile in Driver Station relative 
+    public void setAutoValues(double xVelocity, double yVelocity, double xAccel, double yAccel, Pose2d target) {
         SmartDashboard.putNumber("Path Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
         // accel of 0 because currently not using acceleration for power since
-        xPower = swerveHelper.getAutoPower(xVelocity, 0);
-        yPower = swerveHelper.getAutoPower(yVelocity, 0);
+        xPower = swerveHelper.getAutoPower(xVelocity, xAccel);
+        yPower = swerveHelper.getAutoPower(yVelocity, yAccel);
         targetPose = target;
+    }
+
+    // Sets autonomous values when driving to a pose and not using a motion profile
+    public void setAutoValues(Pose2d target) {
+        setAutoValues(0, 0, 0, 0, target);
     }
 
     public void usePID(boolean use) {
         autoUsePID = use;
-    }   
+    }
 
-    /**sets the autonomous heading controller to a new target */
+    /** sets the autonomous heading controller to a new target */
+    @Deprecated
     public void setAutoHeading(double headingTarget) {
         rotTarget = headingTarget;
     }
@@ -568,7 +572,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         return (gyro.getYaw().getValueAsDouble() + (Core.isBlue() ? 0 : 180));
     }
     /** 
-     * @return Returns alliance relative CCW degrees gyro angle for use with always alliance relative pose
+     * @return Returns alliance relative CCW Rotation2d gyro angle for use with always alliance relative pose
      */
     public Rotation2d odoAngle(){
         return Rotation2d.fromDegrees(gyroReading);

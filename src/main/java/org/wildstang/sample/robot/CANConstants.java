@@ -1,5 +1,7 @@
 package org.wildstang.sample.robot;
 
+import java.util.Map;
+
 /**
  * CAN Constants are stored here.
  * We primarily use CAN to communicate with Talon motor controllers.
@@ -40,4 +42,27 @@ public final class CANConstants {
 
     public static final int ALGAE_LASERCAN = 31;
     public static final int CORAL_LASERCAN = 32;
+
+    public static final Map<Integer, String> aliasMap = Map.ofEntries(
+        Map.entry(DRIVE1, "DRIVE1"),
+        Map.entry(ANGLE1, "ANGLE1"),
+        Map.entry(DRIVE2, "DRIVE2"),
+        Map.entry(ANGLE2, "ANGLE2"),
+        Map.entry(DRIVE3, "DRIVE3"),
+        Map.entry(ANGLE3, "ANGLE3"),
+        Map.entry(DRIVE4, "DRIVE4"),
+        Map.entry(ANGLE4, "ANGLE4"),
+
+        Map.entry(LIFT1, "LIFT1"),
+        Map.entry(LIFT2, "LIFT2"),
+        Map.entry(ARM, "ARM"),
+        Map.entry(CORAL, "CORAL"),
+        Map.entry(ALGAE, "ALGAE"),
+        Map.entry(CLIMB1, "CLIMB1"),
+        Map.entry(CLIMB2, "CLIMB2"),
+        Map.entry(GROUND1, "GROUND1"),
+        Map.entry(GROUND2, "GROUND2"),
+
+        Map.entry(PIVOT, "PIVOT")
+    );
 }

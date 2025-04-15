@@ -31,67 +31,50 @@ public class GroundIntake implements Subsystem {
     private WsDPadButton driverDPadLeft;
 
     private SuperstructureSubsystem superstructure;
+    private CoralPath coralPath;
 
-    private final double STARTING = -23.1;
+    private final double STARTING = -21.1;
     private final double L1 = -20;
     private final double L1Score = -15;
     private final double DEPLOYED = 0;
-    private final double CLIMB = -8;
-    private double ground1Speed;
-    private double ground2Speed;
-    private double deploy = STARTING; 
+    private final double CLIMB = -17.5;
+    private final double STATION = -20.0;
+    private double ground1Speed = 0;
+    private double ground2Speed = 0;
     private Timer L1timer = new Timer();
-
-    // After 1 second of clicking start and select, bring up intake slightly
-    private Timer climbTimer = new Timer();
-
+    private double deploy = DEPLOYED;
+    private enum IntakeState {NEUTRAL, INTAKING, INTAKING_L1, REVERSE, PRE_L1, SCORE_L1, CLIMB, UP, STATION, AUTO};
+    private IntakeState state = IntakeState.AUTO;
 
     @Override
     public void inputUpdate(Input source){
 
         // After 1 second of clicking start and select, bring up intake slightly
         if (start.getValue() && select.getValue() && (source == start || source == select)){
-            climbTimer.start();
+            state = IntakeState.CLIMB;
         }
-        if (Math.abs(rightTrigger.getValue()) > 0.5){
+        if (state == IntakeState.CLIMB) ;//nothing
+        else if (Math.abs(rightTrigger.getValue()) > 0.5){
             if (superstructure.isScoreL1() && Math.abs(leftTrigger.getValue()) > 0.5){
-                //score L1
-                ground1Speed = -1;
-                ground2Speed = 0.25;
+                state = IntakeState.SCORE_L1;
             }
             else if (Math.abs(leftTrigger.getValue()) < 0.5){
-                //nomral intake
-                ground1Speed = 1;
-                ground2Speed = -1;
+                state = IntakeState.INTAKING;
             }
+        } else if (Math.abs(leftTrigger.getValue()) > 0.5 && superstructure.isScoreL1()){
+            if (state != IntakeState.PRE_L1) L1timer.reset();
+            state = IntakeState.PRE_L1;
         } else if (DpadUp.getValue() || driverDPadLeft.getValue()){
-            //reverse
-            ground1Speed = -1;
-            ground2Speed = 0.25;
+            state = IntakeState.REVERSE;
+        } else if (leftShoulder.getValue()){
+            state = IntakeState.STATION;
         } else if (rightShoulder.getValue()){
-            //intake for L1
-            ground1Speed = -1;
-            ground2Speed = -1;
-        } else if (superstructure.isScoreL1()){
-            //hold in L1
-            ground1Speed = 0;
-            ground2Speed = -0.2;
+            state = IntakeState.INTAKING_L1;
+        } else if (dpadDown.getValue()){
+            state = IntakeState.UP;
         } else {
-            ground1Speed = 0;
-            ground2Speed = 0;
+            state = IntakeState.NEUTRAL;
         }
-       if (Math.abs(leftTrigger.getValue()) > 0.5 && superstructure.isScoreL1()){
-            if (Math.abs(rightTrigger.getValue()) > 0.5) {
-                deploy = L1Score;
-            } else {
-                if (deploy != L1) L1timer.reset(); 
-                deploy = L1;
-            }
-        } else if (Math.abs(rightTrigger.getValue()) > 0.5 || rightShoulder.getValue()){
-            deploy = DEPLOYED;
-       } else if (leftShoulder.getValue() || dpadDown.getValue()){
-        deploy = STARTING;
-       } else deploy = DEPLOYED;
     }  
 
     @Override
@@ -99,7 +82,7 @@ public class GroundIntake implements Subsystem {
         ground1 = (WsSpark) WsOutputs.GROUND1.get();
         ground2 = (WsSpark) WsOutputs.GROUND2.get();
         pivot = (WsSpark) WsOutputs.PIVOT.get();
-        pivot.initClosedLoop(0.1,0,0,0);
+        pivot.initClosedLoop(0.05,0,0,0);
         ground1.setBrake();
         ground2.setBrake();
         pivot.setBrake();
@@ -132,6 +115,7 @@ public class GroundIntake implements Subsystem {
     @Override
     public void initSubsystems() {
         superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
+        coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
     }
 
     @Override
@@ -140,46 +124,83 @@ public class GroundIntake implements Subsystem {
 
     @Override
     public void update() {
-        if (climbTimer.hasElapsed(1)) {
-            pivot.setPosition(CLIMB);
-        } else {
-            if (!L1timer.hasElapsed(0.5)){
-                ground1.setSpeed(0.15);
+        if (state == IntakeState.CLIMB){
+            deploy = superstructure.isAtPosition() ? CLIMB : DEPLOYED;
+            ground1Speed = 0;
+            ground2Speed = 0;
+        } else if (state == IntakeState.INTAKING){
+            deploy = DEPLOYED;
+            if (coralPath.hasCoral()){
+                ground1Speed = 0;
+                ground2Speed = 0;
             } else {
-                ground1.setSpeed(ground1Speed);
+                ground1Speed = superstructure.isAtPosition() ? 1 : 0;
+                ground2Speed = -1;
             }
-            ground2.setSpeed(ground2Speed);
-    
-            pivot.setPosition(deploy);
+        } else if (state == IntakeState.INTAKING_L1){
+            deploy = DEPLOYED;
+            ground1Speed = -1;
+            ground2Speed = -1;
+        } else if (state == IntakeState.NEUTRAL){
+            deploy = superstructure.isScoreL1() ? L1 : DEPLOYED;
+            ground1Speed = 0;
+            ground2Speed = superstructure.isScoreL1() ? -0.2 : 0;
+        } else if (state == IntakeState.REVERSE){
+            deploy = DEPLOYED;
+            ground1Speed = -1;
+            ground2Speed = 0.25;
+        } else if (state == IntakeState.SCORE_L1){
+            deploy = L1Score;
+            ground1Speed = -0.75;
+            ground2Speed = 0.2;
+        } else if (state == IntakeState.PRE_L1){
+            deploy = L1;
+            ground1Speed = 0;//L1timer.hasElapsed(0.2) ? 0.0 : 0.15;
+            ground2Speed = 0;
+        } else if (state == IntakeState.STATION){
+            deploy = superstructure.isAtPosition() ? STATION : DEPLOYED;
+            ground1Speed = 0;
+            ground2Speed = 0;
+        } else if (state == IntakeState.UP){
+            deploy = STARTING;
+            ground1Speed = 0;
+            ground2Speed = 0;
         }
+        pivot.setPosition(deploy);
+        ground1.setSpeed(ground1Speed);
+        ground2.setSpeed(ground2Speed);
         SmartDashboard.putNumber("@ Intake position", pivot.getPosition());
         SmartDashboard.putNumber("@ Intake target", deploy);
+        SmartDashboard.putString("@ Ground Intake State", state.toString());
     }
 
     @Override
     public void resetState() {
-        ground1Speed = 0;
-        ground2Speed = 0;
     }
 
     public void deploy() {
         deploy = DEPLOYED;
+        state = IntakeState.AUTO;
     }
     public void stow() {
         deploy = STARTING;
+        state = IntakeState.AUTO;
     }
 
     public void groundOn() {
-        ground1Speed = 1;
-        ground2Speed = -1;
+        state = IntakeState.INTAKING;
     }
     public void groundOff(){
+        state = IntakeState.AUTO;
         ground1Speed = 0;
         ground2Speed = 0;
     }
     public void groundL1(){
         ground1Speed = -1;
         ground2Speed = 0.25;
+    }
+    public void stationPickup(){
+        state = IntakeState.STATION;
     }
 
     @Override

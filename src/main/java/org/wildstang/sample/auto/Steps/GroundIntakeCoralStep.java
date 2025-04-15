@@ -47,11 +47,12 @@ public class GroundIntakeCoralStep extends AutoStep {
             ground.groundOff();
             this.setFinished();
         } else if (timer.hasElapsed(timeout)) {
-            ground.groundL1();
-            if (timer.hasElapsed(timeout + 0.25)){
-                ground.groundOn();
-                 timer.reset();
-            }
+            setFinished();
+            // ground.groundL1();
+            // if (timer.hasElapsed(timeout + 0.25)){
+            //     ground.groundOn();
+            //      timer.reset();
+            // }
         }
      }
 

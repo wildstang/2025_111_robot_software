@@ -7,15 +7,9 @@ import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.GroundIntake;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 
-public class RunGroundStep extends AutoStep {
+public class GroundStationStep extends AutoStep {
 
     GroundIntake groundIntake;
-    private boolean runRollers = false;
-
-    public RunGroundStep(){}
-    public RunGroundStep(boolean enable){
-        runRollers = enable;
-    }
 
     @Override
     public void initialize() {
@@ -24,14 +18,13 @@ public class RunGroundStep extends AutoStep {
 
     @Override
     public void update() {
-        groundIntake.deploy();
-        if (runRollers) groundIntake.groundOn();
+        groundIntake.stationPickup();
         this.setFinished();
     }
 
     @Override
     public String toString() {
-        return "Run Ground Intake Step";
+        return "Ground Station Step";
     }
     
 }

@@ -1,4 +1,4 @@
-package org.wildstang.sample.auto.Programs;
+package org.wildstang.sample.auto.Programs.OldAutos;
 
 import org.wildstang.framework.auto.AutoProgram;
 import org.wildstang.framework.auto.steps.SwervePathFollowerStep;
@@ -13,12 +13,12 @@ import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-public class TheDrakeBlue extends AutoProgram{
+public class TheDrakeRed extends AutoProgram{
 
     @Override
     protected void defineSteps() {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
-        addStep(new AutoSetupStep(7.15, 4.228, 0, Alliance.Blue));
+        addStep(new AutoSetupStep(7.15, 4.228, 0, Alliance.Red));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 1st Coral
@@ -31,7 +31,7 @@ public class TheDrakeBlue extends AutoProgram{
 
     @Override
     public String toString() {
-        return "Center Blue";
+        return "Center Red";
     }
     
 }
