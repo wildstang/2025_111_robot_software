@@ -355,6 +355,12 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                     xPower = 0;
                     yPower = 0;
                 }
+                double temphypot = Math.hypot(xPower, yPower);
+                // Scale power by 
+                if (temphypot > 2.0){
+                    xPower *= (autoMaxPowerScalar / temphypot);
+                    yPower *= (autoMaxPowerScalar / temphypot);
+                }
                 this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
             } else {
                 this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());

@@ -27,12 +27,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-public class BlueCenterMulti extends AutoProgram{
+public class RedCenterMulti extends AutoProgram{
 
     @Override
     protected void defineSteps() {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
-        addStep(new AutoSetupStep(7.15, 3.93, 0, Alliance.Blue));
+        addStep(new AutoSetupStep(7.15, 3.93, 0, Alliance.Red));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 
         //intake down, arm to algae low, pick sequence, move to back left
@@ -117,7 +117,7 @@ public class BlueCenterMulti extends AutoProgram{
 
     @Override
     public String toString() {
-        return "Blue Center Multi";
+        return "Red Center Multi";
     }
     
 }

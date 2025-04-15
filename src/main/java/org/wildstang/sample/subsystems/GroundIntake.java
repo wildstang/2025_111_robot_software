@@ -154,7 +154,7 @@ public class GroundIntake implements Subsystem {
             ground1Speed = -0.75;
             ground2Speed = 0.2;
         } else if (state == IntakeState.PRE_L1){
-            deploy = L1Score;
+            deploy = L1;
             ground1Speed = 0;//L1timer.hasElapsed(0.2) ? 0.0 : 0.15;
             ground2Speed = 0;
         } else if (state == IntakeState.STATION){

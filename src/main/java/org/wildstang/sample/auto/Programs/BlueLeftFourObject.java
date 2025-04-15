@@ -50,7 +50,7 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         AutoSerialStepGroup group1a = new AutoSerialStepGroup();
         AutoSerialStepGroup group1b = new AutoSerialStepGroup();
-        group1a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.2, 6.75), Rotation2d.fromDegrees(-220)), 1.0));
+        group1a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.2, 6.75), Rotation2d.fromDegrees(-200)), 1.0));
         group1a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
         group1b.addStep(new GroundIntakeCoralStep());
         group1b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));

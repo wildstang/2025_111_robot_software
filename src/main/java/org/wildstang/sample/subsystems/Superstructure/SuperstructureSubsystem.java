@@ -28,13 +28,12 @@ public class SuperstructureSubsystem implements Subsystem {
         }, "Set Superstructure Position Step");
     };
 
-private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select, reset;
-private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger, resetAxis;
+private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select, reset1, reset2;
+private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger;
 private WsDPadButton operatorDleft,operatorDright;
 private boolean LShoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld, dRightHeld;
 private boolean PickupSequence;
 private boolean resetStatus = false;
-private double resetSpeed = 0.0;
 public SuperstructurePosition desiredPosition = SuperstructurePosition.STOWED;
 private SuperstructurePosition prevPosition = SuperstructurePosition.CORAL_STATION_FRONT;
 private WsSpark LiftMax, lift2, armSpark ;
@@ -94,10 +93,10 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         operatorDleft.addInputListener(this);
         operatorDright = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
         operatorDright.addInputListener(this);
-        reset = (WsJoystickButton) WsInputs.OPERATOR_LEFT_JOYSTICK_BUTTON.get();
-        reset.addInputListener(this);
-        resetAxis = (WsJoystickAxis) WsInputs.OPERATOR_RIGHT_JOYSTICK_Y.get();
-        resetAxis.addInputListener(this);
+        reset1 = (WsJoystickButton) WsInputs.OPERATOR_LEFT_JOYSTICK_BUTTON.get();
+        reset1.addInputListener(this);
+        reset2 = (WsJoystickButton) WsInputs.OPERATOR_RIGHT_JOYSTICK_BUTTON.get();
+        reset2.addInputListener(this);
        
         armSpark = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ARM);
         armSpark.initClosedLoop(0.4, 0, 0, 0);
@@ -206,7 +205,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         }
 
         if (resetStatus){
-            armSpark.setSpeed(resetSpeed);
+            armSpark.setSpeed(-0.25);
             setLift(0.0);
         } else if (override){
             setLift(SuperstructurePosition.OVERRIDE.getLift());
@@ -261,12 +260,11 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
 
     @Override
     public void inputUpdate(Input source) {
-        resetSpeed = resetAxis.getValue();
-        if (reset.getValue()){
+        if (reset1.getValue() && reset2.getValue()){
             resetStatus = true;
         } else if (resetStatus){
             if (desiredPosition == SuperstructurePosition.CLIMB){
-                armSpark.getController().getEncoder().setPosition(22.0);
+                armSpark.getController().getEncoder().setPosition(SuperstructurePosition.CLIMB.getArm());
             } else armSpark.getController().getEncoder().setPosition(0);
             resetStatus = false;
         }

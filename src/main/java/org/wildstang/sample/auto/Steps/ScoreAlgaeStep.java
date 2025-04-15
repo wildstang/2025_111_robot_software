@@ -28,7 +28,7 @@ public class ScoreAlgaeStep extends AutoStep{
             coralPath.scoreAlgae();
             scoreTimer.start();
         }
-        if (scoreTimer.hasElapsed(0.5)){
+        if (scoreTimer.hasElapsed(0.4)){
             coralPath.stopAlgae();
             setFinished();
         }
