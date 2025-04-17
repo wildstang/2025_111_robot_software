@@ -139,12 +139,12 @@ public class GroundIntake implements Subsystem {
             }
         } else if (state == IntakeState.INTAKING_L1){
             deploy = DEPLOYED;
-            ground1Speed = -1;
+            ground1Speed = 0;
             ground2Speed = -1;
         } else if (state == IntakeState.NEUTRAL){
             deploy = superstructure.isScoreL1() ? L1 : DEPLOYED;
-            ground1Speed = 0;
-            ground2Speed = superstructure.isScoreL1() ? -0.2 : 0;
+            ground1Speed = superstructure.isScoreL1() ? -0.25: 0;
+            ground2Speed = superstructure.isScoreL1() ? -0.8 : 0;
         } else if (state == IntakeState.REVERSE){
             deploy = DEPLOYED;
             ground1Speed = -1;

@@ -100,6 +100,9 @@ public class BlueLeftFourObject extends AutoProgram {
         addStep(new AutoStepDelay(500));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
 
+        addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135)), 0));
+
+
         //If we need to add more to this I'll be a very happy man
         // Our Job is done
     }
