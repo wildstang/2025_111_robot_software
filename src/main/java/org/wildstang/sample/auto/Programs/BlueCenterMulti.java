@@ -48,10 +48,13 @@ public class BlueCenterMulti extends AutoProgram{
 
         //superstructure to stow up, move t onet, smart step to net score
         AutoParallelStepGroup group2 = new AutoParallelStepGroup();
-        group2.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
-        group2.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_THROW_FRONT));
+        AutoSerialStepGroup group2a = new AutoSerialStepGroup();
+        group2a.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
+        group2a.addStep(new AutoStepDelay(500));
+        group2a.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_THROW_FRONT));
         group2.addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(VisionConsts.netScore.getX(), 5.0), 
             Rotation2d.fromDegrees(0))));
+        group2.addStep(group2a);
         addStep(group2);
 
         //score algae
@@ -66,10 +69,13 @@ public class BlueCenterMulti extends AutoProgram{
 
         //superstructure to stow up, move to net, smart step to net score
         AutoParallelStepGroup group4 = new AutoParallelStepGroup();
-        group4.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
-        group4.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_THROW_FRONT));
+        AutoSerialStepGroup group4a = new AutoSerialStepGroup();
+        group4a.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
+        group4a.addStep(new AutoStepDelay(1000));
+        group4a.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_THROW_FRONT));
         group4.addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(VisionConsts.netScore.getX(), 6.0), 
             Rotation2d.fromDegrees(0))));
+        group4.addStep(group4a);
         addStep(group4);
 
         //score algae

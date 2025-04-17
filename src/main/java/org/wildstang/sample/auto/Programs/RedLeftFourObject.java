@@ -96,9 +96,16 @@ public class RedLeftFourObject extends AutoProgram {
         // Score 4th Coral
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L3));
         addStep(new ScoreCoralStep());
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.AUTO_AVOID));
-        addStep(new AutoStepDelay(500));
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
+        
+        AutoParallelStepGroup last = new AutoParallelStepGroup();
+        AutoSerialStepGroup lastarm = new AutoSerialStepGroup();
+        lastarm.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.AUTO_AVOID));
+        lastarm.addStep(new AutoStepDelay(200));
+        lastarm.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
+        last.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135)), 0));
+        last.addStep(new GroundIntakeCoralStep());
+        last.addStep(lastarm);
+        addStep(last);
 
         //If we need to add more to this I'll be a very happy man
         // Our Job is done
