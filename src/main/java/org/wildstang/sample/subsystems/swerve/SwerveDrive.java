@@ -340,7 +340,8 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 targetPosePublisher.set(new Pose2d(intakeAdjustedPoint, new Rotation2d()));
                 // Only turn if we can see the coral 
                 rotTarget = pose.turnToTarget(intakeAdjustedPoint);
-                rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5 : 0;
+                //rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5 : 0;
+                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5;
 
 
                 // Only drive towards if we're within 10 degrees
