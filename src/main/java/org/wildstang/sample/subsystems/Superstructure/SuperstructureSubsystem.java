@@ -193,6 +193,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
             if (!isScoreL1()){
                 desiredPosition = SuperstructurePosition.GROUND_INTAKE;
             } else desiredPosition = SuperstructurePosition.STOWED;
+        } else if (dRightHeld){
+            desiredPosition = SuperstructurePosition.ALGAE_PRESTAGED;
         } else {
             if (coralPath.hasCoral()){
                 if (LevelReef.Reef_L2 == level || PickupSequence) desiredPosition = SuperstructurePosition.STOWED_UP_L2;
@@ -381,7 +383,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     }
     private void setArm(double armPos){
         if (dRightHeld && desiredPosition == SuperstructurePosition.CORAL_REEF_L4){
-            armSpark.setPosition(armPos+10, 1);
+            armSpark.setPosition(armPos+5, 1);
         } else if (isLiftHigh(LiftMax.getPosition()) || isLiftHigh(desiredPosition)){
             armSpark.setPosition(armPos, 1);
         } else {

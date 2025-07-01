@@ -31,6 +31,7 @@ public class CoralPath implements Subsystem{
     private WsJoystickAxis rightTrigger;
     private WsJoystickAxis operatorLeftTrigger;
     private WsJoystickAxis operatorRightTrigger;
+    private WsDPadButton operatorDpadRight;
     public WsLaserCAN algaeLC = new WsLaserCAN(CANConstants.ALGAE_LASERCAN, 36);
     public WsLaserCAN coralLC = new WsLaserCAN(CANConstants.CORAL_LASERCAN, 20);
 
@@ -58,6 +59,9 @@ public class CoralPath implements Subsystem{
                 coralState = IntakeState.INTAKING;
             } 
         } else if (leftTrigger.getValue() > 0.5 && superstructure.isAlgaeRemoval()) {
+            algaeState = IntakeState.INTAKING;
+        } else if (operatorDpadRight.getValue() && Math.abs(leftTrigger.getValue())<0.5){
+            coralState = IntakeState.NEUTRAL;
             algaeState = IntakeState.INTAKING;
         } else {
             coralState = IntakeState.NEUTRAL;
@@ -91,6 +95,8 @@ public class CoralPath implements Subsystem{
         operatorLeftTrigger.addInputListener(this);
         operatorRightTrigger = (WsJoystickAxis) Core.getInputManager().getInput(WsInputs.OPERATOR_RIGHT_TRIGGER);
         operatorRightTrigger.addInputListener(this);
+        operatorDpadRight = (WsDPadButton) WsInputs.OPERATOR_DPAD_RIGHT.get();
+        operatorDpadRight.addInputListener(this);
     }
 
     @Override

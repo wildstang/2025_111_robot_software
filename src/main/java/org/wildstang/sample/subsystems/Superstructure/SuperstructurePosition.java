@@ -4,7 +4,7 @@ public enum SuperstructurePosition {
 //first value its arm second value lift position.
     CORAL_STATION_FRONT (9,0, "Coral Station Front"),
     CORAL_STATION_BACK(106,0, "Coral Station Back"),
-    ALGAE_PRESTAGED(100,0, "Algae Prestaged"),
+    ALGAE_PRESTAGED(22,0, "Algae Prestaged"),
     ALGAE_PREPICK_LOW(45, 4, "Algae Prepick Low"),
     ALGAE_PREPICK_HIGH(45, 22, "Algae Prepick High"),
     ALGAE_REEF_LOW(33.7,14.9, "Algae Pickup Low"),//was 87 4
