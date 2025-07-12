@@ -12,7 +12,7 @@ public enum SuperstructurePosition {
     CORAL_REEF_L1(90,0, "Reef L1"),//arms was 36, lifts all +2
     CORAL_REEF_L2(85.2,17.3, "Reef L2"),//80.3, 24.5
     CORAL_REEF_L3(85.9,37.3, "Reef L3"),//80.5, 45.5
-    CORAL_REEF_L4 (79.5, 82.1, "Reef L4"),
+    CORAL_REEF_L4 (79.8, 82.1, "Reef L4"),
     ALGAE_NET_FRONT(82,81, "Algae Net Front"),
     ALGAE_NET_THROW_FRONT(70, 81, "Algae Net Front Throw"),
     ALGAE_NET_BACK(50,75,"Algae Net Back"),
