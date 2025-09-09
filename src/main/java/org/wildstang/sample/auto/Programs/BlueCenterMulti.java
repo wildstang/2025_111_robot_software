@@ -52,14 +52,14 @@ public class BlueCenterMulti extends AutoProgram{
         AutoSerialStepGroup group2a = new AutoSerialStepGroup();
         group2a.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
         group2a.addStep(new AutoStepDelay(1500));
-        group2a.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_THROW_FRONT));
+        group2a.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_THROW_AUTO));
         group2.addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(VisionConsts.netScore.getX(), 5.0), 
             Rotation2d.fromDegrees(0))));
         group2.addStep(group2a);
         addStep(group2);
 
         //score algae
-        //addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.ALGAE_NET_THROW_FRONT));
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.ALGAE_NET_THROW_FRONT));
         addStep(new ScoreAlgaeStep());
 
         //superstructure to algae high, move to back left reef, pick sequence
@@ -72,7 +72,7 @@ public class BlueCenterMulti extends AutoProgram{
         AutoParallelStepGroup group4 = new AutoParallelStepGroup();
         AutoSerialStepGroup group4a = new AutoSerialStepGroup();
         group4a.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
-        group4a.addStep(new AutoStepDelay(1500));
+        group4a.addStep(new AutoStepDelay(1000));
         group4a.addStep(new SuperStructureSmartStep(SuperstructurePosition.ALGAE_NET_BACK));
         group4.addStep(new SwerveToPointStep(swerve, new Pose2d(new Translation2d(VisionConsts.netScore.getX(), 6.0), 
             Rotation2d.fromDegrees(180))));
@@ -80,47 +80,27 @@ public class BlueCenterMulti extends AutoProgram{
         addStep(group4);
 
         //score algae
-        //addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.ALGAE_NET_THROW_FRONT));
         addStep(new ScoreAlgaeFrontStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
-        addStep(new SwerveToPointStep(swerve, new Pose2d(4.54, 7.34, Rotation2d.fromDegrees(180))));
+        //addStep(new SwerveToPointStep(swerve, new Pose2d(5.5, 6.5, Rotation2d.fromDegrees(180))));
 
-        //2 serial group: object intake and move to front left, ground intake then algae low then pick
-        // AutoParallelStepGroup group5 = new AutoParallelStepGroup();
-        // AutoSerialStepGroup group5a = new AutoSerialStepGroup();
-        // AutoSerialStepGroup group5b = new AutoSerialStepGroup();
+        //2 serial group: object intake and move to back left
+        AutoParallelStepGroup group5 = new AutoParallelStepGroup();
+        AutoSerialStepGroup group5a = new AutoSerialStepGroup();
+        AutoSerialStepGroup group5b = new AutoSerialStepGroup();
 
-        // group5b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_STATION_FRONT));
-        // group5b.addStep(new GroundStationStep());
-        // group5b.addStep(new AutoStepDelay(500));
-        // group5b.addStep(new IntakeCoralStep());
+        //this is score another ground intake coral
+        group5a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(4.5, 7.0), Rotation2d.fromDegrees(180)), 0));
+        group5a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackLeft)));
+        group5b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
+        group5b.addStep(new GroundIntakeCoralStep());
+        group5b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L3));
+        group5.addStep(group5a);
+        group5.addStep(group5b);
+        addStep(group5);
+        addStep(new ScoreCoralStep(0));
+        //end score another ground intake coral
 
-        // group5a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.2, 6.75), Rotation2d.fromDegrees(-220)), 1.0));
-        //group5a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
-        // group5b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
-        // group5b.addStep(new GroundIntakeCoralStep());
-        //group5b.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_LOW));
-        // group5.addStep(group5a);
-        // group5.addStep(group5b);
-        // addStep(group5);
-
-        // AutoParallelStepGroup another = new AutoParallelStepGroup();
-        // another.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_LOW));
-        // another.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
-        // addStep(another);
-
-        // //superstructure to l3, then score coral
-        // addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L3));
-        // addStep(new ScoreCoralStep(0));
-
-        // //ground intake again if time
-        // AutoParallelStepGroup group6 = new AutoParallelStepGroup();
-        // AutoSerialStepGroup group6b = new AutoSerialStepGroup();
-        // group6.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.2, 6.75), Rotation2d.fromDegrees(-220)), 1.0));
-        // group6b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
-        // group6b.addStep(new GroundIntakeCoralStep());
-        // group6.addStep(group6b);
-        // addStep(group6);
     }
 
     @Override

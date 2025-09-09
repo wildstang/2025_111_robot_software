@@ -15,6 +15,7 @@ import org.wildstang.sample.auto.Steps.ScoreAlgaeFrontStep;
 import org.wildstang.sample.auto.Steps.ScoreAlgaeStep;
 import org.wildstang.sample.auto.Steps.ScoreCoralStep;
 import org.wildstang.sample.auto.Steps.SuperStructureSmartStep;
+import org.wildstang.sample.auto.Steps.SwerveMultiPointStep;
 import org.wildstang.sample.auto.Steps.SwerveToObjectStep;
 import org.wildstang.sample.auto.Steps.SwerveToPointStep;
 import org.wildstang.sample.robot.WsSubsystems;
@@ -28,7 +29,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-public class RedCenterMulti extends AutoProgram{
+public class RedCenterThree extends AutoProgram{
 
     @Override
     protected void defineSteps() {
@@ -90,22 +91,25 @@ public class RedCenterMulti extends AutoProgram{
         AutoSerialStepGroup group5a = new AutoSerialStepGroup();
         AutoSerialStepGroup group5b = new AutoSerialStepGroup();
 
-        //this is score another ground intake coral
-        group5a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(4.5, 7.0), Rotation2d.fromDegrees(180)), 0));
-        group5a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackLeft)));
-        group5b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
-        group5b.addStep(new GroundIntakeCoralStep());
-        group5b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L3));
+        //grab third ball and bring it close to the net
+        group5a.addStep(new SwerveMultiPointStep(new Pose2d[]{ 
+                new Pose2d(new Translation2d(6.5, 3.0), Rotation2d.fromDegrees(-90)),
+                VisionConsts.flipRot(VisionConsts.leftBranchBackRight)}, new double[]{}));
+        group5b.addStep(new AutoStepDelay(1000));
+        group5b.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_HIGH));
         group5.addStep(group5a);
         group5.addStep(group5b);
         addStep(group5);
-        addStep(new ScoreCoralStep(0));
-        //end score another ground intake coral
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
+        addStep(new SwerveMultiPointStep(new Pose2d[]{
+                new Pose2d(new Translation2d(6.5, 3.0), Rotation2d.fromDegrees(-90)),
+                new Pose2d(new Translation2d(6.5, 6.0), Rotation2d.fromDegrees(180))}, new double[]{}));
+        //end grabbing third ball
     }
 
     @Override
     public String toString() {
-        return "Red Center Multi";
+        return "Red Center Three";
     }
     
 }

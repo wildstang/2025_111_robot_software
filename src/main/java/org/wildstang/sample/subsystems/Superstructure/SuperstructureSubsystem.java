@@ -108,8 +108,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         lift2 = (WsSpark) WsOutputs.LIFT_FOLLOWER.get();
         LiftMax.initClosedLoop(0.2,0,0.1,0);
         lift2.initClosedLoop(0.2,0,0.1,0);
-        LiftMax.addClosedLoop(1, 0.05, 0.0, 0.05, 0);
-        lift2.addClosedLoop(1, 0.05, 0, 0.05, 0);
+        LiftMax.addClosedLoop(1, 0.1, 0.0, 0.05, 0);
+        lift2.addClosedLoop(1, 0.1, 0, 0.05, 0);
         LiftMax.setBrake();
         lift2.setBrake();
         lift2.setPosition(LiftMax.getPosition());
@@ -347,7 +347,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         return PickupSequence;
     }
     private boolean liftAtPosition(){
-        return Math.abs(desiredPosition.getLift()- LiftMax.getPosition())<1.5;
+        return Math.abs(desiredPosition.getLift()- LiftMax.getPosition())<2.0;
     }
     private boolean armAtPosition(){
         return Math.abs(desiredPosition.getArm() - armSpark.getPosition())<0.5;

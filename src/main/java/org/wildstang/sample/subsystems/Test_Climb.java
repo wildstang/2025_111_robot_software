@@ -30,7 +30,7 @@ public class Test_Climb implements Subsystem{
     private final double OPEN = 0.65;//was 0.0
     private double position;
     private boolean manual;
-    private double ns = 0.65;
+    private double ns = 0.75;
 
     @Override
     public void inputUpdate(Input source) {
@@ -54,8 +54,9 @@ public class Test_Climb implements Subsystem{
                 hasClimbed = true;
                 position = CLIMBED;
                 ns = 0.0;
-            } else if (pwmValue == OPEN) pwmValue = LOCKED;
-            else pwmValue = OPEN;
+            // } else if (pwmValue == OPEN) pwmValue = LOCKED;
+            // else pwmValue = OPEN;
+            } else ns = ns ==0.0 ? 0.75 : 0.0;
         }
     }
 
@@ -97,7 +98,7 @@ public class Test_Climb implements Subsystem{
         //servo.setPosition(LOCKED);
 
         // Enaged pwmValue == 0, Off pwmValue == 0.65
-        SmartDashboard.putBoolean("# climb ratchet on", pwmValue == LOCKED);
+        SmartDashboard.putBoolean("# climb ratchet on", ns == 0.75);
         SmartDashboard.putNumber("@ pwm value", pwmValue);
         SmartDashboard.putNumber("@ servo position", servo.getPosition());
         SmartDashboard.putNumber("@ climbSpeed", climbSpeed);

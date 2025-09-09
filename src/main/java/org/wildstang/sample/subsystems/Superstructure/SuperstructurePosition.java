@@ -15,6 +15,7 @@ public enum SuperstructurePosition {
     CORAL_REEF_L4 (79.8, 82.1, "Reef L4"),
     ALGAE_NET_FRONT(82,81, "Algae Net Front"),
     ALGAE_NET_THROW_FRONT(70, 81, "Algae Net Front Throw"),
+    ALGAE_NET_THROW_AUTO(50, 81, "Algae Net Throw Auto"),
     ALGAE_NET_BACK(50,75,"Algae Net Back"),
     ALGAE_PROCESSOR_BACK(22,0, "Algae Proc Back"),
     ALGAE_PROCESSOR_FRONT(104,0, "Algae Proc Front"),

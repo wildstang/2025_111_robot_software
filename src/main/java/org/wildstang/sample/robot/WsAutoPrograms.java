@@ -6,12 +6,14 @@ import org.wildstang.sample.auto.Programs.BlueLeftThreePUSH;
 import org.wildstang.sample.auto.Programs.BlueRightFourObject;
 import org.wildstang.sample.auto.Programs.BlueRightThreeCoralV2;
 import org.wildstang.sample.auto.Programs.RedCenterMulti;
+import org.wildstang.sample.auto.Programs.RedCenterThree;
 import org.wildstang.sample.auto.Programs.RedLeftFourObject;
 import org.wildstang.sample.auto.Programs.RedLeftThreeCoralV2;
 import org.wildstang.sample.auto.Programs.RedLeftThreePUSH;
 import org.wildstang.sample.auto.Programs.RedRightFourObject;
 import org.wildstang.sample.auto.Programs.RedRightThreeCoralV2;
 import org.wildstang.sample.auto.Programs.BlueCenterMulti;
+import org.wildstang.sample.auto.Programs.BlueCenterThree;
 import org.wildstang.sample.auto.Programs.BlueLeftFiveCoral;
 import org.wildstang.sample.auto.Programs.BlueLeftFourObject;
 import org.wildstang.sample.auto.Programs.BlueLeftJackInTheBot;
@@ -66,6 +68,8 @@ public enum WsAutoPrograms implements AutoPrograms {
 
     BLUE_CENTER_MULTI("Blue Center Multi", BlueCenterMulti.class),
     RED_CENTER_MULTI("Red Center Multi", RedCenterMulti.class),
+    BLUE_CENTER_THREE("Blue Center Three", BlueCenterThree.class),
+    RED_CENTER_THREE("Red Center Three", RedCenterThree.class)
 
     // BLUE_LEFT_FIVE_CORAL("Blue Left Five Coral", BlueLeftFiveCoral.class),
     // BLUE_LEFT_FOUR_CORAL("Blue Left Four Coral V1", LeftFourCoral.class),
