@@ -485,6 +485,10 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         return "Swerve Drive";
     }
 
+    public double getRotSpeed(){
+        return rotSpeed;
+    }
+
     /** sets the drive to teleop/cross, and sets drive motors to coast */
     public void setToTeleop() {
         driveState = DriveType.TELEOP;

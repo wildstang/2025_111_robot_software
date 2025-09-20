@@ -85,19 +85,31 @@ public class WsPose implements Subsystem {
 
         int bestIndex = -1;
         double bestStdDev = Double.MAX_VALUE;
-        PoseEstimate bestEstimate = null;
-        for (int i = 0; i < cameras.length; i++) {
-            Optional<PoseEstimate> estimate = cameras[i].update();
-            if (estimate.isPresent() && getStdDev(estimate) < bestStdDev) {
-                bestIndex = i;
-                bestEstimate = estimate.get();
-                bestStdDev = getStdDev(estimate);
-            }   
-        }
+        Optional<PoseEstimate> bestEstimate = null;
+
+        
+        // for (int i = 0; i < cameras.length; i++) {
+        //     Optional<PoseEstimate> estimate = cameras[i].update();
+        //     if (estimate.isPresent() && getStdDev(estimate) < bestStdDev) {
+        //         bestIndex = i;
+        //         bestEstimate = estimate.get();
+        //         bestStdDev = getStdDev(estimate);
+        //     }   
+        // }
+
+
+        WsAprilTagLL bestCamera = getBestCamera(67);
+        bestEstimate = bestCamera.update();
+        bestStdDev = getStdDev(bestEstimate);
+
+        //FOM function calculation
+        //Odometry function calculation
+        //Compare the two -> action
+
 
         // If we found a valid estimate
         if (bestEstimate != null) {
-            currentID = cameras[bestIndex].tid;
+            currentID = bestCamera.tid;
             addVisionObservation(bestEstimate, 1/bestStdDev);
         }
 
@@ -108,6 +120,77 @@ public class WsPose implements Subsystem {
         odometryPosePublisher.set(odometryPose);
         estimatedPosePublisher.set(estimatedPose);
     }
+
+
+    private double cameraFOM(){
+        double robotSpeed = swerve.speedMagnitude();
+        double rotSpeed = swerve.getRotSpeed();
+    }
+
+    private double odometryFOM(){
+        return 0.0;
+    }
+
+    private WsAprilTagLL getBestCamera(int priorityTagID){
+
+        Optional<PoseEstimate> leftEstimate = left.update(); 
+        Optional<PoseEstimate> rightEstimate = right.update();
+        
+        //checking if any of the camera poses are null
+        if(!leftEstimate.isPresent() && !rightEstimate.isPresent()){
+            return null;
+        }
+        if(!leftEstimate.isPresent() && rightEstimate.isPresent()){
+            return right;
+        }
+        else if(!rightEstimate.isPresent() && leftEstimate.isPresent()){
+            return left;
+        }
+
+        int lID = left.tid;
+        int rID = right.tid;
+
+          //only left camera sees priority tag
+        if((lID == priorityTagID) && (rID != priorityTagID)){
+            return left;
+
+         //only right camera sees priority tag
+        }else if((rID == priorityTagID) && (lID != priorityTagID)){
+            return right;
+        }
+        //both cameras do see prioritry tag
+        else if (lID == priorityTagID && rID == priorityTagID){
+            // Get distance from priority tag to each camera
+            double leftDistance = 0;
+            double rightDistance = 0;
+
+            if (leftDistance < rightDistance){
+                return left;
+            }else if(leftDistance > rightDistance){
+                return right;
+            }
+        }
+        //both cameras do not see prioritry tag
+        else if (lID != priorityTagID && rID != priorityTagID){
+            double leftSDV = getStdDev(leftEstimate);
+            double rightSDV = getStdDev(rightEstimate);
+
+            if(leftSDV < rightSDV){
+                return left;
+            }else if(rightSDV < leftSDV){
+                return right;
+            }
+
+           
+
+        }
+                
+        return null;
+
+
+    }
+
+
 
     public double getStdDev(Optional<PoseEstimate> estimate) {
         return estimate.isPresent() && estimate.get().rawFiducials.length > 0 ? Math.pow(Arrays.stream(estimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble(),2) / estimate.get().tagCount : Double.MAX_VALUE;
@@ -156,14 +239,14 @@ public class WsPose implements Subsystem {
         }
 
         // sample --> odometryPose transform and backwards of that
-        var sampleToOdometryTransform = new Transform2d(sample.get(), odometryPose);
+        var sampleToOdometryTransform = new Transform2d(sample.get(), odometryPose); // current bservatin 
         var odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
 
         // get old estimate by applying odometryToSample Transform
-        Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
+        //Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
 
         // difference between estimate and vision pose
-        Transform2d transform = new Transform2d(estimateAtTime, observation.pose);
+        //Transform2d transform = new Transform2d(estimateAtTime, observation.pose);
         //transform = transform.times(Math.max(1, weight));
 
         // Recalculate current estimate by applying scaled transform to old estimate
@@ -286,6 +369,7 @@ public class WsPose implements Subsystem {
         double offsetY = target.getY() - estimatedPose.getY();
         return (360 -Math.toDegrees(Math.atan2(offsetY, offsetX)) % 360);
     }
+
 
     @Override
     public String getName() {
