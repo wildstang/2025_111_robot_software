@@ -67,7 +67,7 @@ public class Test_Climb implements Subsystem{
         // Servo Disengaged before enabled
         servo.setPosition(OPEN);
         pwmValue = OPEN;
-        operatorJoystickY = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_JOYSTICK_Y.get();
+        operatorJoystickY = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_JOYSTICK_VERTICAL.get();
         operatorJoystickY.addInputListener(this);
         start = (WsJoystickButton) WsInputs.OPERATOR_START.get();
         start.addInputListener(this);

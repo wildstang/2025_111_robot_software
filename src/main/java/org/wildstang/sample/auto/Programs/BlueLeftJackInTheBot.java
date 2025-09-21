@@ -40,12 +40,12 @@ public class BlueLeftJackInTheBot extends AutoProgram {
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         group1.addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(4, 6.6, Rotation2d.fromRadians(Math.PI)), 
             new Pose2d(2.8, 5.5, Rotation2d.fromRadians(Math.PI)), 
-            VisionConsts.flipRot(VisionConsts.leftBranchFront)}, new double[] {}));
+             (VisionConsts.leftBranchFront)}, new double[] {}));
         group1.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_HIGH));
         group1.addStep(new RunGroundStep(false));
         //group1.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
-        //group1.addStep(new SwerveTrapezoidalStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFront)));
-        //group1.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFront)));
+        //group1.addStep(new SwerveTrapezoidalStep(swerve,  (VisionConsts.leftBranchFront)));
+        //group1.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchFront)));
         addStep(group1);    
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L3));    
         addStep(new ScoreCoralStep());   
@@ -55,7 +55,7 @@ public class BlueLeftJackInTheBot extends AutoProgram {
         AutoSerialStepGroup drive1 = new AutoSerialStepGroup();
         //drive1.addStep(new SwerveToPointStep(swerve, new Pose2d(1.25, 3.8, Rotation2d.fromRadians(Math.PI))));
         drive1.addStep(new ObjectIntakeStep());
-        drive1.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFront)));
+        drive1.addStep(new SwerveToPointStep(swerve,  (VisionConsts.rightBranchFront)));
         AutoSerialStepGroup intake1 = new AutoSerialStepGroup();
         //intake1.addStep(new AutoStepDelay(200));
         intake1.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
@@ -71,7 +71,7 @@ public class BlueLeftJackInTheBot extends AutoProgram {
         AutoParallelStepGroup getCoral2 = new AutoParallelStepGroup();
         AutoSerialStepGroup drive2 = new AutoSerialStepGroup();
         drive2.addStep(new SwerveToObjectStep(swerve, new Pose2d(1.44, 5.84, Rotation2d.fromRadians(3.0*Math.PI/4.0))));
-        drive2.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFront)));
+        drive2.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchFront)));
         AutoSerialStepGroup intake2 = new AutoSerialStepGroup();
         intake2.addStep(new AutoStepDelay(200));
         intake2.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
@@ -87,7 +87,7 @@ public class BlueLeftJackInTheBot extends AutoProgram {
         AutoParallelStepGroup getCoral3 = new AutoParallelStepGroup();
         AutoSerialStepGroup drive3 = new AutoSerialStepGroup();
         drive3.addStep(new SwerveToObjectStep(swerve, new Pose2d(1.33, 2.5, Rotation2d.fromRadians(5.0*Math.PI/4.0))));
-        drive3.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFront)));
+        drive3.addStep(new SwerveToPointStep(swerve,  (VisionConsts.rightBranchFront)));
         AutoSerialStepGroup intake3 = new AutoSerialStepGroup();
         intake2.addStep(new AutoStepDelay(200));
         intake3.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));

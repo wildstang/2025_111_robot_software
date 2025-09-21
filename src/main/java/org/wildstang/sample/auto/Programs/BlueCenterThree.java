@@ -41,7 +41,7 @@ public class BlueCenterThree extends AutoProgram{
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         group1.addStep(new RunGroundStep(false));
         group1.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_LOW));
-        group1.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBack)));
+        group1.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchBack)));
         addStep(group1);
 
         //score l4 pos, then score coral
@@ -66,7 +66,7 @@ public class BlueCenterThree extends AutoProgram{
         //superstructure to algae high, move to back left reef, pick sequence
         AutoParallelStepGroup group3 = new AutoParallelStepGroup();
         group3.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_HIGH));
-        group3.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackLeft)));
+        group3.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchBackLeft)));
         addStep(group3);
 
         //superstructure to stow up, move to net, smart step to net score
@@ -93,7 +93,7 @@ public class BlueCenterThree extends AutoProgram{
         //grab third ball and bring it close to the net
         group5a.addStep(new SwerveMultiPointStep(new Pose2d[]{ 
                 new Pose2d(new Translation2d(6.5, 3.0), Rotation2d.fromDegrees(-90)),
-                VisionConsts.flipRot(VisionConsts.leftBranchBackRight)}, new double[]{}));
+                 (VisionConsts.leftBranchBackRight)}, new double[]{}));
         group5b.addStep(new AutoStepDelay(1000));
         group5b.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_HIGH));
         group5.addStep(group5a);

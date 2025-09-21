@@ -1,6 +1,12 @@
 package org.wildstang.sample.subsystems.swerve;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
@@ -12,10 +18,7 @@ import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.swerve.SwerveDriveTemplate;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
-import org.wildstang.hardware.roborio.outputs.WsSpark;
-import org.wildstang.sample.robot.CANConstants;
 import org.wildstang.sample.robot.WsInputs;
-import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.CoralPath;
 import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
@@ -26,7 +29,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -39,9 +41,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * description: controls a swerve drive for four swerveModules through autonomous and teleoperated control
  */
 public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
-    private AnalogInput leftStickX;//translation joystick x
-    private AnalogInput leftStickY;//translation joystick y
-    private AnalogInput rightStickX;//rot joystick
+    private AnalogInput leftStickHorizontal;//translation joystick x
+    private AnalogInput leftStickVertical;//translation joystick y
+    private AnalogInput rightStickHorizontal;//rot joystick
     private AnalogInput rightTrigger;//intake, score when scoring sequence
     private AnalogInput leftTrigger;//scoring sequence
     private DigitalInput rightBumper;//prestaged algae intake
@@ -59,30 +61,30 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     private DigitalInput operatorSelect;
     private WsJoystickAxis operatorRightTrigger;
     private WsJoystickAxis operatorLeftTrigger;
-
-    private double gyroReading; // Reading from gyro CW degrees
     private WsJoystickButton operatorX;
 
-    private double xPower;
-    private double yPower;
-    private double rotSpeed;
-    private boolean rotLocked;
+    private double gyroReading; // Reading from gyro CW degrees
 
-    public double autoMaxPowerScalar = 2.0;
+    private double horizontalPower;
+    private double verticalPower;
+
+    public double autoMahorizontalPowerScalar = 2.0;
     public boolean autoUsePID = true;
-
-    /**Direction to face */
-    private double rotTarget;
 
     private boolean isReef;
     private boolean scoringAlgae = true;
-    
-    private final double mToIn = 39.37;
 
-    //private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
-    public final Pigeon2 gyro = new Pigeon2(CANConstants.GYRO);
-    public SwerveModule[] modules;
-    private SwerveSignal swerveSignal;
+    private swerveCTRE swerve = new swerveCTRE(DriveConstants.swerveCTREconsts, 
+        DriveConstants.frontLeft, DriveConstants.frontRight, DriveConstants.backLeft, DriveConstants.backRight);
+    private SwerveRequest.FieldCentric driveCommand = new SwerveRequest.FieldCentric()
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+        .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+    private SwerveRequest.FieldCentricFacingAngle driveLockedCommand = new SwerveRequest.FieldCentricFacingAngle()
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+        .withHeadingPID(DriveConstants.heading_P, 0.0, DriveConstants.heading_D);
+    private SwerveSignal swerveSignal = new SwerveSignal();
+
     private WsSwerveHelper swerveHelper = new WsSwerveHelper();
     StructArrayPublisher<SwerveModuleState> moduleStatePublisher = NetworkTableInstance.getDefault().getStructArrayTopic("ModuleStates", SwerveModuleState.struct).publish();
     public ChassisSpeeds speeds;
@@ -149,55 +151,50 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         // Toggle auto rotate to reef
         if (driverStart.getValue() && source == driverStart) {
             isReef = !isReef;
-            rotLocked = isReef;
         }
 
         if (driveState == DriveType.AUTO) driveState = DriveType.TELEOP;
 
         //get x and y speeds
-        xPower = swerveHelper.scaleDeadband(leftStickX.getValue(), DriveConstants.DEADBAND);
-        yPower = swerveHelper.scaleDeadband(leftStickY.getValue(), DriveConstants.DEADBAND);
+        horizontalPower = swerveHelper.scaleDeadband(leftStickHorizontal.getValue(), DriveConstants.DEADBAND);
+        verticalPower = swerveHelper.scaleDeadband(leftStickVertical.getValue(), DriveConstants.DEADBAND);
         
         
         //reset gyro
         if (source == select && select.getValue()) {
-            gyro.setYaw(0.0);
-            if (rotLocked) rotTarget = 0.0;
+            swerve.resetRotation(new Rotation2d());
+            swerveSignal.setRotLocked(0);
         }
 
         // Cardinal directions
         if (source == faceUp && faceUp.getValue()){
-            if (faceLeft.getValue()) rotTarget = 300.0;
-            else if (faceRight.getValue()) rotTarget = 60.0;
-            else  rotTarget = 0.0;
-            rotLocked = true;
+            if (faceLeft.getValue()) swerveSignal.setRotLocked(60);
+            else if (faceRight.getValue()) swerveSignal.setRotLocked(300);
+            else  swerveSignal.setRotLocked(0);
         }
         if (source == faceLeft && faceLeft.getValue()){
-            if (faceUp.getValue()) rotTarget = 300.0;
-            else if (faceDown.getValue()) rotTarget = 240.0;
-            else rotTarget = 270.0;
-            rotLocked = true;
+            if (faceUp.getValue()) swerveSignal.setRotLocked(60);
+            else if (faceDown.getValue()) swerveSignal.setRotLocked(120);
+            else swerveSignal.setRotLocked(90);
         }
         if (source == faceDown && faceDown.getValue()){
-            if (faceLeft.getValue()) rotTarget = 240.0;
-            else if (faceRight.getValue()) rotTarget = 120.0;
-            else rotTarget = 180.0;
-            rotLocked = true;
+            if (faceLeft.getValue()) swerveSignal.setRotLocked(120);
+            else if (faceRight.getValue()) swerveSignal.setRotLocked(240);
+            else swerveSignal.setRotLocked(180);
         }
         if (source == faceRight && faceRight.getValue()){
-            if (faceUp.getValue()) rotTarget = 60.0;
-            else if (faceDown.getValue()) rotTarget = 120.0;
-            else rotTarget = 90.0;
-            rotLocked = true;
+            if (faceUp.getValue()) swerveSignal.setRotLocked(300);
+            else if (faceDown.getValue()) swerveSignal.setRotLocked(240);
+            else swerveSignal.setRotLocked(270);
         }
         if (faceDown.getValue() || faceUp.getValue() || faceLeft.getValue() || faceRight.getValue()) isReef = false;
 
         //get rotational joystick
-        rotSpeed = rightStickX.getValue()*Math.abs(rightStickX.getValue());
+        double rotSpeed = rightStickHorizontal.getValue()*Math.abs(rightStickHorizontal.getValue());
         rotSpeed = swerveHelper.scaleDeadband(rotSpeed, DriveConstants.DEADBAND);
         //if the rotational joystick is being used, the robot should not be auto tracking heading
         if (rotSpeed != 0) {
-            rotLocked = false;
+            swerveSignal.setFreeRotation(rotSpeed);
             isReef = false;
         }
     }
@@ -205,9 +202,8 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     @Override
     public void init() {
         initInputs();
-        initOutputs();
         resetState();
-        gyro.setYaw(0.0);
+        swerve.resetRotation(new Rotation2d());
     }
 
     public void initSubsystems() {
@@ -217,12 +213,12 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     }
 
     public void initInputs() {
-        leftStickX = (AnalogInput) WsInputs.DRIVER_LEFT_JOYSTICK_X.get();
-        leftStickX.addInputListener(this);
-        leftStickY = (AnalogInput) WsInputs.DRIVER_LEFT_JOYSTICK_Y.get();
-        leftStickY.addInputListener(this);
-        rightStickX = (AnalogInput) WsInputs.DRIVER_RIGHT_JOYSTICK_X.get();
-        rightStickX.addInputListener(this);
+        leftStickHorizontal = (AnalogInput) WsInputs.DRIVER_LEFT_JOYSTICK_HORIZONTAL.get();
+        leftStickHorizontal.addInputListener(this);
+        leftStickVertical = (AnalogInput) WsInputs.DRIVER_LEFT_JOYSTICK_VERTICAL.get();
+        leftStickVertical.addInputListener(this);
+        rightStickHorizontal = (AnalogInput) WsInputs.DRIVER_RIGHT_JOYSTICK_HORIZONTAL.get();
+        rightStickHorizontal.addInputListener(this);
         rightTrigger = (AnalogInput) WsInputs.DRIVER_RIGHT_TRIGGER.get();
         rightTrigger.addInputListener(this);
         leftTrigger = (AnalogInput) WsInputs.DRIVER_LEFT_TRIGGER.get();
@@ -261,23 +257,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         operatorX.addInputListener(this);
     }
 
-    public void initOutputs() {
-        
-
-        //create four swerve modules
-        modules = new SwerveModule[]{
-            new SwerveModule((WsSpark) WsOutputs.DRIVE1.get(), 
-                (WsSpark) WsOutputs.ANGLE1.get(), DriveConstants.FRONT_LEFT_OFFSET),
-            new SwerveModule((WsSpark) WsOutputs.DRIVE2.get(), 
-                (WsSpark) WsOutputs.ANGLE2.get(), DriveConstants.FRONT_RIGHT_OFFSET),
-            new SwerveModule((WsSpark) WsOutputs.DRIVE3.get(), 
-                (WsSpark) WsOutputs.ANGLE3.get(), DriveConstants.REAR_LEFT_OFFSET),
-            new SwerveModule((WsSpark) WsOutputs.DRIVE4.get(), 
-                (WsSpark) WsOutputs.ANGLE4.get(), DriveConstants.REAR_RIGHT_OFFSET)
-        };
-        //create default swerveSignal
-        swerveSignal = new SwerveSignal(new double[]{0.0, 0.0, 0.0, 0.0}, new double[]{0.0, 0.0, 0.0, 0.0});
-    }
     
     @Override
     public void selfTest() {
@@ -285,11 +264,11 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
     @Override
     public void update() {
-        gyroReading = gyro.getYaw().getValueAsDouble();
+        gyroReading = Math.toDegrees(swerve.getRotation3d().getAngle());
 
         Logger.processInputs("Swerve", this);
 
-        pose.addOdometryObservation(modulePositions(), odoAngle());
+        pose.addOdometryObservation(swerve.getState().Pose);
 
         // Reset coral point
         if (driveState != DriveType.CORALINTAKE) {
@@ -298,21 +277,13 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 pose.setPipelineObject(false);
             } else pose.setPipelineObject(true);
         }
-        if (driveState == DriveType.CROSS) {
-            //set to cross - done in inputupdate
-            this.swerveSignal = swerveHelper.setCross();
-        } else if (driveState == DriveType.TELEOP) {
-            if (rotLocked){
-                if (isReef && coralPath.hasCoral()){
-                    // Oops, the scoring side is on the "back" of the robot now
-                    rotTarget = (pose.turnToTarget(VisionConsts.reefCenter)+180)%360;
-                    rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle(), 1.50);
-                } else {
-                    rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-                }
-                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 1.0) rotSpeed = 0;
-            }
-            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+        if (driveState == DriveType.TELEOP) {
+            if (isReef && coralPath.hasCoral()){
+                // Oops, the scoring side is on the "back" of the robot now
+                swerveSignal.setRotLocked((pose.turnToTarget(VisionConsts.reefCenter)+180)%360);
+            } 
+            
+            this.swerveSignal.setTranslation(horizontalPower, verticalPower);
 
         // If we want to use object detection pipeline to align to coral
         // Aligns heading to face coral and then p-loop to intake it
@@ -339,28 +310,26 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 Translation2d intakeAdjustedPoint = new  Pose2d(coralPoint, odoAngle()).plus(VisionConsts.intakeOffset.inverse()).getTranslation();
                 targetPosePublisher.set(new Pose2d(intakeAdjustedPoint, new Rotation2d()));
                 // Only turn if we can see the coral 
-                rotTarget = pose.turnToTarget(intakeAdjustedPoint);
-                //rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5 : 0;
-                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5;
+                swerveSignal.setRotLocked(pose.turnToTarget(intakeAdjustedPoint));
 
 
                 // Only drive towards if we're within 10 degrees
-                if (WsSwerveHelper.angleDist(rotTarget, getGyroAngle()) < 80.0) {
-                    xPower = pose.getAlignX(intakeAdjustedPoint)*1.2;
-                    yPower = pose.getAlignY(intakeAdjustedPoint)*1.2;
+                if (WsSwerveHelper.angleDist(swerveSignal.getRotTarget(), getGyroAngle()) < 80.0) {
+                    horizontalPower = pose.getAlignHorizontal(intakeAdjustedPoint)*1.2;
+                    verticalPower = pose.getAlignVertical(intakeAdjustedPoint)*1.2;
                 } else {
-                    xPower = 0;
-                    yPower = 0;
+                    horizontalPower = 0;
+                    verticalPower = 0;
                 }
-                double temphypot = Math.hypot(xPower, yPower);
+                double temphypot = Math.hypot(horizontalPower, verticalPower);
                 // Scale power by 
                 if (temphypot > 2.0){
-                    xPower *= (autoMaxPowerScalar / temphypot);
-                    yPower *= (autoMaxPowerScalar / temphypot);
+                    horizontalPower *= (autoMahorizontalPowerScalar / temphypot);
+                    verticalPower *= (autoMahorizontalPowerScalar / temphypot);
                 }
-                this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+                this.swerveSignal.setTranslation(horizontalPower, verticalPower);
             } else {
-                this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+                this.swerveSignal.setTranslation(horizontalPower, verticalPower);
             }
             
 
@@ -374,84 +343,66 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 targetPose = pose.getClosestBranch(rightBranch);
             }
             if (!superstructure.isScoreL1()){
-                xPower = xPower * 0.5 + pose.getAlignX(targetPose.getTranslation());
-                yPower = yPower * 0.5 + pose.getAlignY(targetPose.getTranslation());
-                rotTarget = targetPose.getRotation().getDegrees();
-                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            } else if (rotLocked){
-                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            }
-            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+                horizontalPower = horizontalPower * 0.5 + pose.getAlignHorizontal(targetPose.getTranslation());
+                verticalPower = verticalPower * 0.5 + pose.getAlignVertical(targetPose.getTranslation());
+                swerveSignal.setRotLocked(targetPose.getRotation().getDegrees());
+            } 
+            this.swerveSignal.setTranslation(horizontalPower, verticalPower);
 
         // Align closest scoring side to 0 and translate to right y position
         } else if (driveState == DriveType.NETSCORE) {
-            rotTarget = frontCloser(0) ? 0 : 180;
-            rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            yPower = pose.getAlignY(VisionConsts.netScore);
-            this.swerveSignal = swerveHelper.setDrive(xPower*0.6, 0.5*yPower, rotSpeed, getGyroAngle());
+            swerveSignal.setRotLocked(frontCloser(0) ? 0 : 180);
+            verticalPower = pose.getAlignVertical(VisionConsts.netScore);
+            this.swerveSignal.setTranslation(horizontalPower*0.6, 0.5*verticalPower);
 
         // Align closest scoring side to 90
         } else if (driveState == DriveType.PROCESSORSCORE) {
-            rotTarget = 270;//frontCloser(90) ? 90 : 270;
-            rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
-            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+            swerveSignal.setRotLocked(270);
+            this.swerveSignal.setTranslation(horizontalPower, verticalPower);
         } else if (driveState == DriveType.CORALSTATION) {
 
-            // Rotate to whichever coral station is closest
-            rotTarget = pose.isClosestStationRight() ? VisionConsts.coralStationRightHeading : VisionConsts.coralStationLeftHeading;
-            // Intake on closer side
-            if (!frontCloser(rotTarget) || coralPath.hasAlgae()) {
-                rotTarget = (rotTarget + 180) % 360;
-            }
-            rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
+            swerveSignal.setRotLocked(pose.isClosestStationRight() ? 
+                (VisionConsts.coralStationRightHeading + ((!frontCloser(VisionConsts.coralStationRightHeading) || coralPath.hasAlgae()) ? 180 : 0))%360 :
+                (VisionConsts.coralStationLeftHeading + (!frontCloser(VisionConsts.coralStationLeftHeading) || coralPath.hasAlgae() ? 180 : 0))%360);
             // Gyro 0 for robot centric X, Y
-            this.swerveSignal = swerveHelper.setDrive(0.75*xPower, 0.75*yPower, rotSpeed, getGyroAngle());
+            this.swerveSignal.setTranslation(0.75*horizontalPower, 0.75*verticalPower);
 
         // Autonomous period
         } else if (driveState == DriveType.AUTO) {
-            rotTarget = (360-targetPose.getRotation().getDegrees())%360;
-            rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle());
+            swerveSignal.setRotLocked(targetPose.getRotation().getDegrees());
 
-            xPower += pose.getAlignX(targetPose.getTranslation());
-            yPower += pose.getAlignY(targetPose.getTranslation());
+            horizontalPower += pose.getAlignHorizontal(targetPose.getTranslation());
+            verticalPower += pose.getAlignVertical(targetPose.getTranslation());
 
-            double temphypot = Math.hypot(xPower, yPower);
+            double temphypot = Math.hypot(horizontalPower, verticalPower);
 
             // Scale power by 
-            if (temphypot > autoMaxPowerScalar || !autoUsePID){
-                xPower *= (autoMaxPowerScalar / temphypot);
-                yPower *= (autoMaxPowerScalar / temphypot);
+            if (temphypot > autoMahorizontalPowerScalar || !autoUsePID){
+                horizontalPower *= (autoMahorizontalPowerScalar / temphypot);
+                verticalPower *= (autoMahorizontalPowerScalar / temphypot);
             }
-            this.swerveSignal = swerveHelper.setDrive(xPower, yPower, rotSpeed, getGyroAngle());
+            this.swerveSignal.setTranslation(horizontalPower, verticalPower);
             
-            SmartDashboard.putNumber("Auto Power X", xPower);
-            SmartDashboard.putNumber("Auto Power Y", yPower);
-            xPower = 0;
-            yPower = 0;
+            SmartDashboard.putNumber("Auto Power X", horizontalPower);
+            SmartDashboard.putNumber("Auto Power Y", verticalPower);
+            horizontalPower = 0;
+            verticalPower = 0;
             // Pre generated power values in set auto
         }
             
-        
-
-        // Rossen tipping???
-        // if (isRossenTipping()) {
-        //     xPower = gyro.getRoll().getValueAsDouble() * DriveConstants.TIPPING_P;
-        //     yPower = gyro.getPitch().getValueAsDouble() * DriveConstants.TIPPING_P;
-        //     this.swerveSignal = swerveHelper.setDrive(xPower, yPower, 0, 0);
-        // }
         drive();
-        SmartDashboard.putNumber("X Power", xPower);
-        SmartDashboard.putNumber("Y Power", yPower);
+        SmartDashboard.putNumber("X Power", horizontalPower);
+        SmartDashboard.putNumber("Y Power", verticalPower);
         SmartDashboard.putNumber("# Robot X", pose.estimatedPose.getX());
         SmartDashboard.putNumber("# Robot Y", pose.estimatedPose.getY());
         SmartDashboard.putNumber("Gyro Reading", getGyroAngle());
-        SmartDashboard.putNumber("rotSpeed", rotSpeed);
+        SmartDashboard.putNumber("rotSpeed", swerveSignal.getRotation());
         SmartDashboard.putString("Drive mode", driveState.toString());
-        SmartDashboard.putBoolean("rotLocked", rotLocked);
-        SmartDashboard.putNumber("Rotation target", rotTarget);
-        SmartDashboard.putNumber("Yaw", gyro.getYaw().getValueAsDouble());
-        SmartDashboard.putNumber("Roll", gyro.getRoll().getValueAsDouble());
-        SmartDashboard.putNumber("Pitch", gyro.getPitch().getValueAsDouble());
+        SmartDashboard.putBoolean("rotLocked", swerveSignal.isRotLocked());
+        SmartDashboard.putNumber("Rotation target", swerveSignal.getRotTarget());
+        SmartDashboard.putNumber("Yaw", swerve.getPigeon2().getYaw().getValueAsDouble());
+        SmartDashboard.putNumber("Roll", swerve.getPigeon2().getRoll().getValueAsDouble());
+        SmartDashboard.putNumber("Pitch", swerve.getPigeon2().getPitch().getValueAsDouble());
         SmartDashboard.putNumber("@ mega2 gyro", getMegaTag2Yaw());
         SmartDashboard.putNumber("@ speed", speedMagnitude());
         SmartDashboard.putBoolean("# right branch", rightBranch);
@@ -469,11 +420,9 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     public void resetState() {
         gyroReading = 0;
         isReef = false;
-        xPower = 0;
-        yPower = 0;
-        rotSpeed = 0;
-        rotLocked = false;
-        rotTarget = 0.0;
+        horizontalPower = 0;
+        verticalPower = 0;
+        swerveSignal.setFreeRotation(0);
         setToTeleop();
     }
 
@@ -485,36 +434,27 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     /** sets the drive to teleop/cross, and sets drive motors to coast */
     public void setToTeleop() {
         driveState = DriveType.TELEOP;
-        for (int i = 0; i < modules.length; i++) {
-            modules[i].setDriveBrake(true);
-        }
-        rotSpeed = 0;
-        xPower = 0;
-        yPower = 0;
-        rotLocked = false;
+        swerveSignal.setFreeRotation(0);
+        horizontalPower = 0;
+        verticalPower = 0;
     }
 
     /**sets the drive to autonomous */
     public void setToAuto() {
         driveState = DriveType.AUTO;
-        for (int i = 0; i < modules.length; i++) {
-            modules[i].setDriveBrake(true);
-        }
     }
 
     /**drives the robot at the current swerveSignal, and displays information for each swerve module */
     private void drive() {
-        if (driveState == DriveType.CROSS) {
-            for (int i = 0; i < modules.length; i++) {
-                modules[i].runCross(swerveSignal.getSpeed(i), swerveSignal.getAngle(i));
-                modules[i].displayNumbers(DriveConstants.POD_NAMES[i]);
-            }
-        }
-        else {
-            for (int i = 0; i < modules.length; i++) {
-                modules[i].run(swerveSignal.getSpeed(i), swerveSignal.getAngle(i));
-                modules[i].displayNumbers(DriveConstants.POD_NAMES[i]);
-            }
+        if (swerveSignal.isRotLocked()) {
+            swerve.setControl(driveLockedCommand.withVelocityX(swerveSignal.getVertical() * DriveConstants.maxSpeed.in(MetersPerSecond))
+            .withVelocityY(swerveSignal.getHorizontal() * DriveConstants.maxSpeed.in(MetersPerSecond))
+            .withTargetDirection(new Rotation2d(Math.toRadians(swerveSignal.getRotTarget()))));
+            //.withTargetRateFeedforward(double) to potentially include rotation rate
+        } else {
+            swerve.setControl(driveCommand.withVelocityX(swerveSignal.getVertical() * DriveConstants.maxSpeed.in(MetersPerSecond))
+                .withVelocityY(swerveSignal.getHorizontal() * DriveConstants.maxSpeed.in(MetersPerSecond))
+                .withRotationalRate(swerveSignal.getRotation() * RotationsPerSecond.of(0.75).in(RadiansPerSecond)));
         }
     }
 
@@ -524,8 +464,8 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     public void setAutoValues(double xVelocity, double yVelocity, double xAccel, double yAccel, Pose2d target) {
         SmartDashboard.putNumber("Path Velocity", Math.sqrt(Math.pow(xVelocity, 2) + Math.pow(yVelocity, 2)));
         // accel of 0 because currently not using acceleration for power since
-        xPower = swerveHelper.getAutoPower(xVelocity, xAccel);
-        yPower = swerveHelper.getAutoPower(yVelocity, yAccel);
+        horizontalPower = swerveHelper.getAutoPower(xVelocity, xAccel);
+        verticalPower = swerveHelper.getAutoPower(yVelocity, yAccel);
         targetPose = target;
     }
 
@@ -541,7 +481,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     /** sets the autonomous heading controller to a new target */
     @Deprecated
     public void setAutoHeading(double headingTarget) {
-        rotTarget = headingTarget;
+        swerveSignal.setRotLocked(headingTarget);
     }
 
     /**
@@ -554,11 +494,11 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         setToAuto();
 
         // Make degrees clockwise
-        gyro.setYaw((360-degrees)%360);
+        swerve.resetRotation(new Rotation2d(Math.toRadians(degrees)));
     }
 
     public double getGyroAngle() {
-        return (360 - gyroReading+360)%360;
+        return gyroReading;
     }  
 
     /**
@@ -566,7 +506,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
      * @return Returns the field relative CCW gyro angle for use with Limelight MegaTag2
      */
     public double getMegaTag2Yaw(){
-        return (gyro.getYaw().getValueAsDouble() + (Core.isBlue() ? 0 : 180));
+        return (Math.toDegrees(swerve.getRotation3d().getAngle()) + (Core.isBlue() ? 0 : 180));
     }
     /** 
      * @return Returns alliance relative CCW Rotation2d gyro angle for use with always alliance relative pose
@@ -579,14 +519,12 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     }
 
     private ChassisSpeeds speeds() {
-        return DriveConstants.kinematics.toChassisSpeeds(new SwerveModuleState[]
-        {modules[0].moduleState(), modules[1].moduleState(), modules[2].moduleState(), modules[3].moduleState()});
+        return swerve.getState().Speeds;
     }
-    public SwerveModulePosition[] modulePositions(){
-        return new SwerveModulePosition[]{modules[0].odoPosition(), modules[1].odoPosition(), modules[2].odoPosition(), modules[3].odoPosition()};
-    }
+
     public SwerveModuleState[] moduleStates() {
-        return new SwerveModuleState[]{modules[0].moduleState(), modules[1].moduleState(), modules[2].moduleState(), modules[3].moduleState()};
+        return new SwerveModuleState[]{swerve.getModule(0).getCurrentState(), swerve.getModule(1).getCurrentState(), 
+            swerve.getModule(2).getCurrentState(), swerve.getModule(3).getCurrentState()};
     }
 
     private boolean frontCloser(double targetAngle) {
@@ -599,9 +537,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         driveState = state;
     }
 
-    public boolean isRossenTipping() {
-        return (WsSwerveHelper.angleDist(gyro.getRoll().getValueAsDouble(), 0) > 10) || (WsSwerveHelper.angleDist(gyro.getPitch().getValueAsDouble(), 0)) > 10;
-    }
     public boolean isCoralStationFront(){
         if (coralPath.hasAlgae()) return false;
         return frontCloser(pose.isClosestStationRight() ? VisionConsts.coralStationRightHeading : VisionConsts.coralStationLeftHeading);
@@ -644,7 +579,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         return driveState == DriveType.REEFSCORE;
     }
     public void setAutoScalar(double scalar){
-        this.autoMaxPowerScalar = scalar;
+        this.autoMahorizontalPowerScalar = scalar;
     }
 
     @Override

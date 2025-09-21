@@ -43,6 +43,11 @@ public final class CANConstants {
     public static final int ALGAE_LASERCAN = 31;
     public static final int CORAL_LASERCAN = 32;
 
+    public static final int FL_ENCODER = 41;
+    public static final int FR_ENCODER = 42;
+    public static final int BL_ENCODER = 43;
+    public static final int BR_ENCODER = 44;
+
     public static final Map<Integer, String> aliasMap = Map.ofEntries(
         Map.entry(DRIVE1, "DRIVE1"),
         Map.entry(ANGLE1, "ANGLE1"),

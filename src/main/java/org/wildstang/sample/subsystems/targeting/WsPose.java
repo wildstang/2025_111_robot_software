@@ -131,21 +131,12 @@ public class WsPose implements Subsystem {
         poseBuffer.clear();
     }
 
-    public void addOdometryObservation(SwerveModulePosition[] modulePositions, Rotation2d gyroAngle) {
-        if (lastWheelPositions.length == 0) { 
-            lastWheelPositions = modulePositions;
-            return; 
-        }
-        Twist2d twist = DriveConstants.kinematics.toTwist2d(lastWheelPositions, modulePositions);
-        twist.dtheta = gyroAngle.minus(lastGyroAngle).getRadians();
-        odometryPose = odometryPose.exp(twist);
+    public void addOdometryObservation(Pose2d newPose) {
         
-        lastWheelPositions = modulePositions;
-        lastGyroAngle = gyroAngle;
         // Add pose to buffer at timestamp
-        poseBuffer.addSample(Timer.getTimestamp(), odometryPose);
+        poseBuffer.addSample(Timer.getTimestamp(), newPose);
 
-        estimatedPose = estimatedPose.exp(twist);
+        estimatedPose = newPose;
     }
 
     private void addVisionObservation(PoseEstimate observation, double weight) {
@@ -267,7 +258,7 @@ public class WsPose implements Subsystem {
      * @param target WPI blue target coordinate (m) to align with proportional control loop
      * @return Control value for Driver Station relative X power for aligning robot to certain target
      */
-    public double getAlignX(Translation2d target) {
+    public double getAlignHorizontal(Translation2d target) {
         return DriveConstants.ALIGN_P * -(target.getY() - estimatedPose.getY());
     }
 
@@ -275,7 +266,7 @@ public class WsPose implements Subsystem {
      * @param target WPI blue target coordinate (m) to align with proportional control loop
      * @return Control value for Driver Station relative Y power for aligning robot to certain target
      */
-    public double getAlignY(Translation2d target) {
+    public double getAlignVertical(Translation2d target) {
         return DriveConstants.ALIGN_P * (target.getX() - estimatedPose.getX());
     }
     
@@ -286,7 +277,7 @@ public class WsPose implements Subsystem {
     public double turnToTarget(Translation2d target) {
         double offsetX = target.getX() - estimatedPose.getX();
         double offsetY = target.getY() - estimatedPose.getY();
-        return (360 -Math.toDegrees(Math.atan2(offsetY, offsetX)) % 360);
+        return (Math.toDegrees(Math.atan2(offsetY, offsetX)));
     }
 
     @Override

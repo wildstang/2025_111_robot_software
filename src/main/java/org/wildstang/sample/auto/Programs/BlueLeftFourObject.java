@@ -39,7 +39,7 @@ public class BlueLeftFourObject extends AutoProgram {
 
         // Score 1st Coral
         AutoParallelStepGroup score1 = new AutoParallelStepGroup();
-        score1.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackLeft)));
+        score1.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchBackLeft)));
         score1.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(score1);
         addStep(new ScoreCoralStep());
@@ -51,7 +51,7 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoSerialStepGroup group1a = new AutoSerialStepGroup();
         AutoSerialStepGroup group1b = new AutoSerialStepGroup();
         group1a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.2, 6.75), Rotation2d.fromDegrees(-200)), 1.0));
-        group1a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
+        group1a.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchFrontLeft)));
         group1b.addStep(new GroundIntakeCoralStep());
         group1b.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_LOW));
         group1.addStep(group1a);
@@ -68,7 +68,7 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoSerialStepGroup group2a = new AutoSerialStepGroup();
         AutoSerialStepGroup group2b = new AutoSerialStepGroup();
         group2a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135)), 0));
-        group2a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFrontLeft)));
+        group2a.addStep(new SwerveToPointStep(swerve,  (VisionConsts.rightBranchFrontLeft)));
         group2b.addStep(new GroundIntakeCoralStep());
         group2b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L3));
         group2.addStep(group2a);
@@ -85,8 +85,8 @@ public class BlueLeftFourObject extends AutoProgram {
         AutoSerialStepGroup group3b = new AutoSerialStepGroup();
         group3a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135)), 0));
         // group3a.addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(4.5, 5.75, Rotation2d.fromDegrees(-300)), 
-        group3a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
-        //     VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)}, new double[] {}, 0));
+        group3a.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchFrontLeft)));
+        //      (VisionConsts.rightBranchBackLeft)}, new double[] {}, 0));
         group3b.addStep(new GroundIntakeCoralStep());
         group3b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
         //group3b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));

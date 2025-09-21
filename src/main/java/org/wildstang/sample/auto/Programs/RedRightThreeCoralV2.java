@@ -33,7 +33,7 @@ public class RedRightThreeCoralV2 extends AutoProgram {
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 1st Coral
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackRight)));
+        addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchBackRight)));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_STATION_FRONT));
@@ -49,7 +49,7 @@ public class RedRightThreeCoralV2 extends AutoProgram {
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 2nd Coral
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFrontRight)));
+        addStep(new SwerveToPointStep(swerve,  (VisionConsts.rightBranchFrontRight)));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_STATION_FRONT));
@@ -65,7 +65,7 @@ public class RedRightThreeCoralV2 extends AutoProgram {
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 3rd Coral
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontRight)));
+        addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchFrontRight)));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new RunGroundStep());
         addStep(new ScoreCoralStep());
@@ -80,7 +80,7 @@ public class RedRightThreeCoralV2 extends AutoProgram {
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         addStep(new SwerveMultiPointStep(new Pose2d[] {new Pose2d(5.27, 2.3, Rotation2d.fromDegrees(-60)), 
-            VisionConsts.flipRot(VisionConsts.rightBranchBackRight)}, new double[] {}, 0));
+             (VisionConsts.rightBranchBackRight)}, new double[] {}, 0));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
     }

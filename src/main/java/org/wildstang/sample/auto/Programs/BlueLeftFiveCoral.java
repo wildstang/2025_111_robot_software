@@ -30,7 +30,7 @@ public class BlueLeftFiveCoral extends AutoProgram {
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 1st Coral
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)));
+        addStep(new SwerveToPointStep(swerve,  (VisionConsts.rightBranchBackLeft)));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new RunGroundStep());
         addStep(new ScoreCoralStep());
@@ -46,7 +46,7 @@ public class BlueLeftFiveCoral extends AutoProgram {
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Scores 2nd Coral
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
+        addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchFrontLeft)));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
@@ -60,7 +60,7 @@ public class BlueLeftFiveCoral extends AutoProgram {
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED_UP));
 
         // Score 3rd Coral
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFrontLeft)));
+        addStep(new SwerveToPointStep(swerve,  (VisionConsts.rightBranchFrontLeft)));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
@@ -71,7 +71,7 @@ public class BlueLeftFiveCoral extends AutoProgram {
         group3.addStep(new IntakeCoralStep());
 
         // Score 4th Coral
-        addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFront)));
+        addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchFront)));
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));

@@ -40,7 +40,7 @@ public class RedCenterMulti extends AutoProgram{
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         group1.addStep(new RunGroundStep(false));
         group1.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_LOW));
-        group1.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBack)));
+        group1.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchBack)));
         addStep(group1);
 
         //score l4 pos, then score coral
@@ -65,7 +65,7 @@ public class RedCenterMulti extends AutoProgram{
         //superstructure to algae high, move to back left reef, pick sequence
         AutoParallelStepGroup group3 = new AutoParallelStepGroup();
         group3.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_HIGH));
-        group3.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackLeft)));
+        group3.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchBackLeft)));
         addStep(group3);
 
         //superstructure to stow up, move to net, smart step to net score
@@ -92,7 +92,7 @@ public class RedCenterMulti extends AutoProgram{
 
         //this is score another ground intake coral
         group5a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(4.5, 7.0), Rotation2d.fromDegrees(180)), 0));
-        group5a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackLeft)));
+        group5a.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchBackLeft)));
         group5b.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
         group5b.addStep(new GroundIntakeCoralStep());
         group5b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L3));

@@ -33,7 +33,7 @@ public class RedRightFourFast extends AutoProgram {
 
         // Score 1st Coral
         AutoParallelStepGroup move1 = new AutoParallelStepGroup();
-        move1.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchBackRight)));
+        move1.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchBackRight)));
         move1.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
         addStep(move1);
         addStep(new ScoreCoralStep());
@@ -44,7 +44,7 @@ public class RedRightFourFast extends AutoProgram {
         AutoSerialStepGroup group1b = new AutoSerialStepGroup();
         group1b.addStep(new SwerveToPointStep(swerve,new Pose2d(1.32, 0.95, Rotation2d.fromDegrees(-125))));
         group1b.addStep(new AutoStepDelay(50));
-        group1b.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFrontRight)));
+        group1b.addStep(new SwerveToPointStep(swerve,  (VisionConsts.rightBranchFrontRight)));
         AutoSerialStepGroup group1a = new AutoSerialStepGroup();
         group1a.addStep(new AutoStepDelay(500));
         group1a.addStep(new IntakeCoralStep());
@@ -64,7 +64,7 @@ public class RedRightFourFast extends AutoProgram {
         AutoSerialStepGroup group2b = new AutoSerialStepGroup();
         group2b.addStep(new SwerveToPointStep(swerve,new Pose2d(1.32, 0.95, Rotation2d.fromDegrees(-125))));
         group2b.addStep(new AutoStepDelay(50));
-        group2b.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontRight)));
+        group2b.addStep(new SwerveToPointStep(swerve,  (VisionConsts.leftBranchFrontRight)));
         AutoSerialStepGroup group2a = new AutoSerialStepGroup();
         group2a.addStep(new AutoStepDelay(500));
         group2a.addStep(new IntakeCoralStep());
@@ -84,7 +84,7 @@ public class RedRightFourFast extends AutoProgram {
         AutoSerialStepGroup group3b = new AutoSerialStepGroup();
         group3b.addStep(new SwerveToPointStep(swerve,new Pose2d(1.32, 0.95, Rotation2d.fromDegrees(-125))));
         group3b.addStep(new AutoStepDelay(50));
-        group3b.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchBackRight)));
+        group3b.addStep(new SwerveToPointStep(swerve,  (VisionConsts.rightBranchBackRight)));
         AutoSerialStepGroup group3a = new AutoSerialStepGroup();
         group3a.addStep(new AutoStepDelay(500));
         group3a.addStep(new IntakeCoralStep());
