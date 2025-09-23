@@ -88,67 +88,59 @@ public class WsPose implements Subsystem {
     @Override
     public void update() {
         object.update();
-        int bestIndex = -1;
-        double bestStdDev = Double.MAX_VALUE;
-        Optional<PoseEstimate> bestEstimate = null;
-
         
-        // for (int i = 0; i < cameras.length; i++) {
-        //     Optional<PoseEstimate> estimate = cameras[i].update();
-        //     if (estimate.isPresent() && getStdDev(estimate) < bestStdDev) {
-        //         bestIndex = i;
-        //         bestEstimate = estimate.get();
-        //         bestStdDev = getStdDev(estimate);
-        //     }   
-        // }
-
+        double bestStdDev = Double.MAX_VALUE;
+        PoseEstimate bestEstimate = null;
 
         WsAprilTagLL bestCamera = getBestCamera(67);
-        bestEstimate = bestCamera.update();
-        bestStdDev = getStdDev(bestEstimate);
-        double camFOM = cameraFOM(bestCamera);
-        double odFOM = odometryFOM();
+        if(bestCamera == null){
+            estimatedPose = odometryPose;
+        }else{
+            bestEstimate = bestCamera.update().get();
+            bestStdDev = getStdDev(Optional.of(bestEstimate));
+            double camFOM = cameraFOM(bestCamera);
+            double odFOM = odometryFOM();
 
-        if(camFOM > odFOM){
+            if(camFOM > odFOM){
           
-            // If we found a valid estimate
-            if (bestEstimate != null) {
-                currentID = bestCamera.tid;
-                addVisionObservation(bestEstimate, 1/bestStdDev);
-            }
+                estimatedPose = odometryPose;
+                
             
-        }else if(camFOM < odFOM){
-           //don't rely on camera
-        }
-
-
-
-        if (getCoralPose().isPresent()) {
-            coralPosePublisher.set(new Pose2d(getCoralPose().get(), new Rotation2d()));
+            }else if(camFOM < odFOM){
+                estimatedPose = bestEstimate.pose;
+            }else{
+                
+                for (int i = 0; i < cameras.length; i++) {
+                    Optional<PoseEstimate> estimate = cameras[i].update();
+                    if (estimate.isPresent() && getStdDev(estimate) < bestStdDev) {
+                        bestEstimate = estimate.get();
+                        bestStdDev = getStdDev(estimate);
+                    }   
+                }
+            addVisionObservation(bestEstimate, 1/bestStdDev);
+            }
         }
 
         odometryPosePublisher.set(odometryPose);
         estimatedPosePublisher.set(estimatedPose);
     }
+    
 
 
 
     private double cameraFOM(WsAprilTagLL bestCamera){
         double robotSpeed = swerve.speedMagnitude();
         double rotSpeed = swerve.getRotSpeed();
-        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED) + (bestCamera.getNumberOfTags() * FOMConstants.NUM_TAGS);
+        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED) + (bestCamera.getNumberOfTags() / (FOMConstants.NUM_TAGS));
     }
 
     private double odometryFOM(){
 
         double robotSpeed = swerve.speedMagnitude();
-        double rotSpeed = swerve.getRotSpeed();
         
         double newTime = Timer.getFPGATimestamp();
         double deltaT = newTime - oldOdometryUpdateTime;
         oldOdometryUpdateTime = newTime;
-
-        
 
 
         return (Math.abs(robotSpeed) * deltaT) * FOMConstants.ODOMETRY_DISPLACEMENT;
@@ -215,8 +207,8 @@ public class WsPose implements Subsystem {
 
 
 
-    public double getStdDev(Optional<PoseEstimate> estimate) {
-        return estimate.isPresent() && estimate.get().rawFiducials.length > 0 ? Math.pow(Arrays.stream(estimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble(),2) / estimate.get().tagCount : Double.MAX_VALUE;
+    public double getStdDev(Optional<PoseEstimate> bestEstimate) {
+            return bestEstimate.isPresent() && bestEstimate.get().rawFiducials.length > 0 ? Math.pow(Arrays.stream(bestEstimate.get().rawFiducials).mapToDouble(fiducial -> fiducial.distToCamera).min().getAsDouble(),2) / bestEstimate.get().tagCount : Double.MAX_VALUE;
     }
 
     @Override
@@ -251,24 +243,24 @@ public class WsPose implements Subsystem {
         estimatedPose = estimatedPose.exp(twist);
     }
 
-    private void addVisionObservation(PoseEstimate observation, double weight) {
-
-        SmartDashboard.putNumber("auto weight", weight);
-        Optional<Pose2d> sample = poseBuffer.getSample(observation.timestampSeconds);
-        if (sample.isEmpty()) {
-            // exit if not there
-            return;
-        }
-
-        // sample --> odometryPose transform and backwards of that
-        var sampleToOdometryTransform = new Transform2d(sample.get(), odometryPose); // current bservatin 
-        var odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
-
-        // get old estimate by applying odometryToSample Transform
-        Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
-  // difference between estimate and vision pose
-      
-        Transform2d transform = new Transform2d(estimateAtTime, observation.pose);
+    private void addVisionObservation(PoseEstimate bestEstimate, double weight) {
+    
+            SmartDashboard.putNumber("auto weight", weight);
+            Optional<Pose2d> sample = poseBuffer.getSample(bestEstimate.timestampSeconds);
+            if (sample.isEmpty()) {
+                // exit if not there
+                return;
+            }
+    
+            // sample --> odometryPose transform and backwards of that
+            var sampleToOdometryTransform = new Transform2d(sample.get(), odometryPose); // current bservatin 
+            var odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
+    
+            // get old estimate by applying odometryToSample Transform
+            Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
+      // difference between estimate and vision pose
+          
+            Transform2d transform = new Transform2d(estimateAtTime, bestEstimate.pose);
         transform = transform.times(Math.max(1, weight));
 
         // Recalculate current estimate by applying scaled transform to old estimate
