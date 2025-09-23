@@ -109,6 +109,10 @@ public class WsAprilTagLL implements LoggableInputs {
         }
     }
 
+    public int getNumberOfTags(){
+       return LimelightHelpers.getRawFiducials(CameraID).length;
+    }
+
     @Override
     public void toLog(LogTable table) {
         //table.put("alliance3D", alliance3D);

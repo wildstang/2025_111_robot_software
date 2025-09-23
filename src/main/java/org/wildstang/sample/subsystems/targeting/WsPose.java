@@ -27,11 +27,15 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+
+import org.wildstang.sample.subsystems.targeting.FOMConstants;
+
 public class WsPose implements Subsystem {
 
     private WsAprilTagLL left;
     private WsAprilTagLL right;
     private WsAprilTagLL front;
+    
 
     private WsAprilTagLL[] cameras; 
 
@@ -58,6 +62,8 @@ public class WsPose implements Subsystem {
     private SwerveModulePosition[] lastWheelPositions = {};
     private Rotation2d lastGyroAngle = new Rotation2d();
 
+
+    private double oldOdometryUpdateTime = 0.0;
     @Override
     public void inputUpdate(Input source) {
     }
@@ -82,7 +88,6 @@ public class WsPose implements Subsystem {
     @Override
     public void update() {
         object.update();
-
         int bestIndex = -1;
         double bestStdDev = Double.MAX_VALUE;
         Optional<PoseEstimate> bestEstimate = null;
@@ -101,17 +106,22 @@ public class WsPose implements Subsystem {
         WsAprilTagLL bestCamera = getBestCamera(67);
         bestEstimate = bestCamera.update();
         bestStdDev = getStdDev(bestEstimate);
+        double camFOM = cameraFOM(bestCamera);
+        double odFOM = odometryFOM();
 
-        //FOM function calculation
-        //Odometry function calculation
-        //Compare the two -> action
-
-
-        // If we found a valid estimate
-        if (bestEstimate != null) {
-            currentID = bestCamera.tid;
-            addVisionObservation(bestEstimate, 1/bestStdDev);
+        if(camFOM > odFOM){
+          
+            // If we found a valid estimate
+            if (bestEstimate != null) {
+                currentID = bestCamera.tid;
+                addVisionObservation(bestEstimate, 1/bestStdDev);
+            }
+            
+        }else if(camFOM < odFOM){
+           //don't rely on camera
         }
+
+
 
         if (getCoralPose().isPresent()) {
             coralPosePublisher.set(new Pose2d(getCoralPose().get(), new Rotation2d()));
@@ -122,13 +132,26 @@ public class WsPose implements Subsystem {
     }
 
 
-    private double cameraFOM(){
+
+    private double cameraFOM(WsAprilTagLL bestCamera){
         double robotSpeed = swerve.speedMagnitude();
         double rotSpeed = swerve.getRotSpeed();
+        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED) + (bestCamera.getNumberOfTags() * FOMConstants.NUM_TAGS);
     }
 
     private double odometryFOM(){
-        return 0.0;
+
+        double robotSpeed = swerve.speedMagnitude();
+        double rotSpeed = swerve.getRotSpeed();
+        
+        double newTime = Timer.getFPGATimestamp();
+        double deltaT = newTime - oldOdometryUpdateTime;
+        oldOdometryUpdateTime = newTime;
+
+        
+
+
+        return (Math.abs(robotSpeed) * deltaT) * FOMConstants.ODOMETRY_DISPLACEMENT;
     }
 
     private WsAprilTagLL getBestCamera(int priorityTagID){
@@ -225,7 +248,6 @@ public class WsPose implements Subsystem {
         lastGyroAngle = gyroAngle;
         // Add pose to buffer at timestamp
         poseBuffer.addSample(Timer.getTimestamp(), odometryPose);
-
         estimatedPose = estimatedPose.exp(twist);
     }
 
@@ -243,11 +265,11 @@ public class WsPose implements Subsystem {
         var odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
 
         // get old estimate by applying odometryToSample Transform
-        //Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
-
-        // difference between estimate and vision pose
-        //Transform2d transform = new Transform2d(estimateAtTime, observation.pose);
-        //transform = transform.times(Math.max(1, weight));
+        Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
+  // difference between estimate and vision pose
+      
+        Transform2d transform = new Transform2d(estimateAtTime, observation.pose);
+        transform = transform.times(Math.max(1, weight));
 
         // Recalculate current estimate by applying scaled transform to old estimate
         // then replaying odometry data
