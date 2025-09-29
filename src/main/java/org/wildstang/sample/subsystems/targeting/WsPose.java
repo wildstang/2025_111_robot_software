@@ -151,7 +151,7 @@ public class WsPose implements Subsystem {
         
 
 
-        return (Math.abs(robotSpeed) * deltaT) * FOMConstants.ODOMETRY_DISPLACEMENT;
+        return (Math.abs(robotSpeed) * deltaT) * FOMConstants.ODOMETRY_DISPLACEMENT + (rotSpeed * FOMConstants.ROT_SPEED);
     }
 
     private WsAprilTagLL getBestCamera(int priorityTagID){
