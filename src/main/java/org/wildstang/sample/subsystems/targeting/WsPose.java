@@ -6,6 +6,7 @@ import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.DriveConstants;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.sample.subsystems.targeting.LimelightHelpers.PoseEstimate;
+import org.wildstang.sample.subsystems.targeting.LimelightHelpers.RawFiducial;
 
 import java.util.Optional;
 
@@ -13,9 +14,14 @@ import org.wildstang.framework.core.Core;
 
 import org.wildstang.framework.io.inputs.Input;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+
+import java.io.IOException;
 import java.util.Arrays;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -24,6 +30,7 @@ import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.ImmutableEnergy;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -101,15 +108,15 @@ public class WsPose implements Subsystem {
             double camFOM = cameraFOM(bestCamera);
             double odFOM = odometryFOM();
 
-            if(camFOM > odFOM){
+            SmartDashboard.putNumber("Camera FOM", camFOM);
+            SmartDashboard.putNumber("Odometry FOM", odFOM);
+
+            if(camFOM < odFOM){
           
                 estimatedPose = odometryPose;
                 
             
-            }else if(camFOM < odFOM){
-                estimatedPose = bestEstimate.pose;
-            }else{
-                
+            }else if(camFOM > odFOM){
                 for (int i = 0; i < cameras.length; i++) {
                     Optional<PoseEstimate> estimate = cameras[i].update();
                     if (estimate.isPresent() && getStdDev(estimate) < bestStdDev) {
@@ -117,12 +124,15 @@ public class WsPose implements Subsystem {
                         bestStdDev = getStdDev(estimate);
                     }   
                 }
-            addVisionObservation(bestEstimate, 1/bestStdDev);
+                addVisionObservation(bestEstimate, 1/bestStdDev);
             }
         }
 
         odometryPosePublisher.set(odometryPose);
         estimatedPosePublisher.set(estimatedPose);
+        SmartDashboard.putNumber("Best Standard Deviation ", bestStdDev);
+        SmartDashboard.putNumberArray("Best Estimate", new double[]{bestEstimate.pose.getX(), bestEstimate.pose.getY()});
+        
     }
     
 
@@ -137,6 +147,7 @@ public class WsPose implements Subsystem {
     private double odometryFOM(){
 
         double robotSpeed = swerve.speedMagnitude();
+        double rotSpeed = swerve.getRotSpeed();
         
         double newTime = Timer.getFPGATimestamp();
         double deltaT = newTime - oldOdometryUpdateTime;
@@ -176,14 +187,40 @@ public class WsPose implements Subsystem {
         //both cameras do see prioritry tag
         else if (lID == priorityTagID && rID == priorityTagID){
             // Get distance from priority tag to each camera
-            double leftDistance = 0;
-            double rightDistance = 0;
+            /*
+             * Calcualte the distance by getting camera pose coordinates and the coordinates of priority tag and get distance
+             * 
+             */
+                double leftDistance = 0;
+                double rightDistance = 0;
+            
+                RawFiducial[] arrayOfTagsForLeftCamera = LimelightHelpers.getRawFiducials(left.CameraID);
+                RawFiducial[] arrayOfTagsForRightCamera = LimelightHelpers.getRawFiducials(left.CameraID);
 
-            if (leftDistance < rightDistance){
-                return left;
-            }else if(leftDistance > rightDistance){
-                return right;
-            }
+                for(int i = 0; i < arrayOfTagsForLeftCamera.length; i++ ){
+                    if(arrayOfTagsForLeftCamera[i].id == lID){
+                        leftDistance = arrayOfTagsForLeftCamera[i].distToCamera;
+                    }
+                }
+                for(int i = 0; i < arrayOfTagsForRightCamera.length; i++ ){
+                    if(arrayOfTagsForLeftCamera[i].id == rID){
+                        rightDistance = arrayOfTagsForLeftCamera[i].distToCamera;
+                    }
+                }
+
+              
+
+            
+
+                if (leftDistance < rightDistance){
+                    return left;
+                }else if(leftDistance > rightDistance){
+                    return right;
+                }
+                
+           
+
+            
         }
         //both cameras do not see prioritry tag
         else if (lID != priorityTagID && rID != priorityTagID){
