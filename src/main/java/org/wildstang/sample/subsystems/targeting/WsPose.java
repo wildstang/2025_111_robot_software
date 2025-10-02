@@ -92,6 +92,7 @@ public class WsPose implements Subsystem {
     public void selfTest() {
     }
 
+    
     @Override
     public void update() {
         object.update();
@@ -99,11 +100,11 @@ public class WsPose implements Subsystem {
         double bestStdDev = Double.MAX_VALUE;
         PoseEstimate bestEstimate = null;
 
-        WsAprilTagLL bestCamera = getBestCamera(67);
+        WsAprilTagLL bestCamera = getBestCamera(18);
+        bestEstimate = bestCamera.update().orElse(null);
         if(bestCamera == null){
             estimatedPose = odometryPose;
         }else{
-            bestEstimate = bestCamera.update().get();
             bestStdDev = getStdDev(Optional.of(bestEstimate));
             double camFOM = cameraFOM(bestCamera);
             double odFOM = odometryFOM();
@@ -117,13 +118,13 @@ public class WsPose implements Subsystem {
                 
             
             }else if(camFOM > odFOM){
-                for (int i = 0; i < cameras.length; i++) {
+                /*for (int i = 0; i < cameras.length; i++) {
                     Optional<PoseEstimate> estimate = cameras[i].update();
                     if (estimate.isPresent() && getStdDev(estimate) < bestStdDev) {
                         bestEstimate = estimate.get();
                         bestStdDev = getStdDev(estimate);
                     }   
-                }
+                }*/
                 addVisionObservation(bestEstimate, 1/bestStdDev);
             }
         }
@@ -131,7 +132,12 @@ public class WsPose implements Subsystem {
         odometryPosePublisher.set(odometryPose);
         estimatedPosePublisher.set(estimatedPose);
         SmartDashboard.putNumber("Best Standard Deviation ", bestStdDev);
-        SmartDashboard.putNumberArray("Best Estimate", new double[]{bestEstimate.pose.getX(), bestEstimate.pose.getY()});
+        if(bestEstimate != null){
+            SmartDashboard.putNumberArray("Best Estimate", new double[]{bestEstimate.pose.getX(), bestEstimate.pose.getY()});
+        }else if (estimatedPose != null){
+            SmartDashboard.putNumberArray("Estimated Pose", new double[]{estimatedPose.getX(), estimatedPose.getY()});
+        }
+       
         
     }
     
