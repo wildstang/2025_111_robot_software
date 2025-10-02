@@ -102,7 +102,7 @@ public class WsPose implements Subsystem {
 
         WsAprilTagLL bestCamera = getBestCamera(18);
         bestEstimate = bestCamera.update().orElse(null);
-        if(bestCamera == null){
+        if(bestEstimate == null){
             estimatedPose = odometryPose;
         }else{
             bestStdDev = getStdDev(Optional.of(bestEstimate));
