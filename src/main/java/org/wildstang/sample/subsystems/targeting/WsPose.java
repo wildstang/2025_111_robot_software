@@ -101,9 +101,22 @@ public class WsPose implements Subsystem {
         PoseEstimate bestEstimate = null;
 
         WsAprilTagLL bestCamera = getBestCamera(18);
-        bestEstimate = bestCamera.update().orElse(null);
-        if(bestEstimate == null){
+        
+
+        if(bestCamera == null){
             estimatedPose = odometryPose;
+            SmartDashboard.putString("Vision/BestCamera", "none");
+            odometryPosePublisher.set(odometryPose);
+            odometryPosePublisher.set(estimatedPose);
+            return;
+        }
+        
+        bestEstimate = bestCamera.update().orElse(null);
+
+        if(bestEstimate == null){
+
+            estimatedPose = odometryPose;
+            SmartDashboard.putString("Vision/BestCamera", bestCamera.CameraID);
         }else{
             bestStdDev = getStdDev(Optional.of(bestEstimate));
             double camFOM = cameraFOM(bestCamera);
@@ -111,6 +124,7 @@ public class WsPose implements Subsystem {
 
             SmartDashboard.putNumber("Camera FOM", camFOM);
             SmartDashboard.putNumber("Odometry FOM", odFOM);
+            SmartDashboard.putNumber("Best StdDev", bestStdDev);
 
             if(camFOM < odFOM){
           
@@ -131,6 +145,7 @@ public class WsPose implements Subsystem {
 
         odometryPosePublisher.set(odometryPose);
         estimatedPosePublisher.set(estimatedPose);
+        
         SmartDashboard.putNumber("Best Standard Deviation ", bestStdDev);
         if(bestEstimate != null){
             SmartDashboard.putNumberArray("Best Estimate", new double[]{bestEstimate.pose.getX(), bestEstimate.pose.getY()});
@@ -201,7 +216,7 @@ public class WsPose implements Subsystem {
                 double rightDistance = 0;
             
                 RawFiducial[] arrayOfTagsForLeftCamera = LimelightHelpers.getRawFiducials(left.CameraID);
-                RawFiducial[] arrayOfTagsForRightCamera = LimelightHelpers.getRawFiducials(left.CameraID);
+                RawFiducial[] arrayOfTagsForRightCamera = LimelightHelpers.getRawFiducials(right.CameraID);
 
                 for(int i = 0; i < arrayOfTagsForLeftCamera.length; i++ ){
                     if(arrayOfTagsForLeftCamera[i].id == lID){
@@ -209,24 +224,16 @@ public class WsPose implements Subsystem {
                     }
                 }
                 for(int i = 0; i < arrayOfTagsForRightCamera.length; i++ ){
-                    if(arrayOfTagsForLeftCamera[i].id == rID){
-                        rightDistance = arrayOfTagsForLeftCamera[i].distToCamera;
+                    if(arrayOfTagsForRightCamera[i].id == rID){
+                        rightDistance = arrayOfTagsForRightCamera[i].distToCamera;
                     }
                 }
-
-              
-
-            
 
                 if (leftDistance < rightDistance){
                     return left;
                 }else if(leftDistance > rightDistance){
                     return right;
-                }
-                
-           
-
-            
+                } 
         }
         //both cameras do not see prioritry tag
         else if (lID != priorityTagID && rID != priorityTagID){
