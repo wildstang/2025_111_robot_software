@@ -208,7 +208,9 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
 
         if (resetStatus){
             armSpark.setSpeed(-0.25);
-            setLift(0.0);
+            //setLift(0.0);
+            lift2.setSpeed(0.1);
+            LiftMax.setSpeed(-0.1);
         } else if (override){
             setLift(SuperstructurePosition.OVERRIDE.getLift());
             setArm(SuperstructurePosition.OVERRIDE.getArm());
