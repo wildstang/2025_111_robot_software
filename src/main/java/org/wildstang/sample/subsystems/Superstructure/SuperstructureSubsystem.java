@@ -29,7 +29,7 @@ public class SuperstructureSubsystem implements Subsystem {
     };
 
 private WsJoystickButton  LShoulder,Rshoulder,A,B,Y,X,Start,Select, reset1, reset2;
-private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger;
+private WsJoystickAxis LT,operator_RT, operator_LT, rightTrigger, leftJoystickVert;
 private WsDPadButton operatorDleft,operatorDright;
 private boolean LShoulderHeld,StartHeld,SelectHeld,LTHeld, RTHeld, dRightHeld;
 private boolean PickupSequence;
@@ -43,6 +43,7 @@ private boolean override = false;
 private SwerveDrive swerve;
 private CoralPath coralPath;
 private WsPose pose;
+private double adjustValue = 0;
 private final double LIFT_FF = 0;
 private final double BACK_CLEAR = 68;
 private final double LIFT_STAGE1 = 50 *5.0/9.0;
@@ -97,6 +98,8 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         reset1.addInputListener(this);
         reset2 = (WsJoystickButton) WsInputs.OPERATOR_RIGHT_JOYSTICK_BUTTON.get();
         reset2.addInputListener(this);
+        leftJoystickVert = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_JOYSTICK_Y.get();
+        leftJoystickVert.addInputListener(this);
        
         armSpark = (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ARM);
         armSpark.initClosedLoop(0.4, 0, 0, 0);
@@ -264,6 +267,10 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
 
     @Override
     public void inputUpdate(Input source) {
+        //adjustValue = 5.0*leftJoystickVert.getValue();
+        if (operatorDright.getValue() && source == operatorDright){
+            adjustValue += 2.5*leftJoystickVert.getValue();
+        }
         if (reset1.getValue() && reset2.getValue()){
             resetStatus = true;
         } else if (resetStatus){
@@ -338,6 +345,7 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
         SmartDashboard.putBoolean("# Reef L4", level.ordinal() == 3);
         SmartDashboard.putNumber("@ absolute arm", armSpark.getController().getAbsoluteEncoder().getPosition());
         SmartDashboard.putNumber("@ lift current", LiftMax.getController().getOutputCurrent());
+        SmartDashboard.putNumber("# adjust value", adjustValue);
     }
 
      /**
@@ -385,11 +393,11 @@ Algae_NetOrProces AlgaeState = Algae_NetOrProces.Net;
     }
     private void setArm(double armPos){
         if (dRightHeld && desiredPosition == SuperstructurePosition.CORAL_REEF_L4){
-            armSpark.setPosition(armPos+5, 1);
+            armSpark.setPosition(armPos+5+adjustValue, 1);
         } else if (isLiftHigh(LiftMax.getPosition()) || isLiftHigh(desiredPosition)){
-            armSpark.setPosition(armPos, 1);
+            armSpark.setPosition(armPos + adjustValue, 1);
         } else {
-            armSpark.setPosition(armPos, 0);
+            armSpark.setPosition(armPos + adjustValue, 0);
         }
     }
     private void setLift(double liftPos){
