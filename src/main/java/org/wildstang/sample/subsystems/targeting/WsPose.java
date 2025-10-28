@@ -102,7 +102,7 @@ public class WsPose implements Subsystem {
 
             WsAprilTagLL bestCamera = getBestCamera(18);
             
-
+        
             if(bestCamera == null){
                 estimatedPose = odometryPose;
                 SmartDashboard.putString("Vision/BestCamera", "none");
@@ -180,6 +180,10 @@ public class WsPose implements Subsystem {
 
     private WsAprilTagLL getBestCamera(int priorityTagID){
 
+        if(LimelightHelpers.getTargetCount(left.CameraID) == 0 && LimelightHelpers.getTargetCount(right.CameraID) == 0){
+            SmartDashboard.putNumber("Priority tag",0);
+            return null;
+        }
         Optional<PoseEstimate> leftEstimate = left.update(); 
         Optional<PoseEstimate> rightEstimate = right.update();
         
@@ -199,14 +203,17 @@ public class WsPose implements Subsystem {
 
           //only left camera sees priority tag
         if((lID == priorityTagID) && (rID != priorityTagID)){
+            SmartDashboard.putNumber("Priority tag",1);
             return left;
 
          //only right camera sees priority tag
         }else if((rID == priorityTagID) && (lID != priorityTagID)){
+            SmartDashboard.putNumber("Priority tag",2);
             return right;
         }
         //both cameras do see prioritry tag
         else if (lID == priorityTagID && rID == priorityTagID){
+            SmartDashboard.putNumber("Priority tag",3);
             // Get distance from priority tag to each camera
             /*
              * Calcualte the distance by getting camera pose coordinates and the coordinates of priority tag and get distance
@@ -230,8 +237,10 @@ public class WsPose implements Subsystem {
                 }
 
                 if (leftDistance < rightDistance){
+                    SmartDashboard.putNumber("Priority tag",4);
                     return left;
                 }else if(leftDistance > rightDistance){
+                    SmartDashboard.putNumber("Priority tag",5);
                     return right;
                 } 
         }
@@ -241,8 +250,10 @@ public class WsPose implements Subsystem {
             double rightSDV = getStdDev(rightEstimate);
 
             if(leftSDV < rightSDV){
+                SmartDashboard.putNumber("Priority tag",6);
                 return left;
             }else if(rightSDV < leftSDV){
+                SmartDashboard.putNumber("Priority tag",7);
                 return right;
             }
 

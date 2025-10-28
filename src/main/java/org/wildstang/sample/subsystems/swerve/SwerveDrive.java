@@ -106,7 +106,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         if (Math.abs(operatorLeftTrigger.getValue()) > 0.5) scoringAlgae = true;
         if (Math.abs(operatorRightTrigger.getValue()) > 0.5 || operatorX.getValue()) scoringAlgae = false;
         if (rightBumper.getValue()) scoringAlgae = false;
-        
+    
         // Operator controls set intent state variables
         if (operatorLeftBumper.getValue()) {
             rightBranch = false;
@@ -534,6 +534,10 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         xPower = swerveHelper.getAutoPower(xVelocity, xAccel);
         yPower = swerveHelper.getAutoPower(yVelocity, yAccel);
         targetPose = target;
+    }
+
+    public double getRotSpeed(){
+        return speeds.omegaRadiansPerSecond();
     }
 
     // Sets autonomous values when driving to a pose and not using a motion profile
