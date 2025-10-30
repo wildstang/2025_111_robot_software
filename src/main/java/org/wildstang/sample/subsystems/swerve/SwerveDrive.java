@@ -485,9 +485,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         return "Swerve Drive";
     }
 
-    public double getRotSpeed(){
-        return rotSpeed;
-    }
+   
 
     /** sets the drive to teleop/cross, and sets drive motors to coast */
     public void setToTeleop() {
@@ -537,7 +535,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     }
 
     public double getRotSpeed(){
-        return speeds.omegaRadiansPerSecond();
+        return speeds.omegaRadiansPerSecond;
     }
 
     // Sets autonomous values when driving to a pose and not using a motion profile
