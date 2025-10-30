@@ -111,6 +111,7 @@ public class WsPose implements Subsystem {
                 return;
             }
             
+
             bestEstimate = bestCamera.update().orElse(null);
 
         if(bestEstimate == null){
@@ -162,7 +163,7 @@ public class WsPose implements Subsystem {
     private double cameraFOM(WsAprilTagLL bestCamera){
         double robotSpeed = swerve.speedMagnitude();
         SmartDashboard.putNumber("Robot Speed", robotSpeed);
-        double rotSpeed = swerve.speeds.omegaRadiansPerSecond;
+        double rotSpeed = swerve.speeds().omegaRadiansPerSecond;
         SmartDashboard.putNumber("Robot Rotation Speed", rotSpeed);
         return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED) + (bestCamera.getNumberOfTags() / (FOMConstants.NUM_TAGS));
     }
@@ -170,7 +171,7 @@ public class WsPose implements Subsystem {
     private double odometryFOM(){
 
         double robotSpeed = swerve.speedMagnitude();
-        double rotSpeed = swerve.speeds.omegaRadiansPerSecond;
+        double rotSpeed = swerve.speeds().omegaRadiansPerSecond;
         
         double newTime = Timer.getFPGATimestamp();
         double deltaT = newTime - oldOdometryUpdateTime;
@@ -190,31 +191,21 @@ public class WsPose implements Subsystem {
         Optional<PoseEstimate> rightEstimate = right.update();
         
         //checking if any of the camera poses are null
-        if(!leftEstimate.isPresent() && !rightEstimate.isPresent()){
-            return null;
-        }
+       if(!leftEstimate.isPresent() && !rightEstimate.isPresent()){
+           return null;
+       }
         if(!leftEstimate.isPresent() && rightEstimate.isPresent()){
+            SmartDashboard.putNumber("Priority tag",1);
             return right;
         }
         else if(!rightEstimate.isPresent() && leftEstimate.isPresent()){
+            SmartDashboard.putNumber("Priority tag",2);
             return left;
         }
 
         int lID = left.tid;
         int rID = right.tid;
 
-        //   //only left camera sees priority tag
-        // if((lID == priorityTagID) && (rID != priorityTagID)){
-        //     SmartDashboard.putNumber("Priority tag",1);
-        //     return left;
-
-        //  //only right camera sees priority tag
-        // }else if((rID == priorityTagID) && (lID != priorityTagID)){
-        //     SmartDashboard.putNumber("Priority tag",2);
-        //     return right;
-        // }
-        //both cameras do see prioritry tag
-       // else if (lID == priorityTagID && rID == priorityTagID){
             SmartDashboard.putNumber("Priority tag",3);
             // Get distance from priority tag to each camera
             /*
@@ -242,27 +233,11 @@ public class WsPose implements Subsystem {
                     SmartDashboard.putNumber("Priority tag",4);
                     return left;
                 }else if(leftDistance > rightDistance){
+                    SmartDashboard.putBoolean("sees right estimate?", rightEstimate.isPresent());
                     SmartDashboard.putNumber("Priority tag",5);
                     return right;
                 } 
-     //   }
-        //both cameras do not see prioritry tag
-       // else if (lID != priorityTagID && rID != priorityTagID){
-            // double leftSDV = getStdDev(leftEstimate);
-            // double rightSDV = getStdDev(rightEstimate);
-
-            // if(leftSDV < rightSDV){
-            //     SmartDashboard.putNumber("Priority tag",6);
-            //     return left;
-            // }else if(rightSDV < leftSDV){
-            //     SmartDashboard.putNumber("Priority tag",7);
-            //     return right;
-            // }
-
-           
-
-       // }
-                
+    
         return null;
 
 

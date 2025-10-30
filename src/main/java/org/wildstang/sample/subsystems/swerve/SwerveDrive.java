@@ -587,7 +587,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         return Math.sqrt(Math.pow(speeds().vxMetersPerSecond, 2) + Math.pow(speeds().vyMetersPerSecond, 2));
     }
 
-    private ChassisSpeeds speeds() {
+    public ChassisSpeeds speeds() {
         return DriveConstants.kinematics.toChassisSpeeds(new SwerveModuleState[]
         {modules[0].moduleState(), modules[1].moduleState(), modules[2].moduleState(), modules[3].moduleState()});
     }
