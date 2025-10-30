@@ -100,7 +100,7 @@ public class WsPose implements Subsystem {
             double bestStdDev = Double.MAX_VALUE;
             PoseEstimate bestEstimate = null;
 
-            WsAprilTagLL bestCamera = getBestCamera(18);
+            WsAprilTagLL bestCamera = getBestCamera();
             
         
             if(bestCamera == null){
@@ -161,14 +161,16 @@ public class WsPose implements Subsystem {
 
     private double cameraFOM(WsAprilTagLL bestCamera){
         double robotSpeed = swerve.speedMagnitude();
-        double rotSpeed = swerve.getRotSpeed();
+        SmartDashboard.putNumber("Robot Speed", robotSpeed);
+        double rotSpeed = swerve.speeds.omegaRadiansPerSecond;
+        SmartDashboard.putNumber("Robot Rotation Speed", rotSpeed);
         return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED) + (bestCamera.getNumberOfTags() / (FOMConstants.NUM_TAGS));
     }
 
     private double odometryFOM(){
 
         double robotSpeed = swerve.speedMagnitude();
-        double rotSpeed = swerve.getRotSpeed();
+        double rotSpeed = swerve.speeds.omegaRadiansPerSecond;
         
         double newTime = Timer.getFPGATimestamp();
         double deltaT = newTime - oldOdometryUpdateTime;
@@ -178,7 +180,7 @@ public class WsPose implements Subsystem {
         return (Math.abs(robotSpeed) * deltaT) * FOMConstants.ODOMETRY_DISPLACEMENT + (rotSpeed * FOMConstants.ROT_SPEED);
     }
 
-    private WsAprilTagLL getBestCamera(int priorityTagID){
+    private WsAprilTagLL getBestCamera(){
 
         if(LimelightHelpers.getTargetCount(left.CameraID) == 0 && LimelightHelpers.getTargetCount(right.CameraID) == 0){
             SmartDashboard.putNumber("Priority tag",0);
@@ -201,18 +203,18 @@ public class WsPose implements Subsystem {
         int lID = left.tid;
         int rID = right.tid;
 
-          //only left camera sees priority tag
-        if((lID == priorityTagID) && (rID != priorityTagID)){
-            SmartDashboard.putNumber("Priority tag",1);
-            return left;
+        //   //only left camera sees priority tag
+        // if((lID == priorityTagID) && (rID != priorityTagID)){
+        //     SmartDashboard.putNumber("Priority tag",1);
+        //     return left;
 
-         //only right camera sees priority tag
-        }else if((rID == priorityTagID) && (lID != priorityTagID)){
-            SmartDashboard.putNumber("Priority tag",2);
-            return right;
-        }
+        //  //only right camera sees priority tag
+        // }else if((rID == priorityTagID) && (lID != priorityTagID)){
+        //     SmartDashboard.putNumber("Priority tag",2);
+        //     return right;
+        // }
         //both cameras do see prioritry tag
-        else if (lID == priorityTagID && rID == priorityTagID){
+       // else if (lID == priorityTagID && rID == priorityTagID){
             SmartDashboard.putNumber("Priority tag",3);
             // Get distance from priority tag to each camera
             /*
@@ -221,6 +223,7 @@ public class WsPose implements Subsystem {
              */
                 double leftDistance = 0;
                 double rightDistance = 0;
+               
             
                 RawFiducial[] arrayOfTagsForLeftCamera = LimelightHelpers.getRawFiducials(left.CameraID);
                 RawFiducial[] arrayOfTagsForRightCamera = LimelightHelpers.getRawFiducials(right.CameraID);
@@ -235,7 +238,6 @@ public class WsPose implements Subsystem {
                         rightDistance = arrayOfTagsForRightCamera[i].distToCamera;
                     }
                 }
-
                 if (leftDistance < rightDistance){
                     SmartDashboard.putNumber("Priority tag",4);
                     return left;
@@ -243,23 +245,23 @@ public class WsPose implements Subsystem {
                     SmartDashboard.putNumber("Priority tag",5);
                     return right;
                 } 
-        }
+     //   }
         //both cameras do not see prioritry tag
-        else if (lID != priorityTagID && rID != priorityTagID){
-            double leftSDV = getStdDev(leftEstimate);
-            double rightSDV = getStdDev(rightEstimate);
+       // else if (lID != priorityTagID && rID != priorityTagID){
+            // double leftSDV = getStdDev(leftEstimate);
+            // double rightSDV = getStdDev(rightEstimate);
 
-            if(leftSDV < rightSDV){
-                SmartDashboard.putNumber("Priority tag",6);
-                return left;
-            }else if(rightSDV < leftSDV){
-                SmartDashboard.putNumber("Priority tag",7);
-                return right;
-            }
+            // if(leftSDV < rightSDV){
+            //     SmartDashboard.putNumber("Priority tag",6);
+            //     return left;
+            // }else if(rightSDV < leftSDV){
+            //     SmartDashboard.putNumber("Priority tag",7);
+            //     return right;
+            // }
 
            
 
-        }
+       // }
                 
         return null;
 
