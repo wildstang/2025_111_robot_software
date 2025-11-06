@@ -42,6 +42,8 @@ public class WsPose implements Subsystem {
     private WsAprilTagLL left;
     private WsAprilTagLL right;
     private WsAprilTagLL front;
+
+    private double distanceDriven = 0;
     
 
     private WsAprilTagLL[] cameras; 
@@ -113,6 +115,8 @@ public class WsPose implements Subsystem {
             
 
             bestEstimate = bestCamera.update().orElse(null);
+            double odFOM = odometryFOM();
+            SmartDashboard.putNumber("Odometry FOM", odFOM);
 
         if(bestEstimate == null){
 
@@ -121,18 +125,17 @@ public class WsPose implements Subsystem {
         }else{
             bestStdDev = getStdDev(Optional.of(bestEstimate));
             double camFOM = cameraFOM(bestCamera);
-            double odFOM = odometryFOM();
+           
 
             SmartDashboard.putNumber("Camera FOM", camFOM);
-            SmartDashboard.putNumber("Odometry FOM", odFOM);
             SmartDashboard.putNumber("Best StdDev", bestStdDev);
 
-            if(camFOM < odFOM){
+            if(camFOM > odFOM){
           
                 estimatedPose = odometryPose;
                 
             
-            }else if(camFOM > odFOM){
+            }else if(camFOM < odFOM){
                 /*for (int i = 0; i < cameras.length; i++) {
                     Optional<PoseEstimate> estimate = cameras[i].update();
                     if (estimate.isPresent() && getStdDev(estimate) < bestStdDev) {
@@ -163,22 +166,28 @@ public class WsPose implements Subsystem {
     private double cameraFOM(WsAprilTagLL bestCamera){
         double robotSpeed = swerve.speedMagnitude();
         SmartDashboard.putNumber("Robot Speed", robotSpeed);
-        double rotSpeed = swerve.speeds().omegaRadiansPerSecond;
+        double tempSpeed = swerve.speeds().omegaRadiansPerSecond;
+        double rotSpeed = Math.abs(tempSpeed);
+        SmartDashboard.putNumber("Temp Speed", tempSpeed);
         SmartDashboard.putNumber("Robot Rotation Speed", rotSpeed);
-        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED) + (bestCamera.getNumberOfTags() / (FOMConstants.NUM_TAGS));
+        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED);
     }
+
+    
 
     private double odometryFOM(){
 
         double robotSpeed = swerve.speedMagnitude();
-        double rotSpeed = swerve.speeds().omegaRadiansPerSecond;
         
         double newTime = Timer.getFPGATimestamp();
         double deltaT = newTime - oldOdometryUpdateTime;
         oldOdometryUpdateTime = newTime;
 
+        distanceDriven += 0.1*(Math.abs(robotSpeed)*deltaT);
+        SmartDashboard.putNumber("Distance Driven", distanceDriven);
 
-        return (Math.abs(robotSpeed) * deltaT) * FOMConstants.ODOMETRY_DISPLACEMENT + (rotSpeed * FOMConstants.ROT_SPEED);
+
+        return (Math.abs(robotSpeed) * deltaT) * FOMConstants.ODOMETRY_DISPLACEMENT + distanceDriven;
     }
 
     private WsAprilTagLL getBestCamera(){
@@ -268,6 +277,7 @@ public class WsPose implements Subsystem {
     }
 
     public void addOdometryObservation(SwerveModulePosition[] modulePositions, Rotation2d gyroAngle) {
+        
         if (lastWheelPositions.length == 0) { 
             lastWheelPositions = modulePositions;
             return; 
@@ -284,7 +294,7 @@ public class WsPose implements Subsystem {
     }
 
     private void addVisionObservation(PoseEstimate bestEstimate, double weight) {
-    
+            
             SmartDashboard.putNumber("auto weight", weight);
             Optional<Pose2d> sample = poseBuffer.getSample(bestEstimate.timestampSeconds);
             if (sample.isEmpty()) {
