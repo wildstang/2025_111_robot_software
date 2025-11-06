@@ -72,7 +72,7 @@ public class WsAprilTagLL implements LoggableInputs {
         
 
         Logger.processInputs("Vision/Camera/" + CameraID, this);
-        if (newEstimate & tv) {
+        if (tv) {
             posePublisher.set(alliance3D.pose);
             return Optional.of(alliance3D);
         } else {

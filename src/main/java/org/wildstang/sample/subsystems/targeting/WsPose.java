@@ -194,6 +194,8 @@ public class WsPose implements Subsystem {
        if(!leftEstimate.isPresent() && !rightEstimate.isPresent()){
            return null;
        }
+
+       SmartDashboard.putBoolean("sees right estimate?", rightEstimate.isPresent());
         if(!leftEstimate.isPresent() && rightEstimate.isPresent()){
             SmartDashboard.putNumber("Priority tag",1);
             return right;
@@ -233,7 +235,7 @@ public class WsPose implements Subsystem {
                     SmartDashboard.putNumber("Priority tag",4);
                     return left;
                 }else if(leftDistance > rightDistance){
-                    SmartDashboard.putBoolean("sees right estimate?", rightEstimate.isPresent());
+    
                     SmartDashboard.putNumber("Priority tag",5);
                     return right;
                 } 
