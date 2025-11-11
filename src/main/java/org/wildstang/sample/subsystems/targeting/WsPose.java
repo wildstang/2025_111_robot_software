@@ -103,11 +103,11 @@ public class WsPose implements Subsystem {
         double bestStdDev = Double.MAX_VALUE;
         PoseEstimate bestEstimate = null;
 
-            WsAprilTagLL bestCamera = getBestCamera();
+        WsAprilTagLL bestCamera = getBestCamera();
             
         
-            if(bestCamera == null){
-                estimatedPose = odometryPose;
+        if(bestCamera == null){
+            estimatedPose = odometryPose;
                 SmartDashboard.putString("Vision/BestCamera", "none");
                 odometryPosePublisher.set(odometryPose);
                 odometryPosePublisher.set(estimatedPose);
