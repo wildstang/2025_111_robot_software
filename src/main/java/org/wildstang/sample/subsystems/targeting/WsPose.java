@@ -98,9 +98,10 @@ public class WsPose implements Subsystem {
     @Override
     public void update() {
         object.update();
-        
-            double bestStdDev = Double.MAX_VALUE;
-            PoseEstimate bestEstimate = null;
+        double odFOM = odometryFOM();
+        SmartDashboard.putNumber("Odometry FOM", odFOM);
+        double bestStdDev = Double.MAX_VALUE;
+        PoseEstimate bestEstimate = null;
 
             WsAprilTagLL bestCamera = getBestCamera();
             
@@ -112,11 +113,11 @@ public class WsPose implements Subsystem {
                 odometryPosePublisher.set(estimatedPose);
                 return;
             }
-            
+            SmartDashboard.putString("Vision/BestCamera", bestCamera.CameraID);
 
             bestEstimate = bestCamera.update().orElse(null);
-            double odFOM = odometryFOM();
-            SmartDashboard.putNumber("Odometry FOM", odFOM);
+            
+            
 
         if(bestEstimate == null){
 
@@ -166,11 +167,8 @@ public class WsPose implements Subsystem {
     private double cameraFOM(WsAprilTagLL bestCamera){
         double robotSpeed = swerve.speedMagnitude();
         SmartDashboard.putNumber("Robot Speed", robotSpeed);
-        double tempSpeed = Math.abs(swerve.speeds().omegaRadiansPerSecond);
-        double rotSpeed = tempSpeed;
-        if(tempSpeed < 0){
-            rotSpeed *= -1;
-        }
+        double tempSpeed = swerve.speeds().omegaRadiansPerSecond;
+        double rotSpeed = Math.abs(tempSpeed);
         SmartDashboard.putNumber("Temp Speed", tempSpeed);
         SmartDashboard.putNumber("Robot Rotation Speed", rotSpeed);
         return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED);
