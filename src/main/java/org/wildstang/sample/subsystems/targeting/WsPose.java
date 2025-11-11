@@ -166,8 +166,11 @@ public class WsPose implements Subsystem {
     private double cameraFOM(WsAprilTagLL bestCamera){
         double robotSpeed = swerve.speedMagnitude();
         SmartDashboard.putNumber("Robot Speed", robotSpeed);
-        double tempSpeed = swerve.speeds().omegaRadiansPerSecond;
-        double rotSpeed = Math.abs(tempSpeed);
+        double tempSpeed = Math.abs(swerve.speeds().omegaRadiansPerSecond);
+        double rotSpeed = tempSpeed;
+        if(tempSpeed < 0){
+            rotSpeed *= -1;
+        }
         SmartDashboard.putNumber("Temp Speed", tempSpeed);
         SmartDashboard.putNumber("Robot Rotation Speed", rotSpeed);
         return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED);
