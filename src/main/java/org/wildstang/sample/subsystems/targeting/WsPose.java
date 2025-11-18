@@ -44,6 +44,7 @@ public class WsPose implements Subsystem {
     private WsAprilTagLL front;
 
     private double distanceDriven = 0;
+    private double rotationSpeed = 0;
     
 
     private WsAprilTagLL[] cameras; 
@@ -104,13 +105,15 @@ public class WsPose implements Subsystem {
         PoseEstimate bestEstimate = null;
 
         WsAprilTagLL bestCamera = getBestCamera();
-            
+
+        rotationSpeed = Math.abs(swerve.speeds().omegaRadiansPerSecond);
+        SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
         
         if(bestCamera == null){
             estimatedPose = odometryPose;
                 SmartDashboard.putString("Vision/BestCamera", "none");
                 odometryPosePublisher.set(odometryPose);
-                odometryPosePublisher.set(estimatedPose);
+                estimatedPosePublisher.set(estimatedPose);
                 return;
             }
             SmartDashboard.putString("Vision/BestCamera", bestCamera.CameraID);
@@ -123,6 +126,7 @@ public class WsPose implements Subsystem {
 
             estimatedPose = odometryPose;
             SmartDashboard.putString("Vision/BestCamera", bestCamera.CameraID);
+            SmartDashboard.putString("Has Reset", "False");
         }else{
             bestStdDev = getStdDev(Optional.of(bestEstimate));
             double camFOM = cameraFOM(bestCamera);
@@ -145,6 +149,8 @@ public class WsPose implements Subsystem {
                     }   
                 }*/
                 addVisionObservation(bestEstimate, 1/bestStdDev);
+                distanceDriven = 0;
+                SmartDashboard.putString("Has Reset", "True");
             }
         }
 
@@ -157,7 +163,7 @@ public class WsPose implements Subsystem {
         }else if (estimatedPose != null){
             SmartDashboard.putNumberArray("Estimated Pose", new double[]{estimatedPose.getX(), estimatedPose.getY()});
         }
-       
+        
         
     }
     
@@ -167,11 +173,8 @@ public class WsPose implements Subsystem {
     private double cameraFOM(WsAprilTagLL bestCamera){
         double robotSpeed = swerve.speedMagnitude();
         SmartDashboard.putNumber("Robot Speed", robotSpeed);
-        double tempSpeed = swerve.speeds().omegaRadiansPerSecond;
-        double rotSpeed = Math.abs(tempSpeed);
-        SmartDashboard.putNumber("Temp Speed", tempSpeed);
-        SmartDashboard.putNumber("Robot Rotation Speed", rotSpeed);
-        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (rotSpeed * FOMConstants.ROT_SPEED);
+        SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
+        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (0.2*rotationSpeed);
     }
 
     
