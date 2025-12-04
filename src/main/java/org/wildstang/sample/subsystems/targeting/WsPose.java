@@ -174,7 +174,7 @@ public class WsPose implements Subsystem {
         double robotSpeed = swerve.speedMagnitude();
         SmartDashboard.putNumber("Robot Speed", robotSpeed);
         SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
-        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (0.2*rotationSpeed);
+        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (2*rotationSpeed);
     }
 
     
@@ -187,11 +187,11 @@ public class WsPose implements Subsystem {
         double deltaT = newTime - oldOdometryUpdateTime;
         oldOdometryUpdateTime = newTime;
 
-        distanceDriven += 0.1*(Math.abs(robotSpeed)*deltaT);
+        distanceDriven += FOMConstants.ODOMETRY_DISPLACEMENT*(Math.abs(robotSpeed)*deltaT);
         SmartDashboard.putNumber("Distance Driven", distanceDriven);
 
 
-        return (Math.abs(robotSpeed) * deltaT) * FOMConstants.ODOMETRY_DISPLACEMENT + distanceDriven;
+        return distanceDriven;
     }
 
     private WsAprilTagLL getBestCamera(){
