@@ -174,7 +174,7 @@ public class WsPose implements Subsystem {
         double robotSpeed = swerve.speedMagnitude();
         SmartDashboard.putNumber("Robot Speed", robotSpeed);
         SmartDashboard.putNumber("Rotation Speed", rotationSpeed);
-        return (robotSpeed * FOMConstants.ROBOT_SPEED) + (2*rotationSpeed);
+        return (robotSpeed * FOMConstants.CAM_CNSTANT) + (2*rotationSpeed);
     }
 
     

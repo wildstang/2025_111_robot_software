@@ -2,7 +2,7 @@ package org.wildstang.sample.subsystems.targeting;
 
 public class FOMConstants{
 
-    public static final double ROBOT_SPEED = 1;
+    public static final double CAM_CNSTANT = 0.1;
     public static final double ODOMETRY_DISPLACEMENT = 0.04;
     
 
