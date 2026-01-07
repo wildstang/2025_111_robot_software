@@ -12,9 +12,15 @@ public class SuperStructureSmartStep extends AutoStep{
     private SuperstructureSubsystem superstructure;
     private SwerveDrive swerve;
     private SuperstructurePosition pos;
+    private double dist;
 
     public SuperStructureSmartStep(SuperstructurePosition newpos){
         pos = newpos;
+        dist = 0.75;
+    }
+    public SuperStructureSmartStep(SuperstructurePosition newpos, double distance){
+        pos = newpos;
+        dist = distance;
     }
 
     @Override
@@ -25,7 +31,7 @@ public class SuperStructureSmartStep extends AutoStep{
 
     @Override
     public void update() {
-        if (swerve.distanceToTarget() < 0.75){
+        if (swerve.distanceToTarget() < dist){
             superstructure.setPosition(pos);
             setFinished();
         } else superstructure.setPosition(SuperstructurePosition.STOWED_UP);

@@ -331,9 +331,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 } else if (pose.estimatedPose.getTranslation().getDistance(newCoralPoint) - pose.estimatedPose.getTranslation().getDistance(coralPoint) < 0.5) {
                     coralPoint = newCoralPoint;
                 }
-                if (coralPoint != null) {
-                    SmartDashboard.putString("coral point", coralPoint.toString());
-                }
             }
 
             if (coralPoint != null && !coralPath.hasCoral()) {
@@ -341,10 +338,10 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 // Account for intake position so when our robot is at intakeAdjustedPoint the ground intake is centered on the coral
                 Translation2d intakeAdjustedPoint = new  Pose2d(coralPoint, odoAngle()).plus(VisionConsts.intakeOffset.inverse()).getTranslation();
                 targetPosePublisher.set(new Pose2d(intakeAdjustedPoint, new Rotation2d()));
-                SmartDashboard.putString("adjusted point", intakeAdjustedPoint.toString());
                 // Only turn if we can see the coral 
                 rotTarget = pose.turnToTarget(intakeAdjustedPoint);
-                rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5 : 0;
+                //rotSpeed = pose.getCoralPose().isPresent() ? swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5 : 0;
+                rotSpeed = swerveHelper.getRotControl(rotTarget, getGyroAngle()) * 2.5;
 
 
                 // Only drive towards if we're within 10 degrees

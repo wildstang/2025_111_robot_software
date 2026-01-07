@@ -26,14 +26,15 @@ public class Test_Climb implements Subsystem{
     private PWM servo;
     private final double startPos = -94;//230 for ~215 deg rotation, now 90 deg rotation
     private final double CLIMBED = 30;
-    private final double LOCKED = 0.65;
-    private final double OPEN = 0.0;
+    private final double LOCKED = 0.0;//was 0.65
+    private final double OPEN = 0.65;//was 0.0
     private double position;
     private boolean manual;
+    private double ns = 0.75;
 
     @Override
     public void inputUpdate(Input source) {
-        if (operatorJoystickY.getValue() > 0.5 && hasClimbed && pwmValue == 0.65) {
+        if (operatorJoystickY.getValue() > 0.5 && hasClimbed && pwmValue == LOCKED) {
             climbSpeed = -1;
             manual = true;
         } else if (operatorJoystickY.getValue() < -0.5 && hasClimbed) {
@@ -52,8 +53,10 @@ public class Test_Climb implements Subsystem{
                 pwmValue = LOCKED;
                 hasClimbed = true;
                 position = CLIMBED;
-            } else if (pwmValue == OPEN) pwmValue = LOCKED;
-            else pwmValue = OPEN;
+                ns = 0.0;
+            // } else if (pwmValue == OPEN) pwmValue = LOCKED;
+            // else pwmValue = OPEN;
+            } else ns = ns ==0.0 ? 0.75 : 0.0;
         }
     }
 
@@ -63,6 +66,7 @@ public class Test_Climb implements Subsystem{
 
         // Servo Disengaged before enabled
         servo.setPosition(OPEN);
+        pwmValue = OPEN;
         operatorJoystickY = (WsJoystickAxis) WsInputs.OPERATOR_LEFT_JOYSTICK_Y.get();
         operatorJoystickY.addInputListener(this);
         start = (WsJoystickButton) WsInputs.OPERATOR_START.get();
@@ -90,11 +94,11 @@ public class Test_Climb implements Subsystem{
             if (climb1.getPosition() > position && hasClimbed) manual = true;
         }
         climb1.setSpeed(climbSpeed);
-        servo.setPosition(pwmValue);
+        servo.setPosition(ns);
         //servo.setPosition(LOCKED);
 
         // Enaged pwmValue == 0, Off pwmValue == 0.65
-        SmartDashboard.putBoolean("# climb ratchet on", pwmValue == LOCKED);
+        SmartDashboard.putBoolean("# climb ratchet on", ns == 0.75);
         SmartDashboard.putNumber("@ pwm value", pwmValue);
         SmartDashboard.putNumber("@ servo position", servo.getPosition());
         SmartDashboard.putNumber("@ climbSpeed", climbSpeed);

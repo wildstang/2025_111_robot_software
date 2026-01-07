@@ -4,7 +4,7 @@ public enum SuperstructurePosition {
 //first value its arm second value lift position.
     CORAL_STATION_FRONT (9,0, "Coral Station Front"),
     CORAL_STATION_BACK(106,0, "Coral Station Back"),
-    ALGAE_PRESTAGED(100,0, "Algae Prestaged"),
+    ALGAE_PRESTAGED(22,0, "Algae Prestaged"),
     ALGAE_PREPICK_LOW(45, 4, "Algae Prepick Low"),
     ALGAE_PREPICK_HIGH(45, 22, "Algae Prepick High"),
     ALGAE_REEF_LOW(33.7,14.9, "Algae Pickup Low"),//was 87 4
@@ -12,9 +12,10 @@ public enum SuperstructurePosition {
     CORAL_REEF_L1(90,0, "Reef L1"),//arms was 36, lifts all +2
     CORAL_REEF_L2(85.2,17.3, "Reef L2"),//80.3, 24.5
     CORAL_REEF_L3(85.9,37.3, "Reef L3"),//80.5, 45.5
-    CORAL_REEF_L4 (79.5, 82.1, "Reef L4"),
+    CORAL_REEF_L4 (79.8, 82.1, "Reef L4"),
     ALGAE_NET_FRONT(82,81, "Algae Net Front"),
     ALGAE_NET_THROW_FRONT(70, 81, "Algae Net Front Throw"),
+    ALGAE_NET_THROW_AUTO(50, 81, "Algae Net Throw Auto"),
     ALGAE_NET_BACK(50,75,"Algae Net Back"),
     ALGAE_PROCESSOR_BACK(22,0, "Algae Proc Back"),
     ALGAE_PROCESSOR_FRONT(104,0, "Algae Proc Front"),

@@ -53,12 +53,13 @@ public class RedLeftFourObject extends AutoProgram {
         group1a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.2, 6.75), Rotation2d.fromDegrees(-200)), 1.0));
         group1a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
         group1b.addStep(new GroundIntakeCoralStep());
-        group1b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
+        group1b.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_LOW));
         group1.addStep(group1a);
         group1.addStep(group1b);
         addStep(group1);
         
         // Scores 2nd Coral
+        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L3));
         addStep(new ScoreCoralStep());
         addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
 
@@ -69,7 +70,7 @@ public class RedLeftFourObject extends AutoProgram {
         group2a.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135)), 0));
         group2a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.rightBranchFrontLeft)));
         group2b.addStep(new GroundIntakeCoralStep());
-        group2b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
+        group2b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L3));
         group2.addStep(group2a);
         group2.addStep(group2b);
         addStep(group2);
@@ -87,18 +88,25 @@ public class RedLeftFourObject extends AutoProgram {
         group3a.addStep(new SwerveToPointStep(swerve, VisionConsts.flipRot(VisionConsts.leftBranchFrontLeft)));
         //     VisionConsts.flipRot(VisionConsts.rightBranchBackLeft)}, new double[] {}, 0));
         group3b.addStep(new GroundIntakeCoralStep());
-        group3b.addStep(new AlgaePickStep(SuperstructurePosition.ALGAE_PREPICK_LOW));
+        group3b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
         //group3b.addStep(new SuperStructureSmartStep(SuperstructurePosition.CORAL_REEF_L4));
         group3.addStep(group3a);
         group3.addStep(group3b);
         addStep(group3);
 
         // Score 4th Coral
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L3));
+        //addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.CORAL_REEF_L3));
         addStep(new ScoreCoralStep());
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.AUTO_AVOID));
-        addStep(new AutoStepDelay(500));
-        addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.STOWED));
+        
+        AutoParallelStepGroup last = new AutoParallelStepGroup();
+        AutoSerialStepGroup lastarm = new AutoSerialStepGroup();
+        lastarm.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.AUTO_AVOID));
+        lastarm.addStep(new AutoStepDelay(200));
+        lastarm.addStep(SuperstructureSubsystem.setPositionStep(SuperstructurePosition.GROUND_INTAKE));
+        last.addStep(new SwerveToObjectStep(swerve, new Pose2d(new Translation2d(3.0, 6.0), Rotation2d.fromDegrees(135)), 0));
+        last.addStep(new GroundIntakeCoralStep());
+        last.addStep(lastarm);
+        addStep(last);
 
         //If we need to add more to this I'll be a very happy man
         // Our Job is done
