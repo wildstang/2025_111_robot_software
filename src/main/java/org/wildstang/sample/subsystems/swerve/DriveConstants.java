@@ -62,11 +62,11 @@ public final class DriveConstants {
     private static final double slipCurrent = 120;
     //drive with 100A stator and 50A supply limits
     private static final TalonFXConfiguration driveInitialConfig = new TalonFXConfiguration()
-        .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(100).withStatorCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(50).withSupplyCurrentLimitEnable(true));
+        .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(120).withStatorCurrentLimitEnable(true)
+        .withSupplyCurrentLimit(70).withSupplyCurrentLimitEnable(true));
     //steer with 90A stator and 30A supply limits
     private static final TalonFXConfiguration steerInitialConfig = new TalonFXConfiguration()
-        .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(90).withStatorCurrentLimitEnable(true)
+        .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(60).withStatorCurrentLimitEnable(true)
         .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true));
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     private static final Pigeon2Configuration pigeonConfigs = null;

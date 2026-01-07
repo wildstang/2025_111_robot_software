@@ -3,6 +3,7 @@ package org.wildstang.sample.subsystems.swerve;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
+import com.ctre.phoenix6.swerve.utility.PhoenixPIDController;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -68,7 +69,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     private double horizontalPower;
     private double verticalPower;
 
-    public double autoMahorizontalPowerScalar = 2.0;
     public boolean autoUsePID = true;
 
     private boolean isReef;
@@ -76,13 +76,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
     private swerveCTRE swerve = new swerveCTRE(DriveConstants.swerveCTREconsts, 
         DriveConstants.frontLeft, DriveConstants.frontRight, DriveConstants.backLeft, DriveConstants.backRight);
-    private SwerveRequest.FieldCentric driveCommand = new SwerveRequest.FieldCentric()
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withSteerRequestType(SteerRequestType.MotionMagicExpo);
-    private SwerveRequest.FieldCentricFacingAngle driveLockedCommand = new SwerveRequest.FieldCentricFacingAngle()
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-        .withHeadingPID(DriveConstants.heading_P, 0.0, DriveConstants.heading_D);
+
     private SwerveSignal swerveSignal = new SwerveSignal();
 
     private WsSwerveHelper swerveHelper = new WsSwerveHelper();
@@ -265,11 +259,8 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     @Override
     public void update() {
         gyroReading = Math.toDegrees(swerve.getRotation3d().getAngle());
-
         Logger.processInputs("Swerve", this);
-
         pose.addOdometryObservation(swerve.getState().Pose);
-
         // Reset coral point
         if (driveState != DriveType.CORALINTAKE) {
             coralPoint = null;
@@ -277,12 +268,11 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                 pose.setPipelineObject(false);
             } else pose.setPipelineObject(true);
         }
+
         if (driveState == DriveType.TELEOP) {
             if (isReef && coralPath.hasCoral()){
-                // Oops, the scoring side is on the "back" of the robot now
                 swerveSignal.setRotLocked((pose.turnToTarget(VisionConsts.reefCenter)+180)%360);
             } 
-            
             this.swerveSignal.setTranslation(horizontalPower, verticalPower);
 
         // If we want to use object detection pipeline to align to coral
@@ -290,11 +280,9 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         // Keeps driving to last seen point but doesn't turn if it can't see a coral
         } else if (driveState == DriveType.CORALINTAKE) {
             pose.setPipelineObject(true);
-
             // Update point
             if (pose.getCoralPose().isPresent()) {
                 Translation2d newCoralPoint = pose.getCoralPose().get();
-
                 // Avoid updating to a new coral after intaking
                 // Only update coralpoint if newCoralPoint is less than .5 meters further away from our robot
                 if (coralPoint == null) {
@@ -303,94 +291,44 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                     coralPoint = newCoralPoint;
                 }
             }
-
             if (coralPoint != null && !coralPath.hasCoral()) {
-
                 // Account for intake position so when our robot is at intakeAdjustedPoint the ground intake is centered on the coral
                 Translation2d intakeAdjustedPoint = new  Pose2d(coralPoint, odoAngle()).plus(VisionConsts.intakeOffset.inverse()).getTranslation();
                 targetPosePublisher.set(new Pose2d(intakeAdjustedPoint, new Rotation2d()));
-                // Only turn if we can see the coral 
-                swerveSignal.setRotLocked(pose.turnToTarget(intakeAdjustedPoint));
-
-
-                // Only drive towards if we're within 10 degrees
-                if (WsSwerveHelper.angleDist(swerveSignal.getRotTarget(), getGyroAngle()) < 80.0) {
-                    horizontalPower = pose.getAlignHorizontal(intakeAdjustedPoint)*1.2;
-                    verticalPower = pose.getAlignVertical(intakeAdjustedPoint)*1.2;
-                } else {
-                    horizontalPower = 0;
-                    verticalPower = 0;
-                }
-                double temphypot = Math.hypot(horizontalPower, verticalPower);
-                // Scale power by 
-                if (temphypot > 2.0){
-                    horizontalPower *= (autoMahorizontalPowerScalar / temphypot);
-                    verticalPower *= (autoMahorizontalPowerScalar / temphypot);
-                }
-                this.swerveSignal.setTranslation(horizontalPower, verticalPower);
+                swerveSignal.setDriveToPoint(new Pose2d(intakeAdjustedPoint, Rotation2d.fromDegrees(pose.turnToTarget(intakeAdjustedPoint))));
             } else {
                 this.swerveSignal.setTranslation(horizontalPower, verticalPower);
             }
             
-
-
         } else if (driveState == DriveType.REEFSCORE) {
-
-            // Automatically p-loop translate to scoring position
             if (superstructure.isAlgaeRemoval()) {
                 targetPose = pose.getClosestBranch(false);
             } else {
                 targetPose = pose.getClosestBranch(rightBranch);
             }
             if (!superstructure.isScoreL1()){
-                horizontalPower = horizontalPower * 0.5 + pose.getAlignHorizontal(targetPose.getTranslation());
-                verticalPower = verticalPower * 0.5 + pose.getAlignVertical(targetPose.getTranslation());
-                swerveSignal.setRotLocked(targetPose.getRotation().getDegrees());
-            } 
-            this.swerveSignal.setTranslation(horizontalPower, verticalPower);
+                swerveSignal.setDriveToPoint(targetPose);
+            } else this.swerveSignal.setTranslation(horizontalPower, verticalPower);
 
-        // Align closest scoring side to 0 and translate to right y position
         } else if (driveState == DriveType.NETSCORE) {
-            swerveSignal.setRotLocked(frontCloser(0) ? 0 : 180);
-            verticalPower = pose.getAlignVertical(VisionConsts.netScore);
-            this.swerveSignal.setTranslation(horizontalPower*0.6, 0.5*verticalPower);
+            swerveSignal.setXDriveToPoint(0.6*horizontalPower, new Pose2d
+                (VisionConsts.netScore, Rotation2d.fromDegrees(frontCloser(0) ? 0 : 180)));  
 
-        // Align closest scoring side to 90
         } else if (driveState == DriveType.PROCESSORSCORE) {
             swerveSignal.setRotLocked(270);
             this.swerveSignal.setTranslation(horizontalPower, verticalPower);
-        } else if (driveState == DriveType.CORALSTATION) {
 
+        } else if (driveState == DriveType.CORALSTATION) {
             swerveSignal.setRotLocked(pose.isClosestStationRight() ? 
                 (VisionConsts.coralStationRightHeading + ((!frontCloser(VisionConsts.coralStationRightHeading) || coralPath.hasAlgae()) ? 180 : 0))%360 :
                 (VisionConsts.coralStationLeftHeading + (!frontCloser(VisionConsts.coralStationLeftHeading) || coralPath.hasAlgae() ? 180 : 0))%360);
-            // Gyro 0 for robot centric X, Y
             this.swerveSignal.setTranslation(0.75*horizontalPower, 0.75*verticalPower);
 
-        // Autonomous period
         } else if (driveState == DriveType.AUTO) {
-            swerveSignal.setRotLocked(targetPose.getRotation().getDegrees());
-
-            horizontalPower += pose.getAlignHorizontal(targetPose.getTranslation());
-            verticalPower += pose.getAlignVertical(targetPose.getTranslation());
-
-            double temphypot = Math.hypot(horizontalPower, verticalPower);
-
-            // Scale power by 
-            if (temphypot > autoMahorizontalPowerScalar || !autoUsePID){
-                horizontalPower *= (autoMahorizontalPowerScalar / temphypot);
-                verticalPower *= (autoMahorizontalPowerScalar / temphypot);
-            }
-            this.swerveSignal.setTranslation(horizontalPower, verticalPower);
-            
-            SmartDashboard.putNumber("Auto Power X", horizontalPower);
-            SmartDashboard.putNumber("Auto Power Y", verticalPower);
-            horizontalPower = 0;
-            verticalPower = 0;
-            // Pre generated power values in set auto
+            swerveSignal.setDriveToPoint(targetPose);
         }
             
-        drive();
+        swerve.setControl(swerveSignal.drive());
         SmartDashboard.putNumber("X Power", horizontalPower);
         SmartDashboard.putNumber("Y Power", verticalPower);
         SmartDashboard.putNumber("# Robot X", pose.estimatedPose.getX());
@@ -398,7 +336,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         SmartDashboard.putNumber("Gyro Reading", getGyroAngle());
         SmartDashboard.putNumber("rotSpeed", swerveSignal.getRotation());
         SmartDashboard.putString("Drive mode", driveState.toString());
-        SmartDashboard.putBoolean("rotLocked", swerveSignal.isRotLocked());
+        SmartDashboard.putString("Drive Control", swerveSignal.currentState());
         SmartDashboard.putNumber("Rotation target", swerveSignal.getRotTarget());
         SmartDashboard.putNumber("Yaw", swerve.getPigeon2().getYaw().getValueAsDouble());
         SmartDashboard.putNumber("Roll", swerve.getPigeon2().getRoll().getValueAsDouble());
@@ -443,22 +381,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     public void setToAuto() {
         driveState = DriveType.AUTO;
     }
-
-    /**drives the robot at the current swerveSignal, and displays information for each swerve module */
-    private void drive() {
-        if (swerveSignal.isRotLocked()) {
-            swerve.setControl(driveLockedCommand.withVelocityX(swerveSignal.getVertical() * DriveConstants.maxSpeed.in(MetersPerSecond))
-            .withVelocityY(swerveSignal.getHorizontal() * DriveConstants.maxSpeed.in(MetersPerSecond))
-            .withTargetDirection(new Rotation2d(Math.toRadians(swerveSignal.getRotTarget()))));
-            //.withTargetRateFeedforward(double) to potentially include rotation rate
-        } else {
-            swerve.setControl(driveCommand.withVelocityX(swerveSignal.getVertical() * DriveConstants.maxSpeed.in(MetersPerSecond))
-                .withVelocityY(swerveSignal.getHorizontal() * DriveConstants.maxSpeed.in(MetersPerSecond))
-                .withRotationalRate(swerveSignal.getRotation() * RotationsPerSecond.of(0.75).in(RadiansPerSecond)));
-        }
-    }
-
-
 
     // Sets autonomous values from the motion profile in Driver Station relative 
     public void setAutoValues(double xVelocity, double yVelocity, double xAccel, double yAccel, Pose2d target) {
@@ -577,9 +499,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     }
     public boolean isScoringCoral(){
         return driveState == DriveType.REEFSCORE;
-    }
-    public void setAutoScalar(double scalar){
-        this.autoMahorizontalPowerScalar = scalar;
     }
 
     @Override

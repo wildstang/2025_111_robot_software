@@ -12,14 +12,10 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class SwerveMultiPointStep extends AutoStep {
 
-    private final double startingPower = 0.7;//initial power limit at the start
-    private final double timeToMaxSpeed = 0.2;//time until full speed
-
     private SwerveDrive swerve;
 
     private int index = 0;
     private Pose2d[] poses;
-    private double[] speeds;
     private double turnStartTime; // Time to start turning to the end heading
 
 
@@ -37,7 +33,6 @@ public class SwerveMultiPointStep extends AutoStep {
         this.turnStartTime = turnstart;
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
         this.poses = poses;
-        this.speeds = speeds;
     }
 
     public SwerveMultiPointStep(Pose2d[] poses, double[] speeds) {
@@ -53,7 +48,7 @@ public class SwerveMultiPointStep extends AutoStep {
     @Override
     public void update() {
 
-        swerve.setAutoValues(0,0,0,0,new Pose2d(poses[index].getTranslation(), swerve.odoAngle()));
+        swerve.setAutoValues(new Pose2d(poses[index].getTranslation(), swerve.odoAngle()));
 
         // Drive to intermediate point
         if (index < poses.length - 1) {
@@ -70,13 +65,10 @@ public class SwerveMultiPointStep extends AutoStep {
             swerve.usePID(true);
         }
         if (timer.hasElapsed(turnStartTime)) {
-            swerve.setAutoValues(0,0,0.0,0.0, poses[index]);
+            swerve.setAutoValues(poses[index]);
         } else {
-            swerve.setAutoValues(0,0,0,0,new Pose2d(poses[index].getTranslation(), swerve.odoAngle()));
+            swerve.setAutoValues(new Pose2d(poses[index].getTranslation(), swerve.odoAngle()));
         }
-
-        // Limit power by acceleration limiter or speeds value for that part of the path, if no speed in array then don't limit
-        swerve.setAutoScalar(Math.min(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed), index < speeds.length ? speeds[index] : 1));
     }
 
     @Override

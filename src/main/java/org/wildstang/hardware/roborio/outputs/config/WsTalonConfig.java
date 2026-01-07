@@ -5,7 +5,7 @@ import org.wildstang.framework.hardware.OutputConfig;
 /**
  * Contains configurations for Phoenix Talon and Victor motor controllers.
  */
-public class WsPhoenixConfig implements OutputConfig {
+public class WsTalonConfig implements OutputConfig {
 
     private int m_channel = 0;
     private double m_default;
@@ -17,7 +17,7 @@ public class WsPhoenixConfig implements OutputConfig {
      * @param channel Controller CAN constant.
      * @param controller Enumeration representing type of controller.
      */
-    public WsPhoenixConfig(int channel, WsMotorControllers controller) {
+    public WsTalonConfig(int channel, WsMotorControllers controller) {
         this(channel, controller, false, 0);
     }
 
@@ -27,7 +27,7 @@ public class WsPhoenixConfig implements OutputConfig {
      * @param controller Enumeration representing type of controller.
      * @param invert True if motor output should be inverted.
      */
-    public WsPhoenixConfig(int channel, WsMotorControllers controller, boolean invert) {
+    public WsTalonConfig(int channel, WsMotorControllers controller, boolean invert) {
         this(channel, controller, invert, 0);
     }
 
@@ -38,7 +38,7 @@ public class WsPhoenixConfig implements OutputConfig {
      * @param invert True if motor output should be inverted.
      * @param p_default Default output value.
      */
-    public WsPhoenixConfig(int channel, WsMotorControllers controller, boolean invert, double p_default) {
+    public WsTalonConfig(int channel, WsMotorControllers controller, boolean invert, double p_default) {
         m_channel = channel;
         this.controller = controller;
         this.invert = invert;

@@ -20,8 +20,6 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class ObjectIntakeStep extends AutoStep {
 
-    private final double startingPower = 0.5;//initial power limit at the start
-    private final double timeToMaxSpeed = 0.25;//time until full speed
     private SwerveDrive swerve;
     private CoralPath coralPath;
 
@@ -48,7 +46,6 @@ public class ObjectIntakeStep extends AutoStep {
             swerve.setDriveState(DriveType.AUTO);
             setFinished();
         }
-        swerve.setAutoScalar(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed));
     }
 
     @Override

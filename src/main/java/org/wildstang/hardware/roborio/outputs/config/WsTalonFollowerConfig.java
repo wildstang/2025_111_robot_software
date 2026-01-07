@@ -6,7 +6,7 @@ import org.wildstang.framework.hardware.OutputConfig;
 /**
  * Contains configurations for Phoenix Talon and Victor motor controller followers.
  */
-public class WsPhoenixFollowerConfig implements OutputConfig {
+public class WsTalonFollowerConfig implements OutputConfig {
 
     private Outputs following;
     private int m_channel = 0;
@@ -19,7 +19,7 @@ public class WsPhoenixFollowerConfig implements OutputConfig {
      * @param channel Hardware port number.
      * @param controller Enumeration representing type of controller.
      */
-    public WsPhoenixFollowerConfig(Outputs following, int channel, WsMotorControllers controller) {
+    public WsTalonFollowerConfig(Outputs following, int channel, WsMotorControllers controller) {
         this(following, channel, controller, false);
     }
 
@@ -30,7 +30,7 @@ public class WsPhoenixFollowerConfig implements OutputConfig {
      * @param controller Enumeration representing type of controller.
      * @param oppose True if the follow should oppose the direction of this motor.
      */
-    public WsPhoenixFollowerConfig(Outputs following, int channel, WsMotorControllers controller, boolean oppose) {
+    public WsTalonFollowerConfig(Outputs following, int channel, WsMotorControllers controller, boolean oppose) {
         this.following = following;
         m_channel = channel;
         this.controller = controller;

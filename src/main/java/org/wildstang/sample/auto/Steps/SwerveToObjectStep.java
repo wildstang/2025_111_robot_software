@@ -15,8 +15,6 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class SwerveToObjectStep extends AutoStep {
 
-    private final double startingPower = 0.7;//initial power limit at the start
-    private final double timeToMaxSpeed = 0.2;//time until full speed
     private SwerveDrive swerve;
     private double timeout;
     private WsPose wspose;
@@ -61,8 +59,6 @@ public class SwerveToObjectStep extends AutoStep {
                 setFinished();
             }
         }
-
-        swerve.setAutoScalar(Math.min(startingPower + timer.get() * (1 - startingPower)/(timeToMaxSpeed), 2.0));
     }
 
     @Override

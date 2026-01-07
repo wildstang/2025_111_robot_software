@@ -416,9 +416,4 @@ public class WsSpark extends WsMotorController {
      */
     public void notifyConfigChange() { }
 
-    /**
-     * Does nothing, Spark has no current limit disable function.
-     */
-    @Override
-    public void disableCurrentLimit() {}
 }
