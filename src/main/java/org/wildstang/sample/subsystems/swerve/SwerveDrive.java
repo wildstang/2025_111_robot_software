@@ -21,8 +21,6 @@ import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsSubsystems;
-import org.wildstang.sample.subsystems.CoralPath;
-import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.targeting.VisionConsts;
 import org.wildstang.sample.subsystems.targeting.WsPose;
 
@@ -71,9 +69,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
     public boolean autoUsePID = true;
 
-    private boolean isReef;
-    private boolean scoringAlgae = true;
-
     private swerveCTRE swerve = new swerveCTRE(DriveConstants.swerveCTREconsts, 
         DriveConstants.frontLeft, DriveConstants.frontRight, DriveConstants.backLeft, DriveConstants.backRight);
 
@@ -85,67 +80,23 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
 
     private WsPose pose;
-    private CoralPath coralPath;
-    private SuperstructureSubsystem superstructure;
 
     private Translation2d coralPoint;
     private Pose2d targetPose;
     StructPublisher<Pose2d> targetPosePublisher = NetworkTableInstance.getDefault().getStructTopic("targetPose", Pose2d.struct).publish();
 
 
-    public enum DriveType {TELEOP, AUTO, CROSS, REEFSCORE, NETSCORE, PROCESSORSCORE, CORALSTATION, CORALINTAKE};
+    public enum DriveType {TELEOP, AUTO, CORALINTAKE};
     private DriveType driveState;
-    public boolean rightBranch;
 
     @Override
     public void inputUpdate(Input source) {
-        if (Math.abs(operatorLeftTrigger.getValue()) > 0.5) scoringAlgae = true;
-        if (Math.abs(operatorRightTrigger.getValue()) > 0.5 || operatorX.getValue()) scoringAlgae = false;
-        if (rightBumper.getValue()) scoringAlgae = false;
         
-        // Operator controls set intent state variables
-        if (operatorLeftBumper.getValue()) {
-            rightBranch = false;
-        } 
-        if (operatorRightBumper.getValue()) {
-            rightBranch = true;
-        } 
-        if (Math.abs(leftTrigger.getValue()) > 0.5) {
-                isReef = false;
-                // Scoring algae
-                if (isScoringAlgae()) {
-                    if (pose.isAlgaeScoreNet()) {
-                        driveState = DriveType.NETSCORE;
-                    } else {
-                        driveState = DriveType.PROCESSORSCORE;
-                    }
-                } else {
-                    // No matter where we're positioning on the reef to score, we are
-                    driveState = DriveType.REEFSCORE;
-                }
-        } else if (leftBumper.getValue()) {
-                driveState = DriveType.CORALSTATION;
-                if (!superstructure.isScoreL1()){
-                    isReef = true;
-                }
-        // If we are only holding down right trigger and now left trigger (for ground intaking) and we have a face button held down then set to intake based on object detection pipeline
-        } else if ((Math.abs(rightTrigger.getValue()) > 0.5 || rightBumper.getValue()) && 
-                ((faceUp.getValue() || faceDown.getValue() || faceLeft.getValue() || faceRight.getValue()))) {
-            driveState = DriveType.CORALINTAKE;
+        
         // If none of those conditions are met, return to Teleop mode
-        } else {
+        //} else {
             driveState = DriveType.TELEOP;
-        }
-
-        //start isReef once we've picked up a coral from the ground
-        if (Math.abs(rightTrigger.getValue()) > 0.5 && !superstructure.isScoreL1() && coralPath.hasCoral()){
-            isReef = true;
-        }
-
-        // Toggle auto rotate to reef
-        if (driverStart.getValue() && source == driverStart) {
-            isReef = !isReef;
-        }
+        //}
 
         if (driveState == DriveType.AUTO) driveState = DriveType.TELEOP;
 
@@ -181,7 +132,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
             else if (faceDown.getValue()) swerveSignal.setRotLocked(240);
             else swerveSignal.setRotLocked(270);
         }
-        if (faceDown.getValue() || faceUp.getValue() || faceLeft.getValue() || faceRight.getValue()) isReef = false;
 
         //get rotational joystick
         double rotSpeed = rightStickHorizontal.getValue()*Math.abs(rightStickHorizontal.getValue());
@@ -189,7 +139,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         //if the rotational joystick is being used, the robot should not be auto tracking heading
         if (rotSpeed != 0) {
             swerveSignal.setFreeRotation(rotSpeed);
-            isReef = false;
         }
     }
  
@@ -202,8 +151,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
 
     public void initSubsystems() {
         pose = (WsPose) Core.getSubsystemManager().getSubsystem(WsSubsystems.WS_POSE);
-        coralPath = (CoralPath) Core.getSubsystemManager().getSubsystem(WsSubsystems.CORAL_PATH);
-        superstructure = (SuperstructureSubsystem) Core.getSubsystemManager().getSubsystem(WsSubsystems.SUPERSTRUCTURE);
     }
 
     public void initInputs() {
@@ -270,9 +217,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         }
 
         if (driveState == DriveType.TELEOP) {
-            if (isReef && coralPath.hasCoral()){
-                swerveSignal.setRotLocked((pose.turnToTarget(VisionConsts.reefCenter)+180)%360);
-            } 
             this.swerveSignal.setTranslation(horizontalPower, verticalPower);
 
         // If we want to use object detection pipeline to align to coral
@@ -291,39 +235,15 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
                     coralPoint = newCoralPoint;
                 }
             }
-            if (coralPoint != null && !coralPath.hasCoral()) {
-                // Account for intake position so when our robot is at intakeAdjustedPoint the ground intake is centered on the coral
-                Translation2d intakeAdjustedPoint = new  Pose2d(coralPoint, odoAngle()).plus(VisionConsts.intakeOffset.inverse()).getTranslation();
-                targetPosePublisher.set(new Pose2d(intakeAdjustedPoint, new Rotation2d()));
-                swerveSignal.setDriveToPoint(new Pose2d(intakeAdjustedPoint, Rotation2d.fromDegrees(pose.turnToTarget(intakeAdjustedPoint))));
-            } else {
+            // if (coralPoint != null && !coralPath.hasCoral()) {
+            //     // Account for intake position so when our robot is at intakeAdjustedPoint the ground intake is centered on the coral
+            //     Translation2d intakeAdjustedPoint = new  Pose2d(coralPoint, odoAngle()).plus(VisionConsts.intakeOffset.inverse()).getTranslation();
+            //     targetPosePublisher.set(new Pose2d(intakeAdjustedPoint, new Rotation2d()));
+            //     swerveSignal.setDriveToPoint(new Pose2d(intakeAdjustedPoint, Rotation2d.fromDegrees(pose.turnToTarget(intakeAdjustedPoint))));
+            // } else {
                 this.swerveSignal.setTranslation(horizontalPower, verticalPower);
-            }
+            // }
             
-        } else if (driveState == DriveType.REEFSCORE) {
-            if (superstructure.isAlgaeRemoval()) {
-                targetPose = pose.getClosestBranch(false);
-            } else {
-                targetPose = pose.getClosestBranch(rightBranch);
-            }
-            if (!superstructure.isScoreL1()){
-                swerveSignal.setDriveToPoint(targetPose);
-            } else this.swerveSignal.setTranslation(horizontalPower, verticalPower);
-
-        } else if (driveState == DriveType.NETSCORE) {
-            swerveSignal.setXDriveToPoint(0.6*horizontalPower, new Pose2d
-                (VisionConsts.netScore, Rotation2d.fromDegrees(frontCloser(0) ? 0 : 180)));  
-
-        } else if (driveState == DriveType.PROCESSORSCORE) {
-            swerveSignal.setRotLocked(270);
-            this.swerveSignal.setTranslation(horizontalPower, verticalPower);
-
-        } else if (driveState == DriveType.CORALSTATION) {
-            swerveSignal.setRotLocked(pose.isClosestStationRight() ? 
-                (VisionConsts.coralStationRightHeading + ((!frontCloser(VisionConsts.coralStationRightHeading) || coralPath.hasAlgae()) ? 180 : 0))%360 :
-                (VisionConsts.coralStationLeftHeading + (!frontCloser(VisionConsts.coralStationLeftHeading) || coralPath.hasAlgae() ? 180 : 0))%360);
-            this.swerveSignal.setTranslation(0.75*horizontalPower, 0.75*verticalPower);
-
         } else if (driveState == DriveType.AUTO) {
             swerveSignal.setDriveToPoint(targetPose);
         }
@@ -343,11 +263,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         SmartDashboard.putNumber("Pitch", swerve.getPigeon2().getPitch().getValueAsDouble());
         SmartDashboard.putNumber("@ mega2 gyro", getMegaTag2Yaw());
         SmartDashboard.putNumber("@ speed", speedMagnitude());
-        SmartDashboard.putBoolean("# right branch", rightBranch);
-        SmartDashboard.putBoolean("# left branch", !rightBranch);
-        SmartDashboard.putBoolean("# scoring element", scoringAlgae);
-        SmartDashboard.putBoolean("# robot scoring algae", isScoringAlgae());
-        SmartDashboard.putBoolean("@ is Reef", isReef);
         if (targetPose != null){
             targetPosePublisher.set(targetPose);
         }
@@ -357,7 +272,6 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     @Override
     public void resetState() {
         gyroReading = 0;
-        isReef = false;
         horizontalPower = 0;
         verticalPower = 0;
         swerveSignal.setFreeRotation(0);
@@ -459,26 +373,15 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
         driveState = state;
     }
 
-    public boolean isCoralStationFront(){
-        if (coralPath.hasAlgae()) return false;
-        return frontCloser(pose.isClosestStationRight() ? VisionConsts.coralStationRightHeading : VisionConsts.coralStationLeftHeading);
-    }
-    public boolean isProcessorFront(){
-        return false;
-        //return frontCloser(90);
-    }
-    public boolean isNetFront(){
-        return frontCloser(0);
-    }
     public boolean isAtPosition() {
         // If in coral intake mode, then compare the position + intake offset to the coralPoint
-        if (driveState == DriveType.CORALINTAKE) {
+        // if (driveState == DriveType.CORALINTAKE) {
 
-            // Return false if not seeing a coral yet
-            return coralPoint != null ? pose.estimatedPose.plus(VisionConsts.intakeOffset).getTranslation().getDistance(coralPoint) < DriveConstants.POSITION_TOLERANCE : false;
-        } else {
+        //     // Return false if not seeing a coral yet
+        //     return coralPoint != null ? pose.estimatedPose.plus(VisionConsts.intakeOffset).getTranslation().getDistance(coralPoint) < DriveConstants.POSITION_TOLERANCE : false;
+        // } else {
             return isAtPosition(DriveConstants.POSITION_TOLERANCE);
-        }
+        // }
     }
     public boolean isAtPosition(double tolerance) {
         return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation()) < tolerance && WsSwerveHelper.angleDist(pose.estimatedPose.getRotation().getDegrees(), targetPose.getRotation().getDegrees()) < 2.5;
@@ -486,20 +389,7 @@ public class SwerveDrive extends SwerveDriveTemplate implements LoggableInputs {
     public double distanceToTarget(){
         return pose.estimatedPose.getTranslation().getDistance(targetPose.getTranslation());
     }
-    public boolean isNearReef(){
-        return pose.nearReef();
-    }
-    public boolean algaeLow(){
-        //return rotTarget == 0 || rotTarget == 120 || rotTarget == 240;
-        return pose.currentID == 6 || pose.currentID == 8 || pose.currentID == 10
-             || pose.currentID == 17 || pose.currentID == 19 || pose.currentID == 21;
-    }
-    public boolean isScoringAlgae(){
-        return (scoringAlgae && !(coralPath.hasCoral() && !coralPath.hasAlgae())) || (coralPath.hasAlgae() && !coralPath.hasCoral());
-    }
-    public boolean isScoringCoral(){
-        return driveState == DriveType.REEFSCORE;
-    }
+
 
     @Override
     public void toLog(LogTable table) {

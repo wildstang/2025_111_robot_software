@@ -214,66 +214,6 @@ public class WsPose implements Subsystem {
         }
     }
 
-    /**
-     * Based on whether we are scoring left branch or right branch gets the closest scoring pose
-     * @param right True if we are scoring on the right branch
-     * @return Pose to align the robot to to score
-     */
-    public Pose2d getClosestBranch(boolean right) {
-        if (right) {
-            return estimatedPose.nearest(VisionConsts.rightBranches);
-        } else {
-            return estimatedPose.nearest(VisionConsts.leftBranches);
-        }
-    }
-
-    /**
-     * Gets closest coral station to robot to determine what direction to lock heading
-     * @return boolean true for right, false for left
-     */
-    public boolean isClosestStationRight() {
-        if (estimatedPose.getY() > VisionConsts.halfwayAcrossFieldY) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * @return true if we are on the net side of the field and should be scoring in the net if we have algae
-     */
-    public boolean isAlgaeScoreNet() {
-        return estimatedPose.getTranslation().getY() > 3.7;
-    }
-
-    /**
-     * Returns if we are near the reef and can start raising lift to staged height
-     * @return true if we are within 2.5 m of the reef center
-     */
-    public boolean nearReef() {
-        return estimatedPose.getTranslation().getDistance(VisionConsts.reefCenter) < 2.5;
-    }
-
-    /**
-     * @param target WPI blue target coordinate (m) to align with proportional control loop
-     * @return Control value for Driver Station relative X power for aligning robot to certain target
-     */
-    public double getAlignHorizontal(Translation2d target) {
-        return DriveConstants.ALIGN_P * -(target.getY() - estimatedPose.getY());
-    }
-
-    /**
-     * @param target WPI blue target coordinate (m) to align with proportional control loop
-     * @return Control value for Driver Station relative Y power for aligning robot to certain target
-     */
-    public double getAlignVertical(Translation2d target) {
-        return DriveConstants.ALIGN_P * (target.getX() - estimatedPose.getX());
-    }
-    
-    /**
-     * @param target WPI blue Target coordinate (m)
-     * @return Controller bearing degrees (aka what to plug into rotTarget)
-     */
     public double turnToTarget(Translation2d target) {
         double offsetX = target.getX() - estimatedPose.getX();
         double offsetY = target.getY() - estimatedPose.getY();

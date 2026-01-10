@@ -1,11 +1,7 @@
 package org.wildstang.sample.robot;
 
 import org.wildstang.framework.core.Subsystems;
-import org.wildstang.sample.subsystems.CoralPath;
-import org.wildstang.sample.subsystems.GroundIntake;
-import org.wildstang.sample.subsystems.Test_Climb;
 import org.wildstang.sample.subsystems.LED.LedController;
-import org.wildstang.sample.subsystems.Superstructure.SuperstructureSubsystem;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.sample.subsystems.targeting.WsPose;
 
@@ -18,11 +14,7 @@ public enum WsSubsystems implements Subsystems {
     // enumerate subsystems
     WS_POSE("Ws Pose", WsPose.class),
     SWERVE_DRIVE("Swerve Drive", SwerveDrive.class),
-    LED("Led Controller", LedController.class),
-    SUPERSTRUCTURE("Superstructure Subsystem", SuperstructureSubsystem.class),
-    CORAL_PATH("CoralPath", CoralPath.class),
-    GROUND_INTAKE("Ground Intake", GroundIntake.class),
-    CLIMB("Test_Climb", Test_Climb.class)
+    LED("Led Controller", LedController.class)
     ;
 
     /**
