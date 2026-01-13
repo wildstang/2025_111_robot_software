@@ -27,6 +27,7 @@ import java.util.Arrays;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -149,6 +150,8 @@ public class WsPose implements Subsystem {
                     }   
                 }*/
                 addVisionObservation(bestEstimate, 1/bestStdDev);
+                odometryPose = estimatedPose;
+                
                 distanceDriven = 0;
                 SmartDashboard.putString("Has Reset", "True");
             }
